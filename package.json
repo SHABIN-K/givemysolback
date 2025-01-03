@@ -23,7 +23,7 @@
     "lucide-react": "^0.303.0",
     "markdown-draft-js": "^2.4.0",
     "nanoid": "^5.0.4",
-    "next": "14.0.4",
+    "next": "14.2.22",
     "react": "^18",
     "react-dom": "^18",
     "react-draft-wysiwyg": "^1.15.0",
