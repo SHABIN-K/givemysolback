@@ -3,7 +3,7 @@ import { TrendingUp } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="text-center mb-16 py-12">
+    <section className="text-center py-12">
       <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500/10 to-orange-500/10 border border-pink-500/20 rounded-full mb-8">
         <TrendingUp className="w-4 h-4 mr-2 text-pink-400" />
         <span>Recover Lost Solana Tokens</span>

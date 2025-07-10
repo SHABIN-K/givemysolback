@@ -65,7 +65,15 @@ const SearchResults = ({ searchResults, resetSearch }) => {
           <Coins className="w-5 h-5 mr-2 text-yellow-400" />
           Token Holdings
         </h3>
-        <div className="space-y-4">
+        <div
+          className={`grid gap-4 ${
+            searchResults.tokens.length === 1
+              ? "grid-cols-1"
+              : searchResults.tokens.length === 2
+              ? "grid-cols-1 sm:grid-cols-2"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          }`}
+        >
           {searchResults.tokens.map((token, index) => (
             <div
               key={index}
@@ -106,7 +114,15 @@ const SearchResults = ({ searchResults, resetSearch }) => {
           <Sparkles className="w-5 h-5 mr-2 text-pink-400" />
           NFT Collection
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          className={`grid gap-4 ${
+            searchResults.nfts.length === 1
+              ? "grid-cols-1"
+              : searchResults.nfts.length === 2
+              ? "grid-cols-1 sm:grid-cols-2"
+              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          }`}
+        >
           {searchResults.nfts.map((nft, index) => (
             <div
               key={index}

@@ -11,16 +11,13 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch }) => {
   return (
     <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 shadow-2xl max-w-2xl mx-auto mb-16">
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-300 mb-4">
-          Enter Your Solana Wallet Address
-        </label>
         <div className="relative">
           <input
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="4Nd1mVHGtpVaZYnT6bEuBnPWZG8GqVE2xRTKnxJdV8fR..."
+            onKeyUp={handleKeyPress}
+            placeholder="Enter Your Solana Wallet Address"
             className="w-full pl-14 pr-6 py-4 text-lg bg-gray-900/80 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-500/20 transition-all"
           />
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-7 h-7 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
