@@ -1,8 +1,7 @@
 import React from "react";
 import { Search, Coins } from "lucide-react";
 
-const SearchCard = ({ address, setAddress, isSearching, handleSearch, errorMsg }) => {
-console.log(errorMsg)
+const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder }) => {
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -18,7 +17,7 @@ console.log(errorMsg)
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             onKeyUp={handleKeyPress}
-            placeholder="Enter Your Solana Wallet Address"
+            placeholder={placeholder}
             className="w-full pl-14 pr-6 py-4 text-lg bg-gray-900/80 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-500/20 transition-all"
           />
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-7 h-7 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">

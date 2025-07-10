@@ -9,33 +9,40 @@ import BackgroundElements from "./components/BackgroundElements";
 import { getUserPortfolio } from "./services/fetchTokens";
 
 function App() {
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState("J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv");
+  const [errorMsg, setErrorMsg] = useState("Enter Your Solana Wallet Address");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSearch = async () => {
     if (!address.trim()) return;
 
-    const isProbablySolanaAddress = (address) =>
-      /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+    const isProbablySolanaAddress = (address) => /^[A-Za-z0-9]{32,44}$/.test(address.trim());
 
     if (!isProbablySolanaAddress(address)) {
-      setErrorMsg("Invalid Solana address");
-      setSearchResults(null);
-      return null;
+      resetSearch();
+      setErrorMsg("Oops! Invalid Solana address");
+
+      setTimeout(() => {
+        setErrorMsg("Enter Your Solana Wallet Address");
+      }, 2800);
+      return;
     }
 
     setIsSearching(true);
     setHasSearched(false);
 
     try {
-      const tokens = await getUserPortfolio(address);
-      setSearchResults(tokens);
+      const res = await getUserPortfolio(address);
+      setSearchResults(res);
     } catch (err) {
       console.error("Error fetching portfolio", err);
-      setErrorMsg(err);
+      const message = err instanceof Error ? err.message : "Failed to fetch portfolio";
+      setErrorMsg(message);
+      setTimeout(() => {
+        setErrorMsg("Enter Your Solana Wallet Address");
+      }, 2800);
     } finally {
       setIsSearching(false);
       setHasSearched(true);
@@ -63,7 +70,7 @@ function App() {
             setAddress={setAddress}
             isSearching={isSearching}
             handleSearch={handleSearch}
-            errorMsg={errorMsg}
+            placeholder={errorMsg}
           />
 
           {hasSearched && searchResults && (

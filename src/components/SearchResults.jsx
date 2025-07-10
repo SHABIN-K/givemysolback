@@ -8,7 +8,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
       maximumFractionDigits: 2,
     }).format(num);
   };
-
+  console.log(searchResults?.tokens?.length);
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
