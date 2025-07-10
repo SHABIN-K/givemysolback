@@ -8,7 +8,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
       maximumFractionDigits: 2,
     }).format(num);
   };
-  console.log(searchResults?.tokens?.length);
+
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
@@ -150,13 +150,10 @@ const SearchResults = ({ searchResults, resetSearch }) => {
 
       {/* Action Buttons */}
       <div className="text-center">
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
-            Export Results 📊
-          </button>
+        <div className="flex flex-col sm:flex-row  justify-center">
           <button
             onClick={resetSearch}
-            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300"
+            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
           >
             Scan Another Wallet
           </button>
