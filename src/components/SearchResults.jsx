@@ -52,7 +52,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-orange-400">
-              {searchResults.tokens.length + searchResults.nfts.length}
+              {searchResults.totalAccounts}
             </div>
             <div className="text-sm text-gray-400 mt-1">Assets Found</div>
           </div>

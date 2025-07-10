@@ -1,6 +1,4 @@
 export const mockResults = {
-  totalValue: 247.83,
-  solBalance: 12.45,
   tokens: [
     {
       symbol: "BONK",
