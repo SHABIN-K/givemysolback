@@ -53,7 +53,7 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch }) => {
           <div className="text-xs text-gray-400 mt-1">Wallets Scanned</div>
         </div>
         <div className="p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl">
-          <div className="text-2xl font-bold text-orange-400">₿ 2,847</div>
+          <div className="text-2xl font-bold text-orange-400">2,847</div>
           <div className="text-xs text-gray-400 mt-1">SOL Recovered</div>
         </div>
         <div className="p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl">

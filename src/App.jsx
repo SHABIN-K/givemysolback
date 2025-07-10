@@ -81,9 +81,9 @@ function App() {
     <div className="app">
       <BackgroundElements />
 
-      <Header />
+      {/* <Header /> */}
 
-      <main className="main-content">
+      <main className="main-content p-6">
         <div className="container">
           <Hero />
 

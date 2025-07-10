@@ -11,7 +11,7 @@ const Hero = () => {
 
       <h1 className="text-5xl sm:text-7xl font-bold mb-6 leading-tight text-white">
         givemy
-        <span className="gradient-text">sol</span>
+        <span className="gradient-text">SOL</span>
         back
       </h1>
 
