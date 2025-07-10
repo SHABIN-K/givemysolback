@@ -1,7 +1,13 @@
 import React from "react";
 import { Search, Coins } from "lucide-react";
 
-const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder }) => {
+const SearchCard = ({
+  address,
+  setAddress,
+  isSearching,
+  handleSearch,
+  placeholder,
+}) => {
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -26,23 +32,25 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholde
         </div>
       </div>
 
-      <button
-        onClick={handleSearch}
-        disabled={!address.trim() || isSearching}
-        className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-      >
-        {isSearching ? (
-          <>
-            <div className="loading-spinner"></div>
-            <span>Scanning Blockchain...</span>
-          </>
-        ) : (
-          <>
-            <Search className="w-6 h-6" />
-            <span>Find My Lost Tokens 🔍</span>
-          </>
-        )}
-      </button>
+      {address && (
+        <button
+          onClick={handleSearch}
+          disabled={!address.trim() || isSearching}
+          className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          {isSearching ? (
+            <>
+              <div className="loading-spinner"></div>
+              <span>Scanning Blockchain...</span>
+            </>
+          ) : (
+            <>
+              <Search className="w-6 h-6" />
+              <span>Find My Lost Tokens 🔍</span>
+            </>
+          )}
+        </button>
+      )}
 
       <div className="mt-8 pt-6 border-t border-gray-700 grid grid-cols-3 gap-4 text-center">
         <div className="p-4 bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-xl">

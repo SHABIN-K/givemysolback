@@ -12,7 +12,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
-
+console.log(searchResults.tokens)
   return (
     <div className="max-w-4xl mx-auto mt-16">
       {/* Results Header */}
@@ -44,7 +44,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-400">
-              {searchResults.solBalance} SOL
+              {searchResults.solBalance.toFixed(4)} SOL
             </div>
             <div className="text-sm text-gray-400 mt-1">SOL Balance</div>
           </div>
@@ -80,22 +80,31 @@ const SearchResults = ({ searchResults, resetSearch }) => {
               className="flex items-center justify-between p-4 bg-gray-900/50 border border-gray-700/30 rounded-xl"
             >
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">
-                    {token.symbol.slice(0, 2)}
-                  </span>
+                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center overflow-hidden">
+                  {token.logoURI ? (
+                    <img
+                      src={token.logoURI}
+                      alt={token.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-sm">
+                      {token.symbol.slice(0, 2)}
+                    </span>
+                  )}
                 </div>
+
                 <div>
                   <div className="text-white font-semibold">{token.name}</div>
                   <div className="text-gray-400 text-sm">{token.symbol}</div>
                 </div>
               </div>
-              <div className="text-right">
+              {/* <div className="text-right">
                 <div className="text-white font-semibold">{token.balance}</div>
                 <div className="text-green-400 text-sm">
                   ${formatNumber(token.value)}
                 </div>
-              </div>
+              </div> */}
               <button
                 onClick={() => copyToClipboard(token.mint)}
                 className="p-2 text-gray-400 hover:text-white transition-colors"
