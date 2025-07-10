@@ -7,25 +7,35 @@ import Features from "./components/Features";
 import Footer from "./components/Footer";
 import BackgroundElements from "./components/BackgroundElements";
 import { getUserPortfolio } from "./services/fetchTokens";
-import { useConnection } from "@solana/kit";
+
 function App() {
-  const { connection } = useConnection();
   const [address, setAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSearch = async () => {
     if (!address.trim()) return;
+
+    const isProbablySolanaAddress = (address) =>
+      /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+
+    if (!isProbablySolanaAddress(address)) {
+      setErrorMsg("Invalid Solana address");
+      setSearchResults(null);
+      return null;
+    }
 
     setIsSearching(true);
     setHasSearched(false);
 
     try {
-      const tokens = await getUserPortfolio(connection, address);
+      const tokens = await getUserPortfolio(address);
       setSearchResults(tokens);
     } catch (err) {
       console.error("Error fetching portfolio", err);
+      setErrorMsg(err);
     } finally {
       setIsSearching(false);
       setHasSearched(true);
@@ -53,6 +63,7 @@ function App() {
             setAddress={setAddress}
             isSearching={isSearching}
             handleSearch={handleSearch}
+            errorMsg={errorMsg}
           />
 
           {hasSearched && searchResults && (

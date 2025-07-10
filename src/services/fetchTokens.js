@@ -1,11 +1,14 @@
 import { PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+// import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import solanaClient from "../client/solana";
+const TOKEN_PROGRAM_ID = new PublicKey(
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+);
 
-export const getUserPortfolio = async (connection, walletAddress) => {
+export const getUserPortfolio = async (walletAddress) => {
   const publicKey = new PublicKey(walletAddress);
 
-  const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-    publicKey,
+  const tokenAccounts = await solanaClient.getParsedTokenAccountsByOwner(publicKey,
     { programId: TOKEN_PROGRAM_ID }
   );
 

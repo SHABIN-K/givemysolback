@@ -1,7 +1,8 @@
 import React from "react";
 import { Search, Coins } from "lucide-react";
 
-const SearchCard = ({ address, setAddress, isSearching, handleSearch }) => {
+const SearchCard = ({ address, setAddress, isSearching, handleSearch, errorMsg }) => {
+console.log(errorMsg)
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
