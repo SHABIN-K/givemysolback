@@ -12,7 +12,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
-console.log(searchResults.tokens)
+
   return (
     <div className="max-w-4xl mx-auto mt-16">
       {/* Results Header */}
@@ -85,6 +85,10 @@ console.log(searchResults.tokens)
                     <img
                       src={token.logoURI}
                       alt={token.name}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/fallback-coin.png"; 
+                      }}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -118,7 +122,7 @@ console.log(searchResults.tokens)
       </div>
 
       {/* NFTs Section */}
-      <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
+      {/* <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
         <h3 className="text-xl font-bold text-white mb-6 flex items-center">
           <Sparkles className="w-5 h-5 mr-2 text-pink-400" />
           NFT Collection
@@ -155,7 +159,7 @@ console.log(searchResults.tokens)
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Action Buttons */}
       <div className="text-center">

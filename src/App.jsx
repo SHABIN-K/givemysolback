@@ -6,7 +6,7 @@ import SearchResults from "./components/SearchResults";
 import Features from "./components/Features";
 import Footer from "./components/Footer";
 import BackgroundElements from "./components/BackgroundElements";
-import { getUserPortfolio } from "./services/fetchTokens";
+import { getUserPortfolio } from "./services/getUserPortfolio";
 
 function App() {
   const [address, setAddress] = useState("J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv");
