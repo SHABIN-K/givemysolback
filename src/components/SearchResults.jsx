@@ -76,7 +76,9 @@ const SearchResults = ({ searchResults, resetSearch }) => {
             {searchResults.tokens.map((token, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-4 bg-gray-900/50 border border-gray-700/30 rounded-xl"
+                className={`flex items-center justify-between p-4 bg-gray-900/50 border border-gray-700/30 rounded-xl transition-all ${
+                  index >= 6 ? "opacity-90 blur-[0.8px]" : ""
+                }`}
               >
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center overflow-hidden">
@@ -110,20 +112,21 @@ const SearchResults = ({ searchResults, resetSearch }) => {
               </div>
             ))}
           </div>
-          {searchResults.tokens.length > 10 && (
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-gray-800/95 via-gray-800/70 to-transparent rounded-b-xl flex flex-col items-center justify-center pb-4 space-y-4">
-              <button className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden group z-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                <span className="relative flex items-center justify-center gap-2">
-                  <Coins className="w-5 h-5" />
-                  🚀 Reclaim All Tokens
-                </span>
-              </button>
-              <span className="text-gray-300 text-sm font-medium">
-                +{searchResults.totalAccounts - 20} more tokens...
+
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-gray-800/95 via-gray-800/70 to-transparent rounded-b-xl flex flex-col items-center justify-center pb-4 space-y-4">
+            <button className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden group z-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <span className="relative flex items-center justify-center gap-2">
+                <Coins className="w-5 h-5" />
+                🚀 Reclaim All Tokens
               </span>
-            </div>
-          )}
+            </button>
+            {searchResults.totalAccounts > 15 && (
+              <span className="text-gray-300 text-sm font-medium">
+                +{searchResults.totalAccounts - 15} more tokens...
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
