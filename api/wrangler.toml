@@ -4,4 +4,3 @@ compatibility_date = "2025-07-12"
 
 [observability]
 enabled = true
-

@@ -15,6 +15,15 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // 🔒 Global api key checker
+    if (env.PROJECT_MODE === "PRODUCTION") {
+      const key = request.headers.get("x-api-key");
+      if (key !== env.PRIVATE_API_KEY) {
+        return new Response("Unauthorized – Invalid API key", { status: 403 });
+      }
+    }
+
+    // ✅ Continue to route
     const handler = getHandler(path);
     if (handler && typeof handler.onRequestGet === "function") {
       return handler.onRequestGet({ request, env, ctx });

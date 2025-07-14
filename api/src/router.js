@@ -1,7 +1,7 @@
-import * as index from "./routes/index.js";
+import * as accountOverview from "./routes/account-overview.js";
 
 const routeMap = {
-  "/": index,
+  "/account-overview": accountOverview,
 };
 
 export function getHandler(pathname) {
