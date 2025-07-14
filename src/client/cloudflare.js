@@ -1,3 +1,3 @@
-const cloudflareApiUrl = "https://givemysolback.sercure-backend.workers.dev";
+const cloudflareApiUrl = "https://apigivemysolback.sercure-backend.workers.dev";
 
 export default cloudflareApiUrl;
