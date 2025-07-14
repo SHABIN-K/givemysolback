@@ -2,6 +2,55 @@ import React from "react";
 import { CheckCircle, Coins, Copy } from "lucide-react";
 
 const SearchResults = ({ searchResults, resetSearch }) => {
+  if (!searchResults || (searchResults.totalAccounts === 0 && searchResults.solBalance === 0)) {
+    return (
+      <div className="max-w-2xl mx-auto mt-16">
+        <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 text-center">
+          <div className="relative mx-auto mb-6 w-24 h-24">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl transform rotate-12 opacity-60"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-500 rounded-2xl transform -rotate-6 opacity-80"></div>
+            <div className="relative bg-gradient-to-r from-gray-800 to-gray-700 rounded-2xl p-4 border border-gray-600 flex flex-col items-center justify-center h-full">
+              <div className="text-2xl mb-1">💸</div>
+              <div className="w-8 h-0.5 bg-gray-500 rounded"></div>
+              <div className="w-6 h-0.5 bg-gray-600 rounded mt-1"></div>
+            </div>
+          </div>
+
+          <h3 className="text-2xl font-bold text-white mb-4">No Tokens Found</h3>
+          <p className="text-gray-400 mb-6 leading-relaxed">
+            This wallet appears to be empty or doesn't contain any recoverable tokens. This could mean:
+          </p>
+
+          <div className="text-left bg-gray-900/50 rounded-xl p-6 mb-6 space-y-3">
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-300 text-sm">The wallet has already been emptied</p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-300 text-sm">It's a new wallet with no transaction history</p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-gray-300 text-sm">The address might be incorrect</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={resetSearch}
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              🔍 Try Another Wallet
+            </button>
+
+            <p className="text-gray-500 text-sm">Double-check the wallet address and try again</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const formatNumber = num => {
     return new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,

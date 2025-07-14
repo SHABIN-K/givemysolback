@@ -1,15 +1,15 @@
 // import Header from "./components/Header";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import Features from "./components/Features";
 import SearchCard from "./components/SearchCard";
-import SearchResults from "./components/SearchResults";
-
 import BackgroundElements from "./components/BackgroundElements";
+const SearchResults = lazy(() => import("./components/SearchResults"));
+
 import getSolPrice from "./services/getSolPrice";
-import { getUserPortfolio } from "./services/getUserPortfolio";
+import { getAccOverview } from "./services/getAccOverview";
 
 function App() {
   const [address, setAddress] = useState("");
@@ -17,7 +17,6 @@ function App() {
   const [searchResults, setSearchResults] = useState(null);
 
   const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
   const [errorMsg, setErrorMsg] = useState("Paste Your Solana Wallet Address");
 
   useEffect(() => {
@@ -25,46 +24,29 @@ function App() {
   }, []);
 
   const handleSearch = async () => {
-    if (!address.trim()) return;
-
-    const isProbablySolanaAddress = address => /^[A-Za-z0-9]{32,44}$/.test(address.trim());
-
-    if (!isProbablySolanaAddress(address)) {
+    const walletAddress = address.trim();
+    if (!/^[A-Za-z0-9]{32,44}$/.test(walletAddress)) {
       resetSearch();
       setErrorMsg("Oops! Invalid Solana address");
-
-      setTimeout(() => {
-        setErrorMsg("Enter Your Solana Wallet Address");
-      }, 2800);
+      setTimeout(() => setErrorMsg("Enter Your Solana Wallet Address"), 2800);
       return;
     }
 
-    setIsSearching(true);
-    setHasSearched(false);
-
     try {
-      const res = await getUserPortfolio(address);
-      const totalUSD = res.solBalance * solPrice;
-      setSearchResults({
-        ...res,
-        totalUSD,
-      });
+      setIsSearching(true);
+      const data = await getAccOverview(walletAddress);
+      setSearchResults({ ...data, totalUSD: data.solBalance * solPrice });
     } catch (err) {
-      console.error("Error fetching portfolio", err);
-      const message = err instanceof Error ? err.message : "Failed to fetch portfolio";
-      setErrorMsg(message);
-      setTimeout(() => {
-        setErrorMsg("Paste Your Solana Wallet Address");
-      }, 2800);
+      console.error(err);
+      setErrorMsg(err.message || "Failed to fetch portfolio");
+      setTimeout(() => setErrorMsg("Paste Your Solana Wallet Address"), 2800);
     } finally {
       setIsSearching(false);
-      setHasSearched(true);
     }
   };
 
   const resetSearch = () => {
     setSearchResults(null);
-    setHasSearched(false);
     setAddress("");
   };
 
@@ -86,11 +68,26 @@ function App() {
             placeholder={errorMsg}
           />
 
-          {hasSearched && searchResults && <SearchResults searchResults={searchResults} resetSearch={resetSearch} />}
+          {searchResults && (
+            <Suspense
+              fallback={
+                <div className="max-w-4xl mx-auto mt-16">
+                  <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8">
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="loading-spinner"></div>
+                      <span className="text-gray-300">Loading results...</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            >
+              <SearchResults searchResults={searchResults} resetSearch={resetSearch} />
+            </Suspense>
+          )}
 
-          <Features hasSearched={hasSearched} />
+          <Features hasSearched={!!searchResults?.totalAccounts} />
 
-          <Footer hasSearched={hasSearched} />
+          <Footer hasSearched={!!searchResults?.totalAccounts} />
         </div>
       </main>
     </div>

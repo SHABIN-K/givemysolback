@@ -26,10 +26,7 @@ export async function onRequestGet({ request, env }) {
 
     // If Helius returned an error
     if (data.error) {
-      return new Response(JSON.stringify({ error: data.error.message }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: data.error.message }), { status: 500 });
     }
 
     const tokenAccounts = data.result?.value || [];
@@ -47,7 +44,7 @@ export async function onRequestGet({ request, env }) {
       const info = acc.account.data.parsed.info;
       const mint = info.mint;
       const meta = metaData.find(m => m.id === mint);
-     
+
       return {
         mint,
         symbol: meta?.symbol || "???",
@@ -65,15 +62,9 @@ export async function onRequestGet({ request, env }) {
         totalAccounts,
         hasMoreTokens,
         tokens,
-      }),
-      {
-        headers: { "Content-Type": "application/json" },
-      }
+      })
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: "Internal server error", details: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ error: "Internal server error", details: err.message }), { status: 500 });
   }
 }
