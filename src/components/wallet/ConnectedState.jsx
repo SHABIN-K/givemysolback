@@ -2,7 +2,7 @@ import React from "react";
 import { CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const ConnectedState = ({ selectedOption, onDisconnect }) => {
+const ConnectedState = ({ pubKey, selectedOption, onDisconnect }) => {
   const navigate = useNavigate();
 
   return (
@@ -17,7 +17,7 @@ const ConnectedState = ({ selectedOption, onDisconnect }) => {
         </p>
         <div className="bg-gray-900/50 rounded-xl p-3 mb-4">
           <p className="text-xs text-gray-400 mb-1">Connected Address:</p>
-          <p className="text-white font-mono text-xs break-all">4Nd1mVHGtpVaZYnT6bEuBnPWZG8GqVE2xRTKnxJdV8fR</p>
+          <p className="text-white font-mono text-xs break-all">{pubKey}</p>
         </div>
       </div>
 

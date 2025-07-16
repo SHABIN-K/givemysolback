@@ -1,15 +1,20 @@
+import CryptoJS from "crypto-js";
 import React, { useState } from "react";
-import WalletConnectionOptions from "../components/wallet/WalletConnectionOptions";
-import PrivateKeyImport from "../components/wallet/PrivateKeyImport";
-import ConnectingState from "../components/wallet/ConnectingState";
-import ConnectedState from "../components/wallet/ConnectedState";
+
+import { isValidPrivateKey } from "../utils";
+import { clearStoredKey, STORAGE_KEY } from "../utils/EncryptStorage";
+
+import { ConnectedState, ConnectingState, PrivateKeyImport, WalletConnectionOptions } from "../components/wallet";
 
 const WalletConnectionPage = () => {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [pubKey, setPubKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
-  const [privateKeyError, setPrivateKeyError] = useState("");
+  const [passphrase, setPassphrase] = useState("");
+
+  const [error, setError] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const handleConnectWallet = () => {
     setSelectedOption("connect");
@@ -22,50 +27,66 @@ const WalletConnectionPage = () => {
     }, 2000);
   };
 
-  const handleImportWallet = () => {
-    setSelectedOption("import");
-  };
-
-  const handlePrivateKeySubmit = () => {
-    // Basic validation
-    if (!privateKey.trim()) {
-      setPrivateKeyError("Private key is required");
+  const handlePrivateKeySubmit = async () => {
+    if (!privateKey || !passphrase) {
+      setError("Private key and password are required");
       return;
     }
 
-    // Simple validation - check if it looks like a private key (base58 string, roughly 88 characters)
-    if (privateKey.length < 80 || privateKey.length > 100) {
-      setPrivateKeyError("Invalid private key format");
+    if (passphrase.length < 8) {
+      setError("Use a longer password (min 8 characters)");
       return;
     }
 
-    setPrivateKeyError("");
+    const isValid = isValidPrivateKey(privateKey.trim());
+
+    if (!isValid) {
+      setError("Invalid private key. Please double-check and try again.");
+      return;
+    }
+    setError("");
+    setPubKey(isValid);
     setIsConnecting(true);
+
+    const encrypted = CryptoJS.AES.encrypt(privateKey.trim(), passphrase.trim()).toString();
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        encrypted,
+        walletAddress: isValid,
+        savedAt: Date.now(),
+      })
+    );
 
     // Simulate import process
     setTimeout(() => {
       setIsConnecting(false);
       setIsConnected(true);
-    }, 2000);
+      setPassphrase("");
+      setPrivateKey("");
+    }, 1500);
   };
 
   const handleDisconnect = () => {
+    clearStoredKey();
     setSelectedOption(null);
     setIsConnected(false);
     setIsConnecting(false);
     setPrivateKey("");
-    setPrivateKeyError("");
+    setPassphrase("");
+    setPubKey("");
+    setError("");
   };
 
   const handleBackToOptions = () => {
     setSelectedOption(null);
     setPrivateKey("");
-    setPrivateKeyError("");
+    setPassphrase("");
+    setError("");
   };
 
-  const handlePrivateKeyChange = value => {
-    setPrivateKey(value);
-    setPrivateKeyError("");
+  const handleImportWallet = () => {
+    setSelectedOption("import");
   };
 
   return (
@@ -79,8 +100,10 @@ const WalletConnectionPage = () => {
               ) : selectedOption === "import" && !isConnecting ? (
                 <PrivateKeyImport
                   privateKey={privateKey}
-                  setPrivateKey={handlePrivateKeyChange}
-                  privateKeyError={privateKeyError}
+                  setPrivateKey={setPrivateKey}
+                  passphrase={passphrase}
+                  setPassphrase={setPassphrase}
+                  error={error}
                   onSubmit={handlePrivateKeySubmit}
                   onBack={handleBackToOptions}
                 />
@@ -89,7 +112,7 @@ const WalletConnectionPage = () => {
               ) : null}
             </div>
           ) : (
-            <ConnectedState selectedOption={selectedOption} onDisconnect={handleDisconnect} />
+            <ConnectedState pubKey={pubKey} selectedOption={selectedOption} onDisconnect={handleDisconnect} />
           )}
         </div>
       </div>

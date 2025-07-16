@@ -14,6 +14,7 @@
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.2",
     "bs58": "^6.0.0",
+    "crypto-js": "^4.2.0",
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

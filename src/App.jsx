@@ -1,19 +1,23 @@
-// import Header from "./components/Header";
 import { Routes, Route } from "react-router-dom";
 import React, { useState, useEffect, lazy, Suspense } from "react";
 
 import HomePage from "./pages/HomePage";
 import Loading from "./components/Loading";
-import getSolPrice from "./services/getSolPrice";
+// import Header from "./components/Header";
 import BackgroundElements from "./components/BackgroundElements";
 
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
 const WalletConnectionPage = lazy(() => import("./pages/WalletConnectionPage"));
 
+import getSolPrice from "./services/getSolPrice";
+import { checkAndCleanupStoredKey } from "./utils/EncryptStorage";
+
+
 function App() {
   const [solPrice, setSolPrice] = useState(0);
 
   useEffect(() => {
+    checkAndCleanupStoredKey();
     getSolPrice().then(setSolPrice);
   }, []);
 

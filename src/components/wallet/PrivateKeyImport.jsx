@@ -1,7 +1,11 @@
 import React from "react";
 import { ArrowLeft, Key, AlertTriangle } from "lucide-react";
 
-const PrivateKeyImport = ({ privateKey, setPrivateKey, privateKeyError, onSubmit, onBack }) => {
+const PrivateKeyImport = ({ privateKey, setPrivateKey, passphrase, setPassphrase, error, onSubmit, onBack }) => {
+  const handleKeyPress = e => {
+    if (e.key === "Enter") onSubmit();
+  };
+
   return (
     <>
       <div className="mb-4">
@@ -37,29 +41,38 @@ const PrivateKeyImport = ({ privateKey, setPrivateKey, privateKeyError, onSubmit
 
       {/* Private Key Input */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold text-gray-300 mb-3">Private Key</label>
         <div className="relative">
           <textarea
             value={privateKey}
             onChange={e => setPrivateKey(e.target.value)}
-            placeholder="Paste your Solana private key (base58 encoded)..."
+            onKeyUp={handleKeyPress}
+            maxLength={100}
+            placeholder="Paste your Wallet private key..."
             className={`w-full px-3 py-3 bg-gray-900/80 border-2 ${
-              privateKeyError ? "border-red-500" : "border-gray-600"
-            } rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/20 transition-all resize-none h-20 font-mono text-sm`}
+              error ? "border-red-500" : "border-gray-600"
+            } rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/20 transition-all resize-none overflow-y-hidden h-20 font-mono text-sm`}
+          />
+          <input
+            type="text"
+            value={passphrase}
+            onChange={e => setPassphrase(e.target.value)}
+            placeholder="Set a password to protect your wallet..."
+            className={`w-full px-3 py-2 bg-gray-900/80 border-2 ${
+              error ? "border-red-500" : "border-gray-600"
+            } rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/20 transition-all font-mono text-sm`}
           />
         </div>
-        {privateKeyError && (
+        {error && (
           <p className="text-red-400 text-xs mt-2 flex items-center space-x-1">
             <AlertTriangle className="w-3 h-3" />
-            <span>{privateKeyError}</span>
+            <span>{error}</span>
           </p>
         )}
       </div>
 
-      {/* Import Button */}
       <button
         onClick={onSubmit}
-        disabled={!privateKey.trim()}
+        disabled={!privateKey || !passphrase}
         className="w-full bg-gradient-to-r from-orange-600 via-pink-600 to-red-500 hover:from-orange-700 hover:via-pink-700 hover:to-red-600 disabled:from-gray-600 disabled:via-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg flex items-center justify-center space-x-2"
       >
         <span>🔐 Import Wallet</span>
