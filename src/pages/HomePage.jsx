@@ -1,11 +1,8 @@
 import React, { useState, lazy, Suspense } from "react";
 
-import Hero from "../components/Hero";
-import Footer from "../components/Footer";
 import Loading from "../components/Loading";
-import Features from "../components/Features";
-import SearchCard from "../components/SearchCard";
-const SearchResults = lazy(() => import("../components/SearchResults"));
+import { Hero, Footer, Features, SearchCard } from "../components/home";
+const SearchResults = lazy(() => import("../components/home/SearchResults"));
 
 import { getAccOverview } from "../services/getAccOverview";
 
