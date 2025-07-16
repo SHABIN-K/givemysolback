@@ -1,9 +1,7 @@
 import React from "react";
-import { Wallet, Key } from "lucide-react";
 
 const ConnectingState = ({ selectedOption }) => {
   const isConnecting = selectedOption === "connect";
-  const Icon = isConnecting ? Wallet : Key;
 
   return (
     <div className="text-center py-8">

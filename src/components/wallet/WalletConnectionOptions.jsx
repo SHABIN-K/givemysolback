@@ -1,12 +1,12 @@
 import React from "react";
-import { Wallet, Key } from "lucide-react";
+import { Wallet, Key, Link } from "lucide-react";
 
 const WalletConnectionOptions = ({ onConnectWallet, onImportWallet }) => {
   return (
     <>
       <div className="text-center mb-6">
         <div className="w-16 h-16 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl">
-          <Wallet className="w-8 h-8 text-white" />
+          <Link className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-xl font-bold text-white mb-2">Choose Connection Method</h3>
         <p className="text-gray-400 text-sm px-4">Select how you want to connect your Solana wallet</p>

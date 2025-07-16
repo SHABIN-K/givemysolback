@@ -1,18 +1,14 @@
 import React, { useState } from "react";
-import { ArrowLeft, Wallet } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import WalletConnectionOptions from "../components/wallet/WalletConnectionOptions";
 import PrivateKeyImport from "../components/wallet/PrivateKeyImport";
 import ConnectingState from "../components/wallet/ConnectingState";
 import ConnectedState from "../components/wallet/ConnectedState";
 
 const WalletConnectionPage = () => {
-  const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [privateKey, setPrivateKey] = useState("");
-  const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [privateKeyError, setPrivateKeyError] = useState("");
 
   const handleConnectWallet = () => {
@@ -73,32 +69,7 @@ const WalletConnectionPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col py-4 px-4">
-      {/* Back Button */}
-      <div className="mb-4">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm">Back to Search</span>
-        </button>
-      </div>
-
-      {/* Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center px-3 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-full mb-4">
-          <Wallet className="w-3 h-3 mr-2 text-purple-400" />
-          <span className="text-xs text-purple-300 font-medium">Wallet Connection</span>
-        </div>
-
-        <h1 className="text-3xl font-bold mb-3 text-white">Connect Your Wallet</h1>
-        <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-          Choose how you want to access your wallet to reclaim your tokens
-        </p>
-      </div>
-
-      {/* Main Content - Centered and Compact */}
+    <div className="min-h-screen flex flex-col py-4">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl">
           {!isConnected ? (
@@ -109,8 +80,6 @@ const WalletConnectionPage = () => {
                 <PrivateKeyImport
                   privateKey={privateKey}
                   setPrivateKey={handlePrivateKeyChange}
-                  showPrivateKey={showPrivateKey}
-                  setShowPrivateKey={setShowPrivateKey}
                   privateKeyError={privateKeyError}
                   onSubmit={handlePrivateKeySubmit}
                   onBack={handleBackToOptions}
@@ -129,3 +98,4 @@ const WalletConnectionPage = () => {
 };
 
 export default WalletConnectionPage;
+// 4cmZxDEXJ1AVbHZognaZipNMYbz3L8M9ESpsaSeV9iRYg5M3SQYRB6MDkaGBL3CBiiR9hg5GMGy13EbaoCdrvGbM

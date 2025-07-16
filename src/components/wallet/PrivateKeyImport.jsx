@@ -1,15 +1,7 @@
 import React from "react";
-import { ArrowLeft, Key, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Key, AlertTriangle } from "lucide-react";
 
-const PrivateKeyImport = ({
-  privateKey,
-  setPrivateKey,
-  showPrivateKey,
-  setShowPrivateKey,
-  privateKeyError,
-  onSubmit,
-  onBack,
-}) => {
+const PrivateKeyImport = ({ privateKey, setPrivateKey, privateKeyError, onSubmit, onBack }) => {
   return (
     <>
       <div className="mb-4">
@@ -27,10 +19,9 @@ const PrivateKeyImport = ({
           <Key className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-xl font-bold text-white mb-2">Import Your Wallet</h3>
-        <p className="text-gray-400 text-sm px-4">Enter your private key to import your Solana wallet</p>
+        <p className="text-gray-400 text-sm px-4">Paste your private key to import your Solana wallet</p>
       </div>
 
-      {/* Security Warning */}
       <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4">
         <div className="flex items-start space-x-3">
           <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
@@ -51,18 +42,11 @@ const PrivateKeyImport = ({
           <textarea
             value={privateKey}
             onChange={e => setPrivateKey(e.target.value)}
-            placeholder="Enter your Solana private key (base58 encoded)..."
+            placeholder="Paste your Solana private key (base58 encoded)..."
             className={`w-full px-3 py-3 bg-gray-900/80 border-2 ${
               privateKeyError ? "border-red-500" : "border-gray-600"
             } rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-500/20 transition-all resize-none h-20 font-mono text-sm`}
           />
-          <button
-            type="button"
-            onClick={() => setShowPrivateKey(!showPrivateKey)}
-            className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
-          >
-            {showPrivateKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
         </div>
         {privateKeyError && (
           <p className="text-red-400 text-xs mt-2 flex items-center space-x-1">
@@ -78,7 +62,6 @@ const PrivateKeyImport = ({
         disabled={!privateKey.trim()}
         className="w-full bg-gradient-to-r from-orange-600 via-pink-600 to-red-500 hover:from-orange-700 hover:via-pink-700 hover:to-red-600 disabled:from-gray-600 disabled:via-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg flex items-center justify-center space-x-2"
       >
-        <Key className="w-4 h-4" />
         <span>🔐 Import Wallet</span>
       </button>
     </>
