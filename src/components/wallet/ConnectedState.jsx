@@ -17,7 +17,7 @@ const ConnectedState = ({ pubKey, selectedOption, onDisconnect }) => {
         </p>
         <div className="bg-gray-900/50 rounded-xl p-3 mb-4">
           <p className="text-xs text-gray-400 mb-1">Connected Address:</p>
-          <p className="text-white font-mono text-xs break-all">{pubKey}</p>
+          <p className="text-white font-mono text-xs break-all">{pubKey || "something went wrong"}</p>
         </div>
       </div>
 
