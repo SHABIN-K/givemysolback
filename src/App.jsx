@@ -4,14 +4,13 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import HomePage from "./pages/HomePage";
 import Loading from "./components/Loading";
 // import Header from "./components/Header";
+import WalletContextProvider from "./provider/WalletProvider";
 import BackgroundElements from "./components/BackgroundElements";
-
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
 const WalletConnectionPage = lazy(() => import("./pages/WalletConnectionPage"));
 
 import getSolPrice from "./services/getSolPrice";
 import { checkAndCleanupStoredKey } from "./utils/EncryptStorage";
-
 
 function App() {
   const [solPrice, setSolPrice] = useState(0);
@@ -34,7 +33,9 @@ function App() {
               path="/connect-wallet"
               element={
                 <Suspense fallback={<Loading placeholder="Please wait a moment..." />}>
-                  <WalletConnectionPage />
+                  <WalletContextProvider>
+                    <WalletConnectionPage />
+                  </WalletContextProvider>
                 </Suspense>
               }
             />
@@ -42,7 +43,9 @@ function App() {
               path="/portfolio"
               element={
                 <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
-                  <ReclaimPage />
+                  <WalletContextProvider>
+                    <ReclaimPage />
+                  </WalletContextProvider>
                 </Suspense>
               }
             />

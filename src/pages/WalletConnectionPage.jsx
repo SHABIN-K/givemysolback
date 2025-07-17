@@ -1,12 +1,18 @@
 import CryptoJS from "crypto-js";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 import { isValidPrivateKey } from "../utils";
-import { clearStoredKey, STORAGE_KEY } from "../utils/EncryptStorage";
+import { STORAGE_KEY } from "../utils/EncryptStorage";
+import useWalletManager from "../hooks/useWalletManager";
 
+import Loading from "../components/Loading";
 import { ConnectedState, ConnectingState, PrivateKeyImport, WalletConnectionOptions } from "../components/wallet";
 
 const WalletConnectionPage = () => {
+  const { setVisible } = useWalletModal();
+  const { connected, publicKey, disconnect, isChecking } = useWalletManager();
+
   const [pubKey, setPubKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
   const [passphrase, setPassphrase] = useState("");
@@ -16,16 +22,15 @@ const WalletConnectionPage = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
-  const handleConnectWallet = () => {
-    setSelectedOption("connect");
-    setIsConnecting(true);
-
-    // Simulate connection process
-    setTimeout(() => {
-      setIsConnecting(false);
+  useEffect(() => {
+    if (connected && publicKey) {
+      setPubKey(publicKey);
+      setSelectedOption("connect");
       setIsConnected(true);
-    }, 2000);
-  };
+    } else {
+      resetTostate();
+    }
+  }, [connected, publicKey]);
 
   const handlePrivateKeySubmit = async () => {
     if (!privateKey || !passphrase) {
@@ -33,8 +38,8 @@ const WalletConnectionPage = () => {
       return;
     }
 
-    if (passphrase.length < 8) {
-      setError("Use a longer password (min 8 characters)");
+    if (passphrase.length < 6) {
+      setError("Use a longer password (min 6 characters)");
       return;
     }
 
@@ -68,35 +73,35 @@ const WalletConnectionPage = () => {
   };
 
   const handleDisconnect = () => {
-    clearStoredKey();
-    setSelectedOption(null);
+    disconnect();
+    resetTostate();
+  };
+
+  const resetTostate = () => {
     setIsConnected(false);
     setIsConnecting(false);
+    setSelectedOption(null);
     setPrivateKey("");
     setPassphrase("");
     setPubKey("");
     setError("");
   };
 
-  const handleBackToOptions = () => {
-    setSelectedOption(null);
-    setPrivateKey("");
-    setPassphrase("");
-    setError("");
-  };
-
-  const handleImportWallet = () => {
-    setSelectedOption("import");
-  };
+  if (isChecking) {
+    return <Loading placeholder="Please wait a moment..." />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col py-4">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl">
-          {!isConnected ? (
+          {!isChecking && !isConnected && (
             <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
               {!selectedOption && !isConnecting ? (
-                <WalletConnectionOptions onConnectWallet={handleConnectWallet} onImportWallet={handleImportWallet} />
+                <WalletConnectionOptions
+                  onConnectWallet={() => setVisible(true)}
+                  onImportWallet={() => setSelectedOption("import")}
+                />
               ) : selectedOption === "import" && !isConnecting ? (
                 <PrivateKeyImport
                   privateKey={privateKey}
@@ -105,13 +110,15 @@ const WalletConnectionPage = () => {
                   setPassphrase={setPassphrase}
                   error={error}
                   onSubmit={handlePrivateKeySubmit}
-                  onBack={handleBackToOptions}
+                  onBack={resetTostate}
                 />
               ) : isConnecting ? (
                 <ConnectingState selectedOption={selectedOption} />
               ) : null}
             </div>
-          ) : (
+          )}
+
+          {!isChecking && (connected || isConnected) && (
             <ConnectedState pubKey={pubKey} selectedOption={selectedOption} onDisconnect={handleDisconnect} />
           )}
         </div>

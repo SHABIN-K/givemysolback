@@ -17,6 +17,32 @@ export function decryptPrivateKey(passphrase) {
   }
 }
 
+export function clearStoredKey() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+export function getImportedWallet() {
+  const item = localStorage.getItem(STORAGE_KEY);
+  if (!item) return null;
+
+  try {
+    const { walletAddress } = JSON.parse(item);
+    if (!walletAddress) return null;
+
+    return {
+      connected: true,
+      publicKey: walletAddress,
+      disconnect: () => {
+        localStorage.removeItem(STORAGE_KEY);
+        window.dispatchEvent(new Event("storage"));
+      },
+    };
+  } catch (error) {
+    console.error("Failed to parse imported wallet:", error);
+    return null;
+  }
+}
+
 export function checkAndCleanupStoredKey() {
   const item = localStorage.getItem(STORAGE_KEY);
   if (!item) return;
@@ -32,8 +58,4 @@ export function checkAndCleanupStoredKey() {
     // If corrupted or invalid, remove it too
     localStorage.removeItem(STORAGE_KEY);
   }
-}
-
-export function clearStoredKey() {
-  localStorage.removeItem(STORAGE_KEY);
 }
