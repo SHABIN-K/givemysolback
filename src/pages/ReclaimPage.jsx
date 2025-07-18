@@ -3,14 +3,14 @@ import { ArrowLeft, Coins, Zap, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ReclaimPage = () => {
-//   const navigate = useNavigate();
+    const navigate = useNavigate();
 
   return (
     <div className="min-h-screen py-8">
       {/* Back Button */}
       <div className="mb-8">
         <button
-        //   onClick={() => navigate("/connect-wallet")}
+            onClick={() => navigate("/connect-wallet")}
           className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />

@@ -4,7 +4,7 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import HomePage from "./pages/HomePage";
 import Loading from "./components/Loading";
 // import Header from "./components/Header";
-import WalletContextProvider from "./provider/WalletProvider";
+
 import BackgroundElements from "./components/BackgroundElements";
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
 const WalletConnectionPage = lazy(() => import("./pages/WalletConnectionPage"));
@@ -33,9 +33,7 @@ function App() {
               path="/connect-wallet"
               element={
                 <Suspense fallback={<Loading placeholder="Please wait a moment..." />}>
-                  <WalletContextProvider>
-                    <WalletConnectionPage />
-                  </WalletContextProvider>
+                  <WalletConnectionPage />
                 </Suspense>
               }
             />
@@ -43,9 +41,7 @@ function App() {
               path="/portfolio"
               element={
                 <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
-                  <WalletContextProvider>
-                    <ReclaimPage />
-                  </WalletContextProvider>
+                  <ReclaimPage />
                 </Suspense>
               }
             />
