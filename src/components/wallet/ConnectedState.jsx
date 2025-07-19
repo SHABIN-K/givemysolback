@@ -23,7 +23,7 @@ const ConnectedState = ({ pubKey, selectedOption, onDisconnect }) => {
 
       <div className="space-y-3">
         <button
-          onClick={() => navigate("/portfolio")}
+          onClick={() => navigate("/manage-wallet")}
           className="w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-500 hover:from-green-700 hover:via-emerald-700 hover:to-teal-600 text-white font-bold py-3 px-4 rounded-xl text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2"
         >
           <span>🚀 Continue to Reclaim</span>

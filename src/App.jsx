@@ -38,7 +38,7 @@ function App() {
               }
             />
             <Route
-              path="/portfolio"
+              path="/manage-wallet"
               element={
                 <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
                   <ReclaimPage />
