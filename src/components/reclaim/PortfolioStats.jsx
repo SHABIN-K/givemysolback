@@ -21,6 +21,6 @@ const PortfolioStats = ({ stats }) => {
       ))}
     </dl>
   );
-};
+}; 
 
 export default PortfolioStats;

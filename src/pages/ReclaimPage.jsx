@@ -3,7 +3,7 @@ import { TrendingUp, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Import components
-import PortfolioStats from "../components/reclaim/PortfolioStats";
+// import PortfolioStats from "../components/reclaim/PortfolioStats";
 import TabNavigation from "../components/reclaim/TabNavigation";
 import ZeroBalanceSection from "../components/reclaim/ZeroBalanceSection";
 import TokenSection from "../components/reclaim/TokenSection";
@@ -12,7 +12,7 @@ import TransactionSummary from "../components/reclaim/TransactionSummary";
 const ReclaimPage = () => {
   const [selectedBurnTokens, setSelectedBurnTokens] = useState(new Set());
   const [selectedVerifiedTokens, setSelectedVerifiedTokens] = useState(new Set());
-  const [activeTab, setActiveTab] = useState("tokens");
+  const [activeTab, setActiveTab] = useState("verified-tokens");
 
   // Mock data - filter tokens worth more than $1
   const zeroBalanceAccounts = [
@@ -191,7 +191,7 @@ const ReclaimPage = () => {
         <p className="text-gray-400">Select accounts to close and reclaim your SOL rent</p>
       </div>
 
-      <PortfolioStats stats={stats} />
+      {/* <PortfolioStats stats={stats} /> */}
 
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} />
 
@@ -246,6 +246,7 @@ const ReclaimPage = () => {
           <span className="sm:hidden">Process {zeroCount + totalSelected} Accounts</span>
         </button>
       </div>
+
     </div>
   );
 };
