@@ -1,13 +1,7 @@
 import React from "react";
+import { formatNumber } from "../../utils";
 
 const TransactionSummary = ({ summary }) => {
-  const formatNumber = num => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    }).format(num);
-  };
-
   return (
     <div className="bg-gradient-to-r from-purple-900/20 via-pink-900/20 to-orange-900/20 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-8">
       <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Transaction Summary</h3>

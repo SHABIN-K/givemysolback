@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle, Coins, Copy } from "lucide-react";
+import { formatNumber } from "../../utils";
 
 const SearchResults = ({ searchResults, resetSearch }) => {
   if (!searchResults || (searchResults.totalAccounts === 0 && searchResults.solBalance === 0)) {
@@ -51,13 +52,6 @@ const SearchResults = ({ searchResults, resetSearch }) => {
     );
   }
 
-  const formatNumber = num => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-  };
-
   const copyToClipboard = text => {
     navigator.clipboard.writeText(text);
   };
@@ -78,7 +72,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-400">${formatNumber(searchResults.totalUSD)}</div>
+            <div className="text-3xl font-bold text-green-400">${formatNumber(searchResults.totalUSD, 2)}</div>
             <div className="text-sm text-gray-400 mt-1">Total Value</div>
           </div>
         </div>

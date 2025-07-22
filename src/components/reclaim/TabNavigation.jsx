@@ -1,13 +1,6 @@
 import React from "react";
-import { Zap, Flame, Shield } from "lucide-react";
 
-const TabNavigation = ({ activeTab, setActiveTab, counts }) => {
-  const tabs = [
-    { id: "verified-tokens", label: "Verified Tokens", count: counts.verifiedTokens, icon: Shield, color: "blue" },
-    { id: "tokens", label: "Burn", count: counts.burnCandidates, icon: Flame, color: "red" },
-    { id: "zero-balance", label: "Zero Balance", count: counts.zeroBalance, icon: Zap, color: "green" },
-  ];
-
+const TabNavigation = ({ activeTab, setActiveTab, tabs }) => {
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
       {tabs.map(tab => {

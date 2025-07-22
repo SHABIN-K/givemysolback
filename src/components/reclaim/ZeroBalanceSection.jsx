@@ -1,14 +1,8 @@
 import React from "react";
 import { Zap } from "lucide-react";
+import { formatNumber } from "../../utils";
 
 const ZeroBalanceSection = ({ count, totalRent }) => {
-  const formatNumber = num => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    }).format(num);
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

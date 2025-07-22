@@ -12,3 +12,10 @@ export function isValidPrivateKey(base58Key) {
     return false;
   }
 }
+
+export const formatNumber = (num, maxFractionDigit = 6) => {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: maxFractionDigit,
+  }).format(num);
+};

@@ -1,5 +1,6 @@
 import React from "react";
 import { ExternalLink, CheckCircle2, Flame, Shield } from "lucide-react";
+import { formatNumber } from "../../utils";
 
 const getTypeConfig = (type, isSelected) => {
   switch (type) {
@@ -40,13 +41,6 @@ const getTypeConfig = (type, isSelected) => {
 };
 
 const TokenCard = ({ token, index, isSelected, onToggle, type }) => {
-  const formatNumber = num => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-  };
-
   const config = getTypeConfig(type, isSelected);
   const Icon = config.icon;
 
@@ -82,7 +76,7 @@ const TokenCard = ({ token, index, isSelected, onToggle, type }) => {
         <div className="text-left sm:text-right">
           {token.value && (
             <div className={`${config.valueColor} font-semibold text-sm sm:text-base`}>
-              ${formatNumber(token.value)}
+              ${formatNumber(token.value, 2)}
             </div>
           )}
         </div>

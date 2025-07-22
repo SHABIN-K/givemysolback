@@ -1,107 +1,51 @@
-import React, { useState } from "react";
-import { TrendingUp, Zap } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Zap, Flame, Shield } from "lucide-react";
 
 // Import components
-// import PortfolioStats from "../components/reclaim/PortfolioStats";
 import TabNavigation from "../components/reclaim/TabNavigation";
 import ZeroBalanceSection from "../components/reclaim/ZeroBalanceSection";
 import TokenSection from "../components/reclaim/TokenSection";
 import TransactionSummary from "../components/reclaim/TransactionSummary";
+import { burnCandidateTokens, verifiedTokens, zeroBalanceAccounts } from "../constant";
+import { getAccLookup } from "../services/getAccOverview";
+import { formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const [selectedBurnTokens, setSelectedBurnTokens] = useState(new Set());
   const [selectedVerifiedTokens, setSelectedVerifiedTokens] = useState(new Set());
-  const [activeTab, setActiveTab] = useState("verified-tokens");
+  const [accOverview, setAccOverview] = useState(null);
+  const [activeTab, setActiveTab] = useState(null);
 
-  // Mock data - filter tokens worth more than $1
-  const zeroBalanceAccounts = [
-    {
-      address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-      tokenName: "BONK",
-      rentAmount: 0.00203928,
-      status: "Zero Balance",
-      canClose: true,
-    },
-    {
-      address: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
-      tokenName: "WIF",
-      rentAmount: 0.00203928,
-      status: "Zero Balance",
-      canClose: true,
-    },
-    {
-      address: "BxnUDmKjYkKAyhwQFQCLbGqzMpKbzRjkJSzXPTbYqKjR",
-      tokenName: "PEPE",
-      rentAmount: 0.00203928,
-      status: "Zero Balance",
-      canClose: true,
-    },
-    {
-      address: "FkjXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB789",
-      tokenName: "USDC",
-      rentAmount: 0.00203928,
-      status: "Zero Balance",
-      canClose: true,
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAccLookup("J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv");
+      setAccOverview(data);
+      console.log(data);
 
-  // Only show tokens worth more than $1
-  const burnCandidateTokens = [
-    {
-      address: "GhiQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcAB",
-      tokenName: "SCAM Token",
-      symbol: "STK",
-      balance: "1,000,000",
-      value: 2.5, // More than $1
-      rentAmount: 0.00203928,
-      reason: "Worthless/Scam Token",
-      warning: "Token value is low but above $1",
-    },
-    {
-      address: "JklMNO8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB456",
-      tokenName: "Dead Project",
-      symbol: "DPJ",
-      balance: "500",
-      value: 1.25, // More than $1
-      rentAmount: 0.00203928,
-      reason: "Project Abandoned",
-      warning: "No trading activity for months",
-    },
-  ];
+      const sorted = [
+        { id: "verified-tokens", count: data.VerifiedAccCount },
+        { id: "tokens", count: data.burnTokenAccCount },
+        { id: "zero-balance", count: data.zeroBalanceAccCount },
+      ].sort((a, b) => b.count - a.count);
+  
+      setActiveTab(sorted[0].id);
+    };
 
-  const verifiedTokens = [
-    {
-      address: "So11111111111111111111111111111111111111112",
-      tokenName: "Wrapped SOL",
-      symbol: "SOL",
-      balance: "2.5",
-      value: 500.0,
-      rentAmount: 0.00203928,
-      verified: true,
-      warning: "High value token - confirm before closing",
-    },
-    {
-      address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      tokenName: "USD Coin",
-      symbol: "USDC",
-      balance: "150.00",
-      value: 150.0,
-      rentAmount: 0.00203928,
-      verified: true,
-      warning: "Stable coin with real value",
-    },
-    {
-      address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-      tokenName: "Bonk",
-      symbol: "BONK",
-      balance: "1,000,000",
-      value: 25.5,
-      rentAmount: 0.00203928,
-      verified: true,
-      warning: "Popular meme coin with value",
-    },
-  ];
+    fetchData();
+  }, []);
+
+
+  const sortedTabs = useMemo(() => {
+    if (!accOverview) return [];
+  
+    return [
+      { id: "verified-tokens", label: "Verified Tokens", count: accOverview?.VerifiedAccCount, icon: Shield, color: "blue" },
+      { id: "tokens", label: "Burn", count: accOverview?.burnTokenAccCount, icon: Flame, color: "red" },
+      { id: "zero-balance", label: "Zero Balance", count: accOverview?.zeroBalanceAccCount, icon: Zap, color: "green" },
+    ].sort((a, b) => b.count - a.count);
+  }, [accOverview]);
+
 
   const handleSelectAll = type => {
     if (type === "burn") {
@@ -160,26 +104,6 @@ const ReclaimPage = () => {
 
   const { totalSelected, totalRent, zeroCount, burnCount, verifiedCount } = getSelectedCounts();
 
-  const formatNumber = num => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    }).format(num);
-  };
-
-  // Calculate stats
-  const stats = {
-    burnCandidatesCount: burnCandidateTokens.length,
-    verifiedTokensCount: verifiedTokens.length,
-    zeroBalanceCount: zeroBalanceAccounts.length,
-  };
-
-  const tabCounts = {
-    burnCandidates: burnCandidateTokens.length,
-    verifiedTokens: verifiedTokens.length,
-    zeroBalance: zeroBalanceAccounts.length,
-  };
-
   return (
     <div className="min-h-screen py-8">
       <div className="text-center mb-8">
@@ -188,12 +112,9 @@ const ReclaimPage = () => {
           <span className="text-sm text-green-300 font-medium">Close & Reclaim</span>
         </div>
         <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
-        <p className="text-gray-400">Select accounts to close and reclaim your SOL rent</p>
       </div>
 
-      {/* <PortfolioStats stats={stats} /> */}
-
-      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} />
+      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
 
       <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
         {activeTab === "verified-tokens" && (
@@ -246,7 +167,6 @@ const ReclaimPage = () => {
           <span className="sm:hidden">Process {zeroCount + totalSelected} Accounts</span>
         </button>
       </div>
-
     </div>
   );
 };
