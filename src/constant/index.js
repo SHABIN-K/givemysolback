@@ -1,34 +1,3 @@
-export const zeroBalanceAccounts = [
-  {
-    address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    tokenName: "BONK",
-    rentAmount: 0.00203928,
-    status: "Zero Balance",
-    canClose: true,
-  },
-  {
-    address: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
-    tokenName: "WIF",
-    rentAmount: 0.00203928,
-    status: "Zero Balance",
-    canClose: true,
-  },
-  {
-    address: "BxnUDmKjYkKAyhwQFQCLbGqzMpKbzRjkJSzXPTbYqKjR",
-    tokenName: "PEPE",
-    rentAmount: 0.00203928,
-    status: "Zero Balance",
-    canClose: true,
-  },
-  {
-    address: "FkjXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB789",
-    tokenName: "USDC",
-    rentAmount: 0.00203928,
-    status: "Zero Balance",
-    canClose: true,
-  },
-];
-
 export const burnCandidateTokens = [
   {
     address: "GhiQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcAB",

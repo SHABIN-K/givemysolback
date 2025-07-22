@@ -1,5 +1,5 @@
 import bs58 from "bs58";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export function isValidPrivateKey(base58Key) {
   try {
@@ -18,4 +18,11 @@ export const formatNumber = (num, maxFractionDigit = 6) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: maxFractionDigit,
   }).format(num);
+};
+
+// const LAMPORTS_PER_SOL = 1_000_000_000;
+
+export const calculateTotalRentInSOL = (count, rentPerAccountLamports) => {
+  const totalLamports = count * rentPerAccountLamports;
+  return totalLamports / LAMPORTS_PER_SOL;
 };
