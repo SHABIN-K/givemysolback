@@ -7,7 +7,6 @@ import TabNavigation from "../components/reclaim/TabNavigation";
 import ZeroBalanceSection from "../components/reclaim/ZeroBalanceSection";
 import TokenSection from "../components/reclaim/TokenSection";
 import TransactionSummary from "../components/reclaim/TransactionSummary";
-import { burnCandidateTokens, verifiedTokens } from "../constant";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
@@ -48,16 +47,16 @@ const ReclaimPage = () => {
 
   const handleSelectAll = type => {
     if (type === "burn") {
-      if (selectedBurnTokens.size === burnCandidateTokens.length) {
+      if (selectedBurnTokens.size === accOverview?.BurnATA?.fullData.length) {
         setSelectedBurnTokens(new Set());
       } else {
-        setSelectedBurnTokens(new Set(burnCandidateTokens.map((_, i) => i)));
+        setSelectedBurnTokens(new Set(accOverview?.BurnATA?.fullData.map((_, i) => i)));
       }
     } else if (type === "verified") {
-      if (selectedVerifiedTokens.size === verifiedTokens.length) {
+      if (selectedVerifiedTokens.size === accOverview?.VerifiedAccCount) {
         setSelectedVerifiedTokens(new Set());
       } else {
-        setSelectedVerifiedTokens(new Set(verifiedTokens.map((_, i) => i)));
+        setSelectedVerifiedTokens(new Set(accOverview?.VerifiedAccounts.map((_, i) => i)));
       }
     }
   };
@@ -83,13 +82,14 @@ const ReclaimPage = () => {
   };
 
   const getSelectedCounts = () => {
-    const burnCount = selectedBurnTokens.size;
+    const defaultBurnCount = accOverview?.burnTokenAccCount - accOverview?.BurnATA?.fullData.length;
+    const burnCount = defaultBurnCount + selectedBurnTokens.size;
     const verifiedCount = selectedVerifiedTokens.size;
     const totalSelected = burnCount + verifiedCount;
 
-    const burnRent = Array.from(selectedBurnTokens).reduce((sum, i) => sum + burnCandidateTokens[i].rentAmount, 0);
-    const verifiedRent = Array.from(selectedVerifiedTokens).reduce((sum, i) => sum + verifiedTokens[i].rentAmount, 0);
-    const zeroBalanceRent = calculateTotalRentInSOL(accOverview?.zeroBalanceAccCount, accOverview?.rentPerAccountLamports);
+    const burnRent = calculateTotalRentInSOL(burnCount);
+    const verifiedRent = calculateTotalRentInSOL(verifiedCount);
+    const zeroBalanceRent = calculateTotalRentInSOL(accOverview?.zeroBalanceAccCount);
 
     const totalRent = burnRent + verifiedRent + zeroBalanceRent;
 
@@ -104,7 +104,7 @@ const ReclaimPage = () => {
   };
 
   const { totalSelected, totalRent, zeroCount, zeroBalanceRent, burnCount, verifiedCount } = getSelectedCounts();
-  const hasMoreData = true;
+
   return (
     <div className="min-h-screen py-8">
       <div className="text-center mb-8">
@@ -118,7 +118,7 @@ const ReclaimPage = () => {
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
 
       <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
-        {hasMoreData && (
+        {accOverview?.hasMoreData && (
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
             <div className="flex items-start space-x-3">
               <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
@@ -135,10 +135,11 @@ const ReclaimPage = () => {
             </div>
           </div>
         )}
+
         {activeTab === "verified-tokens" && (
           <TokenSection
             type="verified"
-            tokens={verifiedTokens}
+            tokens={accOverview?.VerifiedAccounts}
             tokensCount={accOverview?.VerifiedAccCount || 0}
             selectedTokens={selectedVerifiedTokens}
             onToggleSelection={index => toggleSelection("verified", index)}
@@ -150,7 +151,7 @@ const ReclaimPage = () => {
           <TokenSection
             type="burn"
             tokens={accOverview?.BurnATA?.fullData}
-            tokensCount={accOverview?.burnTokenAccCount || 0}
+            tokensCount={accOverview?.BurnATA?.fullData.length || 0}
             selectedTokens={selectedBurnTokens}
             onToggleSelection={index => toggleSelection("burn", index)}
             onSelectAll={() => handleSelectAll("burn")}

@@ -22,7 +22,7 @@ export const formatNumber = (num, maxFractionDigit = 6) => {
 
 // const LAMPORTS_PER_SOL = 1_000_000_000;
 
-export const calculateTotalRentInSOL = (count, rentPerAccountLamports) => {
-  const totalLamports = count * rentPerAccountLamports;
+export const calculateTotalRentInSOL = count => {
+  const totalLamports = count * 2039280;
   return totalLamports / LAMPORTS_PER_SOL;
 };
