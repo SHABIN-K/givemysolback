@@ -25,8 +25,8 @@ This tool scans a connected wallet, highlights verified tokens, burnable account
 ### 🖼️ Screenshots
 
 > Here's a sneak peek of the local development version:
-<img width="1908" height="953" alt="Screenshot 2025-07-23 143847" src="https://github.com/user-attachments/assets/60fdee8d-83f8-4ace-8047-66c3dd0bee5a" />
-<img width="1869" height="883" alt="Screenshot 2025-07-23 143858" src="https://github.com/user-attachments/assets/858178aa-d16e-4fd8-9f4f-215ee6c689f5" />
+<img width="1908" height="953" alt="Screenshot 2025-07-23 143847-min" src="https://github.com/user-attachments/assets/19a2765c-8970-4ccc-b333-ab6f9b14c463" />
+<img width="1869" height="883" alt="Screenshot 2025-07-23 143858-min" src="https://github.com/user-attachments/assets/b0d3b352-8bf1-4c2e-8b9a-ded05c86b38d" />
 
 ---
 
