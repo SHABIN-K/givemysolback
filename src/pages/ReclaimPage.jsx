@@ -1,19 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { Zap, Flame, Shield } from "lucide-react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 
-// Import components
-import TabNavigation from "../components/reclaim/TabNavigation";
-import ZeroBalanceSection from "../components/reclaim/ZeroBalanceSection";
-import TokenSection from "../components/reclaim/TokenSection";
-import TransactionSummary from "../components/reclaim/TransactionSummary";
+import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
+
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const [accOverview, setAccOverview] = useState(null);
-  const [selectedBurnTokens, setSelectedBurnTokens] = useState(new Set());
-  const [selectedVerifiedTokens, setSelectedVerifiedTokens] = useState(new Set());
+  const [selectedBurn, setSelectedBurn] = useState(new Set());
+  const [selectedVerified, setSelectedVerified] = useState(new Set());
 
   const [activeTab, setActiveTab] = useState(null);
 
@@ -21,7 +17,6 @@ const ReclaimPage = () => {
     const fetchData = async () => {
       const data = await getAccLookup("J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv");
       setAccOverview(data);
-      console.log(data);
 
       const sorted = [
         { id: "verified-tokens", count: data.VerifiedAccCount },
@@ -45,65 +40,53 @@ const ReclaimPage = () => {
     ].sort((a, b) => b.count - a.count);
   }, [accOverview]);
 
-  const handleSelectAll = type => {
-    if (type === "burn") {
-      if (selectedBurnTokens.size === accOverview?.BurnATA?.fullData.length) {
-        setSelectedBurnTokens(new Set());
-      } else {
-        setSelectedBurnTokens(new Set(accOverview?.BurnATA?.fullData.map((_, i) => i)));
-      }
-    } else if (type === "verified") {
-      if (selectedVerifiedTokens.size === accOverview?.VerifiedAccCount) {
-        setSelectedVerifiedTokens(new Set());
-      } else {
-        setSelectedVerifiedTokens(new Set(accOverview?.VerifiedAccounts.map((_, i) => i)));
-      }
-    }
-  };
+  const handleToggle = useCallback((type, index) => {
+    const setSelected = type === "burn" ? setSelectedBurn : setSelectedVerified;
+    const selected = type === "burn" ? selectedBurn : selectedVerified;
 
-  const toggleSelection = (type, index) => {
-    if (type === "burn") {
-      const newSet = new Set(selectedBurnTokens);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      setSelectedBurnTokens(newSet);
-    } else if (type === "verified") {
-      const newSet = new Set(selectedVerifiedTokens);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      setSelectedVerifiedTokens(newSet);
-    }
-  };
+    const updated = new Set(selected);
+    updated.has(index) ? updated.delete(index) : updated.add(index);
+    setSelected(updated);
+  },[selectedBurn, selectedVerified]);
 
-  const getSelectedCounts = () => {
-    const defaultBurnCount = accOverview?.burnTokenAccCount - accOverview?.BurnATA?.fullData.length;
-    const burnCount = defaultBurnCount + selectedBurnTokens.size;
-    const verifiedCount = selectedVerifiedTokens.size;
-    const totalSelected = burnCount + verifiedCount;
+  const handleSelectAll = useCallback((type) => {
+    if (!accOverview) return;
+
+    if (type === "burn") {
+      const full = accOverview.BurnATA?.fullData || [];
+      setSelectedBurn(selectedBurn.size === full.length ? new Set() : new Set(full.map((_, i) => i)));
+    }
+
+    if (type === "verified") {
+      const accounts = accOverview.VerifiedAccounts || [];
+      const allSelected = selectedVerified.size === accOverview.VerifiedAccCount;
+      setSelectedVerified(allSelected ? new Set() : new Set(accounts.map((_, i) => i)));
+    }
+  },[accOverview, selectedBurn, selectedVerified]);
+
+  const summary = useMemo(() => {
+    if (!accOverview) return null;
+
+    const fullBurnCount = accOverview.BurnATA?.fullData?.length || 0;
+    const burnCount = accOverview.burnTokenAccCount - fullBurnCount + selectedBurn.size;
+    const verifiedCount = selectedVerified.size;
+    const zeroCount = accOverview.zeroBalanceAccCount;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
     const verifiedRent = calculateTotalRentInSOL(verifiedCount);
-    const zeroBalanceRent = calculateTotalRentInSOL(accOverview?.zeroBalanceAccCount);
+    const zeroBalanceRent = calculateTotalRentInSOL(zeroCount);
 
     const totalRent = burnRent + verifiedRent + zeroBalanceRent;
 
     return {
-      totalSelected,
-      totalRent,
-      zeroCount: accOverview?.zeroBalanceAccCount,
-      zeroBalanceRent,
       burnCount,
       verifiedCount,
+      zeroCount,
+      totalSelected: burnCount + verifiedCount,
+      totalRent,
+      zeroBalanceRent,
     };
-  };
-
-  const { totalSelected, totalRent, zeroCount, zeroBalanceRent, burnCount, verifiedCount } = getSelectedCounts();
+  }, [accOverview, selectedBurn, selectedVerified]);
 
   return (
     <div className="min-h-screen py-8">
@@ -141,8 +124,8 @@ const ReclaimPage = () => {
             type="verified"
             tokens={accOverview?.VerifiedAccounts}
             tokensCount={accOverview?.VerifiedAccCount || 0}
-            selectedTokens={selectedVerifiedTokens}
-            onToggleSelection={index => toggleSelection("verified", index)}
+            selectedTokens={selectedVerified}
+            onToggleSelection={i => handleToggle("verified", i)}
             onSelectAll={() => handleSelectAll("verified")}
           />
         )}
@@ -152,23 +135,23 @@ const ReclaimPage = () => {
             type="burn"
             tokens={accOverview?.BurnATA?.fullData}
             tokensCount={accOverview?.BurnATA?.fullData.length || 0}
-            selectedTokens={selectedBurnTokens}
-            onToggleSelection={index => toggleSelection("burn", index)}
+            selectedTokens={selectedBurn}
+            onToggleSelection={i => handleToggle("burn", i)}
             onSelectAll={() => handleSelectAll("burn")}
           />
         )}
 
-        {activeTab === "zero-balance" && <ZeroBalanceSection count={zeroCount} totalRent={zeroBalanceRent} />}
+        {activeTab === "zero-balance" && <ZeroBalanceSection count={summary.zeroCount} totalRent={summary.zeroBalanceRent} />}
       </div>
 
       {/* Transaction Summary */}
-      {(totalSelected > 0 || zeroCount > 0) && (
+      {(summary?.totalSelected > 0 || summary?.zeroCount > 0) && (
         <TransactionSummary
           summary={{
-            zeroCount,
-            burnCount,
-            verifiedCount,
-            totalRent,
+            burnCount: summary.burnCount,
+            verifiedCount: summary.verifiedCount,
+            zeroCount: summary.zeroCount,
+            totalRent: summary.totalRent,
           }}
         />
       )}
@@ -178,9 +161,9 @@ const ReclaimPage = () => {
         <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base">
           <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="hidden sm:inline">
-            Process {zeroCount + totalSelected} Accounts & Reclaim {formatNumber(totalRent)} SOL
+            Process {summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim {formatNumber(summary?.totalRent)} SOL
           </span>
-          <span className="sm:hidden">Process {zeroCount + totalSelected} Accounts</span>
+          <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
         </button>
       </div>
     </div>
