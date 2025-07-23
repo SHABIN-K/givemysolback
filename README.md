@@ -1,12 +1,45 @@
-# React + Vite
+# 💸 GiveMySolBack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**GiveMySolBack** is a full-stack Solana tool designed to help users reclaim SOL locked in unused or empty token accounts.
 
-Currently, two official plugins are available:
+On the Solana network, inactive or zero-balance token accounts still consume rent. This app identifies such accounts and helps users safely close them — freeing up SOL and improving wallet hygiene.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚧 Project Status
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+> **GiveMySolBack** is currently under development.  
+> We're sharing this early to get feedback and help the community start saving SOL today.
+
+---
+
+## ⚡️ What This App Does
+
+- Scans your wallet for all token accounts  
+- Highlights empty, inactive, or burned token accounts  
+- Helps you reclaim rent by closing unnecessary accounts  
+- Warns you before touching verified or valuable tokens  
+
+---
+
+## 💰 Support the Project
+
+This project involves RPC usage and other infrastructure costs.  
+If you find it useful and want to support its growth, consider sponsoring us or helping cover operational expenses.
+
+---
+
+## 🎯 Goal
+
+To make it easy for every Solana user to clean up their wallet, save rent, and avoid accidental loss of important assets — all through a simple and powerful UI.
+
+---
+
+## 🧠 Why This Matters
+
+Many users don’t realize they’re losing SOL to rent fees from old or unused accounts.  
+**GiveMySolBack** exists to fix that — fast.
+
+---
+
+Made with ❤️ for the Solana community.
