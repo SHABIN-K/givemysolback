@@ -1,8 +1,8 @@
 # 💸 GiveMySolBack
 
-**GiveMySolBack** is a full-stack Solana tool designed to help users reclaim SOL locked in unused or empty token accounts.
+**GiveMySolBack** is a full-stack Solana utility that helps users identify and safely close empty or inactive token accounts, reclaiming lost SOL tied up in rent.
 
-On the Solana network, inactive or zero-balance token accounts still consume rent. This app identifies such accounts and helps users safely close them — freeing up SOL and improving wallet hygiene.
+This tool scans a connected wallet, highlights verified tokens, burnable accounts, and zero-balance accounts — making it easier for users to manage their Solana wallet and recover SOL effortlessly.
 
 ---
 
@@ -22,16 +22,18 @@ On the Solana network, inactive or zero-balance token accounts still consume ren
 
 ---
 
-## 💰 Support the Project
+### 🖼️ Screenshots
 
-This project involves RPC usage and other infrastructure costs.  
-If you find it useful and want to support its growth, consider sponsoring us or helping cover operational expenses.
+> Here's a sneak peek of the local development version:
+<img width="1908" height="953" alt="Screenshot 2025-07-23 143847" src="https://github.com/user-attachments/assets/60fdee8d-83f8-4ace-8047-66c3dd0bee5a" />
+<img width="1869" height="883" alt="Screenshot 2025-07-23 143858" src="https://github.com/user-attachments/assets/858178aa-d16e-4fd8-9f4f-215ee6c689f5" />
 
 ---
 
-## 🎯 Goal
+### 🤝 Looking for Sponsors
 
-To make it easy for every Solana user to clean up their wallet, save rent, and avoid accidental loss of important assets — all through a simple and powerful UI.
+This project interacts with on-chain accounts and RPCs, which comes with infrastructure costs (especially for mainnet access).  
+If you find this tool helpful or want to support its growth, **sponsorship is appreciated** to help cover RPC and hosting expenses.
 
 ---
 
