@@ -1,8 +1,9 @@
 import { Zap, Flame, Shield } from "lucide-react";
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, lazy } from "react";
 
+const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
-import TransactionSettings from "../components/reclaim/Transaction";
+
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
@@ -90,7 +91,7 @@ const ReclaimPage = () => {
     };
   }, [accOverview, selected]);
 
-  // Map active tab to corresponding component
+
   const tabComponents = {
     "verified-tokens": (
       <TokenSection
@@ -117,10 +118,6 @@ const ReclaimPage = () => {
 
   const handleProcessClick = () => {
     setShowTransactionSettings(true);
-  };
-
-  const handleBackToPortfolio = () => {
-    setShowTransactionSettings(false);
   };
 
   const handleProceedTransaction = () => {
@@ -166,10 +163,10 @@ const ReclaimPage = () => {
       {(summary?.totalSelected > 0 || summary?.zeroCount > 0) && (
         <TransactionSummary
           summary={{
-            burnCount: summary.burnCount,
-            verifiedCount: summary.verifiedCount,
-            zeroCount: summary.zeroCount,
-            totalRent: summary.totalRent,
+            burnCount: summary?.burnCount,
+            verifiedCount: summary?.verifiedCount,
+            zeroCount: summary?.zeroCount,
+            totalRent: summary?.totalRent,
           }}
         />
       )}
@@ -191,7 +188,7 @@ const ReclaimPage = () => {
         </div>
       )}
 
-      {showTransactionSettings && <TransactionSettings onBack={handleBackToPortfolio} onProceed={handleProceedTransaction} />}
+      {showTransactionSettings && <TxConfig onProceed={handleProceedTransaction} />}
     </div>
   );
 };
