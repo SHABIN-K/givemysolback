@@ -8,8 +8,7 @@ import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const [accOverview, setAccOverview] = useState(null);
-  const [selectedBurn, setSelectedBurn] = useState(new Set());
-  const [selectedVerified, setSelectedVerified] = useState(new Set());
+  const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
 
   const [activeTab, setActiveTab] = useState(null);
 
@@ -41,35 +40,37 @@ const ReclaimPage = () => {
   }, [accOverview]);
 
   const handleToggle = useCallback((type, index) => {
-    const setSelected = type === "burn" ? setSelectedBurn : setSelectedVerified;
-    const selected = type === "burn" ? selectedBurn : selectedVerified;
+    setSelected(prev => {
+      const updated = new Set(prev[type]);
+      updated.has(index) ? updated.delete(index) : updated.add(index);
+      return { ...prev, [type]: updated };
+    });
+  }, []);
 
-    const updated = new Set(selected);
-    updated.has(index) ? updated.delete(index) : updated.add(index);
-    setSelected(updated);
-  },[selectedBurn, selectedVerified]);
-
-  const handleSelectAll = useCallback((type) => {
-    if (!accOverview) return;
-
-    if (type === "burn") {
-      const full = accOverview.BurnATA?.fullData || [];
-      setSelectedBurn(selectedBurn.size === full.length ? new Set() : new Set(full.map((_, i) => i)));
-    }
-
-    if (type === "verified") {
-      const accounts = accOverview.VerifiedAccounts || [];
-      const allSelected = selectedVerified.size === accOverview.VerifiedAccCount;
-      setSelectedVerified(allSelected ? new Set() : new Set(accounts.map((_, i) => i)));
-    }
-  },[accOverview, selectedBurn, selectedVerified]);
+  const handleSelectAll = useCallback(
+    type => {
+      if (!accOverview) return;
+      setSelected(prev => {
+        if (type === "burn") {
+          const full = accOverview.BurnATA?.fullData || [];
+          return { ...prev, burn: prev.burn.size === full.length ? new Set() : new Set(full.map((_, i) => i)) };
+        }
+        if (type === "verified") {
+          const accounts = accOverview.VerifiedAccounts || [];
+          return { ...prev, verified: prev.verified.size === accounts.length ? new Set() : new Set(accounts.map((_, i) => i)) };
+        }
+        return prev;
+      });
+    },
+    [accOverview]
+  );
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
 
     const fullBurnCount = accOverview.BurnATA?.fullData?.length || 0;
-    const burnCount = accOverview.burnTokenAccCount - fullBurnCount + selectedBurn.size;
-    const verifiedCount = selectedVerified.size;
+    const burnCount = accOverview.burnTokenAccCount - fullBurnCount + selected.burn.size;
+    const verifiedCount = selected.verified.size;
     const zeroCount = accOverview.zeroBalanceAccCount;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
@@ -86,7 +87,32 @@ const ReclaimPage = () => {
       totalRent,
       zeroBalanceRent,
     };
-  }, [accOverview, selectedBurn, selectedVerified]);
+  }, [accOverview, selected]);
+
+  // Map active tab to corresponding component
+  const tabComponents = {
+    "verified-tokens": (
+      <TokenSection
+        type="verified"
+        tokens={accOverview?.VerifiedAccounts}
+        tokensCount={accOverview?.VerifiedAccCount || 0}
+        selectedTokens={selected.verified}
+        onToggleSelection={i => handleToggle("verified", i)}
+        onSelectAll={() => handleSelectAll("verified")}
+      />
+    ),
+    tokens: (
+      <TokenSection
+        type="burn"
+        tokens={accOverview?.BurnATA?.fullData}
+        tokensCount={accOverview?.BurnATA?.fullData?.length || 0}
+        selectedTokens={selected.burn}
+        onToggleSelection={i => handleToggle("burn", i)}
+        onSelectAll={() => handleSelectAll("burn")}
+      />
+    ),
+    "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
+  };
 
   return (
     <div className="min-h-screen py-8">
@@ -119,29 +145,7 @@ const ReclaimPage = () => {
           </div>
         )}
 
-        {activeTab === "verified-tokens" && (
-          <TokenSection
-            type="verified"
-            tokens={accOverview?.VerifiedAccounts}
-            tokensCount={accOverview?.VerifiedAccCount || 0}
-            selectedTokens={selectedVerified}
-            onToggleSelection={i => handleToggle("verified", i)}
-            onSelectAll={() => handleSelectAll("verified")}
-          />
-        )}
-
-        {activeTab === "tokens" && (
-          <TokenSection
-            type="burn"
-            tokens={accOverview?.BurnATA?.fullData}
-            tokensCount={accOverview?.BurnATA?.fullData.length || 0}
-            selectedTokens={selectedBurn}
-            onToggleSelection={i => handleToggle("burn", i)}
-            onSelectAll={() => handleSelectAll("burn")}
-          />
-        )}
-
-        {activeTab === "zero-balance" && <ZeroBalanceSection count={summary.zeroCount} totalRent={summary.zeroBalanceRent} />}
+        {tabComponents[activeTab]}
       </div>
 
       {/* Transaction Summary */}
@@ -158,7 +162,10 @@ const ReclaimPage = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-3 sm:gap-4">
-        <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base">
+        <button
+          aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
+          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
+        >
           <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="hidden sm:inline">
             Process {summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim {formatNumber(summary?.totalRent)} SOL

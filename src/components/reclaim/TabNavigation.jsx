@@ -18,11 +18,7 @@ const TabNavigation = ({ activeTab, setActiveTab, tabs }) => {
           >
             <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>{tab.label}</span>
-            <span
-              className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs ${
-                isActive ? `bg-${tab.color}-500/30` : "bg-gray-700"
-              }`}
-            >
+            <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs ${isActive ? `bg-${tab.color}-500/30` : "bg-gray-700"}`}>
               {tab.count}
             </span>
           </button>
