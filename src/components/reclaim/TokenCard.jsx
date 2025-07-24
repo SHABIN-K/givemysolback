@@ -6,9 +6,7 @@ const getTypeConfig = (type, isSelected) => {
   switch (type) {
     case "burn":
       return {
-        bgColor: isSelected
-          ? "bg-red-500/10 border-red-500/30"
-          : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
+        bgColor: isSelected ? "bg-red-500/10 border-red-500/30" : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
         checkboxColor: isSelected ? "bg-red-500 border-red-500" : "border-gray-600",
         icon: Flame,
         iconBg: "from-red-600 to-orange-500",
@@ -17,9 +15,7 @@ const getTypeConfig = (type, isSelected) => {
       };
     case "verified":
       return {
-        bgColor: isSelected
-          ? "bg-blue-500/10 border-blue-500/30"
-          : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
+        bgColor: isSelected ? "bg-blue-500/10 border-blue-500/30" : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
         checkboxColor: isSelected ? "bg-blue-500 border-blue-500" : "border-gray-600",
         icon: Shield,
         iconBg: "from-blue-600 to-purple-500",
@@ -28,9 +24,7 @@ const getTypeConfig = (type, isSelected) => {
       };
     default:
       return {
-        bgColor: isSelected
-          ? "bg-green-500/10 border-green-500/30"
-          : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
+        bgColor: isSelected ? "bg-green-500/10 border-green-500/30" : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
         checkboxColor: isSelected ? "bg-green-500 border-green-500" : "border-gray-600",
         icon: CheckCircle2,
         iconBg: "from-gray-600 to-gray-500",
@@ -75,9 +69,7 @@ const TokenCard = ({ token, index, isSelected, onToggle, type }) => {
       <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4">
         <div className="text-left sm:text-right">
           {token.value && (
-            <div className={`${config.valueColor} font-semibold text-sm sm:text-base`}>
-              ${formatNumber(token.value, 2)}
-            </div>
+            <div className={`${config.valueColor} font-semibold text-sm sm:text-base`}>${formatNumber(token.value, 2)}</div>
           )}
         </div>
 

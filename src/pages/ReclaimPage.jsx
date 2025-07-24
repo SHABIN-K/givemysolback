@@ -2,7 +2,7 @@ import { Zap, Flame, Shield } from "lucide-react";
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
-
+import TransactionSettings from "../components/reclaim/Transaction";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
@@ -11,6 +11,7 @@ const ReclaimPage = () => {
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
 
   const [activeTab, setActiveTab] = useState(null);
+  const [showTransactionSettings, setShowTransactionSettings] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,6 +115,19 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
+  const handleProcessClick = () => {
+    setShowTransactionSettings(true);
+  };
+
+  const handleBackToPortfolio = () => {
+    setShowTransactionSettings(false);
+  };
+
+  const handleProceedTransaction = () => {
+    // Handle transaction execution
+    console.log("Executing transaction...");
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="text-center mb-8">
@@ -161,18 +175,23 @@ const ReclaimPage = () => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col gap-3 sm:gap-4">
-        <button
-          aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
-          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
-        >
-          <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">
-            Process {summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim {formatNumber(summary?.totalRent)} SOL
-          </span>
-          <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
-        </button>
-      </div>
+      {!showTransactionSettings && (
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <button
+            onClick={handleProcessClick}
+            aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
+          >
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">
+              Process {summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim {formatNumber(summary?.totalRent)} SOL
+            </span>
+            <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
+          </button>
+        </div>
+      )}
+
+      {showTransactionSettings && <TransactionSettings onBack={handleBackToPortfolio} onProceed={handleProceedTransaction} />}
     </div>
   );
 };
