@@ -1,6 +1,7 @@
 import { Zap, Flame, Shield } from "lucide-react";
-import React, { useEffect, useMemo, useState, useCallback, lazy } from "react";
+import React, { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
 
+import Loading from "../components/Loading";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
@@ -90,7 +91,6 @@ const ReclaimPage = () => {
       zeroBalanceRent,
     };
   }, [accOverview, selected]);
-
 
   const tabComponents = {
     "verified-tokens": (
@@ -188,7 +188,11 @@ const ReclaimPage = () => {
         </div>
       )}
 
-      {showTransactionSettings && <TxConfig onProceed={handleProceedTransaction} />}
+      {showTransactionSettings && (
+        <Suspense fallback={<Loading placeholder="please wait..." />}>
+          <TxConfig onProceed={handleProceedTransaction} />
+        </Suspense>
+      )}
     </div>
   );
 };
