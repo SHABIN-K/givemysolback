@@ -1,9 +1,8 @@
+import { Zap } from "lucide-react";
 import React, { useState } from "react";
-import { HelpCircle, Zap } from "lucide-react";
 
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
-
 
 const Transaction = ({ totalAmount = 12, onProceed }) => {
   const [gasPayment, setGasPayment] = useState(false);

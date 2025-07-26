@@ -129,92 +129,88 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const handleProcessClick = () => {
-    setShowTransactionSettings(true);
-  };
-
   const handleProceedTransaction = () => {
-    // Handle transaction execution
     console.log("Executing transaction...");
   };
 
-  return (
-    <div className="min-h-screen py-8">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-4">
-          <Zap className="w-4 h-4 text-green-400 mr-2" />
-          <span className="text-sm text-green-300 font-medium">Close & Reclaim</span>
+  return isLoading ? (
+    <Loading placeholder="Loading your portfolio..." />
+  ) : (
+    <>
+      <div className="min-h-screen py-8">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-4">
+            <Zap className="w-4 h-4 text-green-400 mr-2" />
+            <span className="text-sm text-green-300 font-medium">Close & Reclaim</span>
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
-      </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loading placeholder="Loading your portfolio..." />
-        </div>
-      ) : (
-        <>
-          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
+        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
 
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
-            {accOverview?.hasMoreData && (
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
-                <div className="flex items-start space-x-3">
-                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
-                    <span className="text-white text-xs font-bold">i</span>
-                  </div>
-                  <div>
-                    <h4 className="text-blue-300 font-semibold mb-1">Large Portfolio Detected</h4>
-                    <p className="text-blue-200 text-sm">
-                      Due to your extensive token holdings, we're displaying a curated selection of the most relevant accounts.
-                      This includes high-value tokens, zero-balance accounts, and tokens that may benefit from cleanup to optimize
-                      your portfolio.
-                    </p>
-                  </div>
+        <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
+          {accOverview?.hasMoreData && (
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
+                  <span className="text-white text-xs font-bold">i</span>
+                </div>
+                <div>
+                  <h4 className="text-blue-300 font-semibold mb-1">Large Portfolio Detected</h4>
+                  <p className="text-blue-200 text-sm">
+                    Due to your extensive token holdings, we're displaying a curated selection of the most relevant accounts. This
+                    includes high-value tokens, zero-balance accounts, and tokens that may benefit from cleanup to optimize your
+                    portfolio.
+                  </p>
                 </div>
               </div>
-            )}
-
-            {tabComponents[activeTab]}
-          </div>
-
-          {/* Transaction Summary */}
-          {(summary?.totalSelected > 0 || summary?.zeroCount > 0) && (
-            <TransactionSummary
-              summary={{
-                burnCount: summary?.burnCount,
-                verifiedCount: summary?.verifiedCount,
-                zeroCount: summary?.zeroCount,
-                totalRent: summary?.totalRent,
-              }}
-            />
-          )}
-
-          {/* Action Buttons */}
-          {!showTransactionSettings && (
-            <div className="flex flex-col gap-3 sm:gap-4">
-              <button
-                onClick={handleProcessClick}
-                aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
-              >
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">
-                  Process {summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim {formatNumber(summary?.totalRent)} SOL
-                </span>
-                <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
-              </button>
             </div>
           )}
 
-          {showTransactionSettings && (
-            <Suspense fallback={<Loading placeholder="please wait..." />}>
-              <TxConfig onProceed={handleProceedTransaction} />
-            </Suspense>
-          )}
-        </>
-      )}
-    </div>
+          {tabComponents[activeTab]}
+        </div>
+
+        {/* Transaction Summary */}
+        {(summary?.totalSelected > 0 || summary?.zeroCount > 0) && (
+          <TransactionSummary
+            summary={{
+              burnCount: summary?.burnCount,
+              verifiedCount: summary?.verifiedCount,
+              zeroCount: summary?.zeroCount,
+              totalRent: summary?.totalRent,
+            }}
+          />
+        )}
+
+        {/* Action Buttons */}
+        {!showTransactionSettings && (
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <button
+              onClick={() => setShowTransactionSettings(true)}
+              disabled={summary?.totalSelected + summary?.zeroCount === 0}
+              aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
+            >
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">
+                {summary?.totalSelected + summary?.zeroCount === 0
+                  ? "Nothing to reclaim at the moment"
+                  : `Process ${summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim ${formatNumber(
+                      summary?.totalRent
+                    )} SOL`}
+              </span>
+              <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
+            </button>
+          </div>
+        )}
+
+        {showTransactionSettings && (
+          <Suspense fallback={<Loading placeholder="please wait..." />}>
+            <TxConfig onProceed={handleProceedTransaction} />
+          </Suspense>
+        )}
+      </div>
+    </>
   );
 };
 
