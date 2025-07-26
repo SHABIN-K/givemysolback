@@ -1,4 +1,4 @@
-import { Zap, Flame, Shield } from "lucide-react";
+import { Zap, Flame, Shield, LogOut } from "lucide-react";
 import React, { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
@@ -10,7 +10,7 @@ import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
-  const { publicKey } = useWalletManager();
+  const { publicKey, disconnect } = useWalletManager();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
@@ -18,6 +18,8 @@ const ReclaimPage = () => {
   const [activeTab, setActiveTab] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showTransactionSettings, setShowTransactionSettings] = useState(false);
+  const [txStatus, setTxStatus] = useState(false);
+  const [txError, setTxError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,8 +131,18 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const handleProceedTransaction = () => {
-    console.log("Executing transaction...");
+  // Basic transaction handler
+  const handleProceedTransaction = async config => {
+    setTxStatus(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+ 
+    } catch (err) {
+      setTxError(err.message || "Transaction failed");
+    } finally {
+      setTxStatus(false);
+      setTxError("");
+    }
   };
 
   return isLoading ? (
@@ -145,6 +157,14 @@ const ReclaimPage = () => {
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
         </div>
+
+        <button
+          onClick={disconnect}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium shadow-sm border border-neutral-700 transition-all"
+        >
+          <LogOut className="w-4 h-4" />
+          Disconnect
+        </button>
 
         <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
 
@@ -206,7 +226,7 @@ const ReclaimPage = () => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTransaction} />
+            <TxConfig onProceed={handleProceedTransaction} isLoading={txStatus} />
           </Suspense>
         )}
       </div>

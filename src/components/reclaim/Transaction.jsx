@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
 
-const Transaction = ({ totalAmount = 12, onProceed }) => {
+const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
   const [gasPayment, setGasPayment] = useState(false);
   const [rentCollection, setRentCollection] = useState(false);
   const [donationPercent, setDonationPercent] = useState(0);
@@ -42,11 +42,18 @@ const Transaction = ({ totalAmount = 12, onProceed }) => {
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <button
           onClick={onProceed}
+          disabled={isLoading}
           className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
         >
           <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Execute Transaction</span>
-          <span className="sm:hidden">Execute</span>
+          {isLoading ? (
+            <span>Loading .....</span>
+          ) : (
+            <>
+              <span className="hidden sm:inline">Execute Transaction</span>
+              <span className="sm:hidden">Execute</span>
+            </>
+          )}
         </button>
       </div>
     </div>
