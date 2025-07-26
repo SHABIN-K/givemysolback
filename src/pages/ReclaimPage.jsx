@@ -143,11 +143,11 @@ const ReclaimPage = () => {
       const signedData = await signAuthorizationMessage(tokenAccounts);
 
       // 2. Send signed message to backend (Cloudflare function)
-      const res = await authorizeTokenClosure(signedData);
+      // const res = await authorizeTokenClosure(signedData);
 
       // 3. Done ✅
       console.log("Tokens closed successfully:", signedData);
-      console.log(res);
+      // console.log(res);
     } catch (err) {
       console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");

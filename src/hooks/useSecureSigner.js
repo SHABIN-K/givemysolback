@@ -13,8 +13,6 @@ const useSecureSigner = () => {
     const nonce = uuidv4();
     const timestamp = new Date().toISOString();
     const message = `I have reviewed and approved the selected valuable tokens to be closed or burned. Proceed with the cleanup.
-
-
     Wallet: ${publicKey.toBase58()}
     Nonce: ${nonce}
     Timestamp: ${timestamp}
@@ -24,6 +22,7 @@ const useSecureSigner = () => {
     const signature = await signMessage(encodedMessage);
 
     return {
+      ata: tokenAccounts,
       message,
       signature: bs58.encode(signature),
       wallet: publicKey.toBase58(),
