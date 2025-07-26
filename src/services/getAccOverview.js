@@ -22,18 +22,18 @@ export const getAccOverview = async walletAddress => {
 
 export const getAccLookup = async walletAddress => {
   try {
-    const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`, {
-      headers: {
-        "x-api-key": import.meta.env.VITE_WORKER_KEY,
-      },
-    });
+    // const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`, {
+    //   headers: {
+    //     "x-api-key": import.meta.env.VITE_WORKER_KEY,
+    //   },
+    // });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`API Error: ${response.status}`);
+    // }
 
-    const data = await response.json();
-    // const data = cache;
+    // const data = await response.json();
+    const data = cache;
     return data;
   } catch (err) {
     console.error("Error fetching account overview:", err);

