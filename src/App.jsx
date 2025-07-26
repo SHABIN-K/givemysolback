@@ -3,7 +3,7 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 
 import HomePage from "./pages/HomePage";
 import Loading from "./components/Loading";
-// import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import BackgroundElements from "./components/BackgroundElements";
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
@@ -23,7 +23,6 @@ function App() {
   return (
     <div className="app">
       <BackgroundElements />
-      {/* <Header /> */}
 
       <main className="main-content p-6">
         <div className="container">
@@ -40,9 +39,11 @@ function App() {
             <Route
               path="/manage-wallet"
               element={
-                <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
-                  <ReclaimPage />
-                </Suspense>
+                <ProtectedRoute>
+                  <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
+                    <ReclaimPage />
+                  </Suspense>
+                </ProtectedRoute>
               }
             />
           </Routes>
