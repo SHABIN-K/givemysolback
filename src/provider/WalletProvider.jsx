@@ -8,10 +8,7 @@ import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const WalletContextProvider = ({ children }) => {
-  // Network can be set to 'devnet', 'testnet', or 'mainnet-beta'
-  const network = WalletAdapterNetwork.Devnet;
-
-  // RPC endpoint
+  const network = WalletAdapterNetwork.Mainnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   // Wallet adapters
