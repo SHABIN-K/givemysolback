@@ -12,7 +12,7 @@ import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
-  const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
+  const { signAuthorizationMessage, authorizeTokenClosure, delegateSessionKey } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
@@ -137,16 +137,19 @@ const ReclaimPage = () => {
     setTxStatus(true);
 
     try {
-      const tokenAccounts = ["6exTwdT5GTXYVvxEZYjwUUg84yQnfPc2B4kQPLpWnTf", "Y8M7S8BM2MyxyaQoauqJhr9L35CyJm8enWRB4NBctQc"];
+      const tokenAccounts = ["dcQpxkW9FhVFgS5ZuZ89rGqQFQrKb8PoSRdJZeq9pM8", "2idX5oGgfe5jnqyS7y1H5oKA2enq3nyv3mGTPECAbyVs"];
 
+      const sessionKey = await delegateSessionKey();
+
+      console.log("Session key:", sessionKey.publicKey.toBase58());
       // 1. Sign secure message
       const signedData = await signAuthorizationMessage(tokenAccounts);
 
       // 2. Send signed message to backend (Cloudflare function)
-      // const res = await authorizeTokenClosure(signedData);
+      const res = await authorizeTokenClosure(signedData);
 
       // 3. Done ✅
-      console.log("Tokens closed successfully:", signedData);
+      console.log("Tokens closed successfully:", signedData, res);
       // console.log(res);
     } catch (err) {
       console.error("TX Error:", err);
