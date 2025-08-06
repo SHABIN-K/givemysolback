@@ -3,23 +3,20 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-// import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 
+import SessionProvider from "./SessionProvider";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const WalletContextProvider = ({ children }) => {
-  const network = WalletAdapterNetwork.Mainnet;
+  const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  // Wallet adapters
-  // const wallets = useMemo(
-  //   () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],[]
-  // );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
+        <WalletModalProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

@@ -10,9 +10,18 @@ import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
+import { useSessionWallet } from "@magicblock-labs/gum-react-sdk";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import getProgram from "../provider/getProgram";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+import { BN, utils } from "@coral-xyz/anchor";
+
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
   const { signAuthorizationMessage, authorizeTokenClosure, delegateSessionKey } = useSecureSigner();
+  const { connection } = useConnection();
+  const sessionWallet = useSessionWallet();
+  const anchorWallet = useAnchorWallet();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
@@ -160,6 +169,54 @@ const ReclaimPage = () => {
     }
   };
 
+  const handleCreateSession = async () => {
+    const program = await getProgram(connection);
+
+    // console.log(program);
+
+    const expiryInMinutes = 600;
+    const expiryTimestamp = Math.ceil((Date.now() + expiryInMinutes * 60 * 1000) / 1000);
+    const validUntilBN = new BN(expiryTimestamp);
+
+    const sessionKeypair = Keypair.generate();
+    const sessionSignerPublicKey = sessionKeypair.publicKey;
+
+    const [sessionTokenPda] = PublicKey.findProgramAddressSync(
+      [
+        utils.bytes.utf8.encode("session"),
+        program.programId.toBuffer(), // only if your PDA includes this!
+        sessionSignerPublicKey.toBuffer(),
+        anchorWallet.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    const instructionMethodBuilder = program.methods.createSession(null, null, null).accounts({
+      targetProgram: program.programId,
+      sessionSigner: sessionSignerPublicKey,
+      authority: anchorWallet.publicKey,
+      sessionToken: sessionTokenPda,
+      // systemProgram: SYSTEM_PROGRAM_ID,
+    });
+
+    const pubKeys = await instructionMethodBuilder.pubkeys();
+    const sessionToken = pubKeys.sessionToken;
+    await instructionMethodBuilder.signers([sessionKeypair]).rpc();
+
+        // console.log(pubKeys);
+    // console.log(sessionToken);
+
+    const sessionTokenString = sessionToken.toBase58();
+    const keypairSecretBase64String = utils.bytes.utf8.encode(sessionKeypair.secretKey).toString("base64");
+
+    // console.log(sessionWallet);
+    // if (session) {
+    //   // console.log("Session created:", session);
+    // } else {
+    //   console.error("Failed to create session");
+    // }
+  };
+
   return isLoading ? (
     <Loading placeholder="Loading your portfolio..." />
   ) : (
@@ -241,7 +298,7 @@ const ReclaimPage = () => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTx} isLoading={txStatus} />
+            <TxConfig onProceed={handleCreateSession} isLoading={txStatus} />
           </Suspense>
         )}
       </div>
