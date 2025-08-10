@@ -4,7 +4,6 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 
-import SessionProvider from "./SessionProvider";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const WalletContextProvider = ({ children }) => {
@@ -14,9 +13,7 @@ const WalletContextProvider = ({ children }) => {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
-        <WalletModalProvider>
-          <SessionProvider>{children}</SessionProvider>
-        </WalletModalProvider>
+        <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

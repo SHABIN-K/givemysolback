@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.31.1",
-    "@magicblock-labs/gum-react-sdk": "^3.0.8",
     "@solana/spl-token": "^0.4.13",
     "@solana/wallet-adapter-base": "^0.9.27",
     "@solana/wallet-adapter-react": "^0.15.39",
