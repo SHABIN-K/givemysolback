@@ -1,6 +1,10 @@
-name = "api"
+name = "apigivemysolback"
 main = "src/handler.js"
 compatibility_date = "2025-07-12"
 
 [observability]
 enabled = true
+
+[[kv_namespaces]]
+binding = "TOKEN_ACCOUNT_CACHE"
+id = "093184ab07564fa589ecb60b295dd123" 

@@ -8,17 +8,40 @@ export async function onRequestGet({ request, env }) {
 
   if (!wallet) return errorResponse("Missing wallet address")
 
+  const kvKey = `${wallet}-account-data`;
+
   try {
+
+    const cached = await env.TOKEN_ACCOUNT_CACHE.get(kvKey, { type: "json" });
+    if (cached) {
+
+      const result = {
+        rentPerAccountLamports,
+        totalAccounts: cached?.totalAccounts || 0,
+        zeroBalanceAccCount: cached?.zeroBalanceAccounts.length || 0,
+        burnTokenAccCount: cached?.burnCandidateAccounts.length || 0,
+        hasMoreData: false,
+      };
+
+      return new Response(JSON.stringify(result));
+    }
+
     const { totalAccounts, tokenAccounts, hasMoreData } = await getBatchTokenAccounts(wallet, env);
 
     const { zeroBalanceAccounts, burnCandidateAccounts, verifiedMintCount } = classifyTokenAccounts(tokenAccounts);
 
+    const totalAcnt = totalAccounts - verifiedMintCount 
+
+    await env.TOKEN_ACCOUNT_CACHE.put(kvKey, JSON.stringify({
+      zeroBalanceAccounts, burnCandidateAccounts, totalAccounts: totalAcnt
+    }), { expirationTtl: 1200 });
+
     const result = {
       rentPerAccountLamports,
-      totalAccounts: totalAccounts - verifiedMintCount,
+      totalAccounts: totalAcnt,
       zeroBalanceAccCount: zeroBalanceAccounts.length,
       burnTokenAccCount: burnCandidateAccounts.length,
-      hasMoreData,
+      hasMoreData: hasMoreData || false,
     };
 
     return new Response(JSON.stringify(result));
