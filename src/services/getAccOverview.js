@@ -22,11 +22,7 @@ export const getAccOverview = async walletAddress => {
 
 export const getAccLookup = async walletAddress => {
   try {
-    // const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`, {
-    //   headers: {
-    //     "x-api-key": import.meta.env.VITE_WORKER_KEY,
-    //   },
-    // });
+    // const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`);
 
     // if (!response.ok) {
     //   throw new Error(`API Error: ${response.status}`);

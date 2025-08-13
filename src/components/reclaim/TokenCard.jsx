@@ -1,5 +1,5 @@
 import React from "react";
-import { ExternalLink, CheckCircle2, Flame, Shield } from "lucide-react";
+import { ExternalLink, CheckCircle2, Flame } from "lucide-react";
 import { formatNumber } from "../../utils";
 
 const getTypeConfig = (type, isSelected) => {
@@ -11,15 +11,6 @@ const getTypeConfig = (type, isSelected) => {
         icon: Flame,
         iconBg: "from-red-600 to-orange-500",
         valueColor: "text-red-400",
-        rentColor: "text-green-400",
-      };
-    case "verified":
-      return {
-        bgColor: isSelected ? "bg-blue-500/10 border-blue-500/30" : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70",
-        checkboxColor: isSelected ? "bg-blue-500 border-blue-500" : "border-gray-600",
-        icon: Shield,
-        iconBg: "from-blue-600 to-purple-500",
-        valueColor: "text-blue-400",
         rentColor: "text-green-400",
       };
     default:
@@ -44,10 +35,6 @@ const TokenCard = ({ token, index, isSelected, onToggle, type }) => {
       onClick={() => onToggle(index)}
     >
       <div className="flex items-center space-x-3 sm:space-x-4 mb-2 sm:mb-0">
-        {/* <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${config.checkboxColor}`}>
-          {isSelected && <CheckCircle2 className="w-4 h-4 text-white" />}
-        </div> */}
-
         <div
           className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r ${config.iconBg} rounded-full flex items-center justify-center`}
         >
@@ -77,7 +64,7 @@ const TokenCard = ({ token, index, isSelected, onToggle, type }) => {
           <button
             onClick={e => {
               e.stopPropagation();
-              window.open(`https://solscan.io/account/${token.address}`, "_blank");
+              window.open(`https://solscan.io/account/${token.mint}`, "_blank");
             }}
             className="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors"
           >

@@ -1,21 +1,23 @@
-import { Zap, Flame, Shield, LogOut } from "lucide-react";
+import { Zap, Flame, LogOut } from "lucide-react";
 import React, { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
+import InfoBanner from "../components/InfoBanner";
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
 import useSecureSigner from "../hooks/useSecureSigner";
 import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
+import Token from "../components/reclaim/Token";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
   const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
-  const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
+  const [selected, setSelected] = useState({ burn: new Set() });
 
   const [activeTab, setActiveTab] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +35,6 @@ const ReclaimPage = () => {
         setAccOverview(data);
 
         const sorted = [
-          { id: "verified-tokens", count: data.VerifiedAccCount },
           { id: "tokens", count: data.burnTokenAccCount },
           { id: "zero-balance", count: data.zeroBalanceAccCount },
         ].sort((a, b) => b.count - a.count);
@@ -53,7 +54,6 @@ const ReclaimPage = () => {
     if (!accOverview) return [];
 
     return [
-      { id: "verified-tokens", label: "Verified Tokens", count: accOverview?.VerifiedAccCount, icon: Shield, color: "blue" },
       { id: "tokens", label: "Burn", count: accOverview?.burnTokenAccCount, icon: Flame, color: "red" },
       { id: "zero-balance", label: "Zero Balance", count: accOverview?.zeroBalanceAccCount, icon: Zap, color: "green" },
     ].sort((a, b) => b.count - a.count);
@@ -67,41 +67,21 @@ const ReclaimPage = () => {
     });
   }, []);
 
-  const handleSelectAll = useCallback(
-    type => {
-      if (!accOverview) return;
-      setSelected(prev => {
-        if (type === "burn") {
-          const full = accOverview.BurnATA?.fullData || [];
-          return { ...prev, burn: prev.burn.size === full.length ? new Set() : new Set(full.map((_, i) => i)) };
-        }
-        if (type === "verified") {
-          const accounts = accOverview.VerifiedAccounts || [];
-          return { ...prev, verified: prev.verified.size === accounts.length ? new Set() : new Set(accounts.map((_, i) => i)) };
-        }
-        return prev;
-      });
-    },
-    [accOverview]
-  );
-
   const summary = useMemo(() => {
     if (!accOverview) return null;
 
-    const fullBurnCount = accOverview.BurnATA?.fullData?.length || 0;
+    const fullBurnCount = 0;
     const burnCount = accOverview.burnTokenAccCount - fullBurnCount + selected.burn.size;
-    const verifiedCount = selected.verified.size;
+    const verifiedCount = 0;
     const zeroCount = accOverview.zeroBalanceAccCount;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
-    const verifiedRent = calculateTotalRentInSOL(verifiedCount);
     const zeroBalanceRent = calculateTotalRentInSOL(zeroCount);
 
-    const totalRent = burnRent + verifiedRent + zeroBalanceRent;
+    const totalRent = burnRent + zeroBalanceRent;
 
     return {
       burnCount,
-      verifiedCount,
       zeroCount,
       totalSelected: burnCount + verifiedCount,
       totalRent,
@@ -110,25 +90,8 @@ const ReclaimPage = () => {
   }, [accOverview, selected]);
 
   const tabComponents = {
-    "verified-tokens": (
-      <TokenSection
-        type="verified"
-        tokens={accOverview?.VerifiedAccounts}
-        tokensCount={accOverview?.VerifiedAccCount || 0}
-        selectedTokens={selected.verified}
-        onToggleSelection={i => handleToggle("verified", i)}
-        onSelectAll={() => handleSelectAll("verified")}
-      />
-    ),
     tokens: (
-      <TokenSection
-        type="burn"
-        tokens={accOverview?.BurnATA?.fullData}
-        tokensCount={accOverview?.BurnATA?.fullData?.length || 0}
-        selectedTokens={selected.burn}
-        onToggleSelection={i => handleToggle("burn", i)}
-        onSelectAll={() => handleSelectAll("burn")}
-      />
+      <Token type="burn" tokensCount={accOverview?.burnTokenAccCount || 0} selectedTokens={selected} setSelected={setSelected} />
     ),
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
@@ -182,21 +145,10 @@ const ReclaimPage = () => {
 
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
           {accOverview?.hasMoreData && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0">
-                  <span className="text-white text-xs font-bold">i</span>
-                </div>
-                <div>
-                  <h4 className="text-blue-300 font-semibold mb-1">Large Portfolio Detected</h4>
-                  <p className="text-blue-200 text-sm">
-                    Due to your extensive token holdings, we're displaying a curated selection of the most relevant accounts. This
-                    includes high-value tokens, zero-balance accounts, and tokens that may benefit from cleanup to optimize your
-                    portfolio.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <InfoBanner
+              title="Large Portfolio Detected"
+              description="Due to your extensive token holdings, we're displaying a curated selection of the most relevant accounts. This includes high-value tokens, zero-balance accounts, and tokens that may benefit from cleanup to optimize your portfolio."
+            />
           )}
 
           {tabComponents[activeTab]}
@@ -207,7 +159,6 @@ const ReclaimPage = () => {
           <TransactionSummary
             summary={{
               burnCount: summary?.burnCount,
-              verifiedCount: summary?.verifiedCount,
               zeroCount: summary?.zeroCount,
               totalRent: summary?.totalRent,
             }}

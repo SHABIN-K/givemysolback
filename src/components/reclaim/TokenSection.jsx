@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle, Flame, Shield } from "lucide-react";
+import { AlertCircle, Flame } from "lucide-react";
 import TokenCard from "./TokenCard";
 import EmptyState from "./EmptyState";
 
@@ -22,29 +22,12 @@ const getConfig = type => {
         emptyTitle: "No Tokens to Burn",
         emptyText: "Great! No low-value or scam tokens found in your portfolio. All your tokens appear to have good value.",
       };
-    case "verified":
-      return {
-        title: "Verified Tokens",
-        icon: Shield,
-        iconColor: "text-blue-400",
-        selectColor: "text-blue-400 hover:text-blue-300",
-        warningBg: "bg-yellow-500/10 border-yellow-500/20",
-        warningIcon: "text-yellow-400",
-        warningTitle: "text-yellow-300",
-        warningText: "text-yellow-200",
-        warningContent: {
-          title: "High Value Warning",
-          text: "These are verified tokens with significant value. Double-check before closing these accounts.",
-        },
-        emptyTitle: "No Verified Tokens",
-        emptyText: "No verified high-value tokens found in your portfolio that can be managed from here.",
-      };
     default:
       return {};
   }
 };
 
-const TokenSection = ({ type, tokens, tokensCount, selectedTokens, onToggleSelection, onSelectAll }) => {
+const TokenSection = ({ type, tokens, tokensCount, selectedTokens, onToggleSelection }) => {
   const config = getConfig(type);
   const Icon = config.icon;
 
@@ -55,11 +38,6 @@ const TokenSection = ({ type, tokens, tokensCount, selectedTokens, onToggleSelec
           <Icon className={`w-5 h-5 mr-2 ${config.iconColor}`} />
           {config.title} ({tokensCount})
         </h3>
-        {tokensCount != 0 && (
-          <button onClick={onSelectAll} className={`${config.selectColor} text-sm font-medium`}>
-            {selectedTokens.size === tokens.length ? "Deselect All" : "Select All"}
-          </button>
-        )}
       </div>
 
       {tokensCount === 0 && <EmptyState icon={Icon} title={config.emptyTitle} description={config.emptyText} />}
@@ -86,18 +64,6 @@ const TokenSection = ({ type, tokens, tokensCount, selectedTokens, onToggleSelec
                 type={type}
               />
             ))}
-
-            {type === "burn" && tokensCount > tokens.length && (
-              <div className="col-span-full mt-4 p-4 bg-gray-900/50 border border-gray-700/30 rounded-xl text-center">
-                <p className="text-gray-400 text-sm">
-                  Showing top {tokens.length} most valuable tokens out of {tokensCount} total.
-                  <br />
-                  <span className="text-gray-500">
-                    Remaining {tokensCount - tokens.length} tokens are included in calculations when selected.
-                  </span>
-                </p>
-              </div>
-            )}
           </div>
         </>
       )}
