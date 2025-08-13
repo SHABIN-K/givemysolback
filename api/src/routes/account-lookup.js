@@ -1,4 +1,5 @@
-import redssponse from "../../../../worker/src/cache/res.json";
+import { getBatchTokenAccounts } from "../helper/gettokenaccounts";
+import { errorResponse, rentPerAccountLamports } from "../utils";
 
 const VERIFIED_MINTS = new Set([
   "11111111111111111111111111111111", // Native SOL (system program ID)
@@ -17,69 +18,46 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const wallet = url.searchParams.get("wallet");
 
-  if (!wallet) return new Response("Missing wallet address", { status: 400 });
+  if (!wallet) return errorResponse("Missing wallet address")
 
   try {
-    const heliusURL = `https://mainnet.helius-rpc.com?api-key=${env.RPC_API_KEY}`;
+    const { totalAccounts, tokenAccounts, hasMoreData } = await getBatchTokenAccounts(wallet, env);
 
-    const resMintdetail = await fetch(heliusURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getAssetBatch",
-        params: {
-          ids: ["5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump", "7kB8ZkSBJr2uiBWfveqkVBN7EpZMFom5PqeWUB62DCRD"],
-        },
-      }),
-    });
-    const Mintdetail = await resMintdetail.json();
+    const {
+      zeroBalanceAccounts,
+      burnCandidateAccounts: BurnATA,
+      finalVerifiedAccounts,
+      verifiedMintCount,
+    } = classifyTokenAccounts(tokenAccounts, metadata);
 
-    console.log(Mintdetail?.result);
-    if (Mintdetail) {
-      return new Response(JSON.stringify(Mintdetail?.result));
-    }
+    // let verifiedMintCount = 0;
 
-    const response = await fetch(heliusURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getTokenAccounts",
-        params: {
-          owner: wallet,
-          page: 1,
-          limit: 1000,
-          options: {
-            showZeroBalance: true,
-          },
-        },
-      }),
-    });
-
-    const data = await response.json();
-
-    // If Helius returned an error
-    if (data.error) {
-      return new Response(JSON.stringify({ error: data.error.message }), { status: 500 });
-    }
-    let verifiedMintCount = 0;
-    const tokenAccounts = Array.isArray(data?.result?.token_accounts) ? data.result.token_accounts : [];
     // const zeroBalanceAccounts = tokenAccounts.filter(i => i.amount === 0);
-    const BalanceAccounts = tokenAccounts.filter(i => i.amount !== 0).map(i => i.mint);
+    // const BalanceAccounts = tokenAccounts.filter(i => i.amount !== 0).map(i => i.mint);
 
-    const finalVerifiedAccounts = BalanceAccounts.filter(mint => {
-      if (VERIFIED_MINTS.has(mint)) {
-        verifiedMintCount++;
-        return false;
-      }
-      return true;
-    });
-    console.log(finalVerifiedAccounts, verifiedMintCount, BalanceAccounts.length);
+    // const finalVerifiedAccounts = BalanceAccounts.filter(mint => {
+    //   if (VERIFIED_MINTS.has(mint)) {
+    //     verifiedMintCount++;
+    //     return false;
+    //   }
+    //   return true;
+    // });
+    // console.log(finalVerifiedAccounts, verifiedMintCount, BalanceAccounts.length);
 
-    return new Response(JSON.stringify(data?.result?.token_accounts));
+
+    const result = {
+      rentPerAccountLamports,
+      totalAccounts: totalAccounts - verifiedMintCount,
+      // zeroBalanceAccCount: zeroBalanceAccounts.length,
+      // burnTokenAccCount,
+      // VerifiedAccCount: finalVerifiedAccounts.length,
+      // zeroBalanceAccounts,
+      // BurnATA,
+      // VerifiedAccounts: finalVerifiedAccounts,
+      hasMoreData,
+    };
+
+    return new Response(JSON.stringify(result));
   } catch (err) {
     return new Response(JSON.stringify({ error: "Internal server error", details: err.message }), { status: 500 });
   }

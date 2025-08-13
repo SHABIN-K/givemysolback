@@ -1,11 +1,11 @@
-const rentPerAccountLamports = 2039280;
+import { errorResponse, rentPerAccountLamports } from "../utils";
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const wallet = url.searchParams.get("wallet");
 
   if (!wallet) {
-    return new Response("Missing wallet address", { status: 400 });
+    return errorResponse("Missing wallet address")
   }
 
   try {
@@ -25,9 +25,7 @@ export async function onRequestGet({ request, env }) {
     const data = await response.json();
 
     // If Helius returned an error
-    if (data.error) {
-      return new Response(JSON.stringify({ error: data.error.message }), { status: 500 });
-    }
+    if (data.error) return errorResponse(data.error.message)
 
     const tokenAccounts = data.result?.value || [];
     const totalAccounts = tokenAccounts.length;

