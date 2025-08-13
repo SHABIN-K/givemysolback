@@ -11,57 +11,28 @@ const VERIFIED_MINTS = new Set([
   "9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E", // BTC (renBTC)
 ]);
 
-/**
- * Efficiently classifies Solana token accounts into three categories using hash-based lookups:
- *
- * - zeroBalanceAccounts: Tokens with a 0 balance (likely safe to close).
- * - burnCandidateAccounts: Unverified tokens with a non-zero balance (potentially unwanted; can consider burning).
- * - finalVerifiedAccounts: Tokens verified via metadata but not present in the hardcoded VERIFIED_MINTS list.
- */
-
-function classifyTokenAccounts(tokenAccounts, metadata) {
+function classifyTokenAccounts(tokenAccounts) {
   let verifiedMintCount = 0;
   const zeroBalanceAccounts = [];
-  const verifiedAccounts = [];
-  const burnCandidateAccounts = {
-    ataOnly: [], // Contains only ATA addresses
-    fullData: [], // Contains full account objects
-  };
+  const burnCandidateAccounts = [];
 
   for (const account of tokenAccounts) {
     const amount = Number(account.amount);
-    const isVerified = account?.reputation === "ok";
-
-    if (isVerified) {
-      verifiedAccounts.push(account);
-      continue;
-    }
 
     if (amount === 0) {
       zeroBalanceAccounts.push(account.address);
-      continue;
-    }
-
-    const meta = metadata[account.tokenAddress] ?? {};
-    if (meta && meta.is_calculate_on_portfolio && meta.is_show_value) {
-      burnCandidateAccounts.fullData.push(account);
     } else {
-      burnCandidateAccounts.ataOnly.push(account.address);
+      if (VERIFIED_MINTS.has(account.mint)) {
+        verifiedMintCount++;
+      } else {
+        burnCandidateAccounts.push(account.address)
+      }
     }
   }
-
-  const finalVerifiedAccounts = verifiedAccounts.filter(account => {
-    if (VERIFIED_MINTS.has(account.tokenAddress)) {
-      verifiedMintCount++;
-      return false;
-    }
-    return true;
-  });
 
   return {
     zeroBalanceAccounts,
     burnCandidateAccounts,
-    finalVerifiedAccounts,
     verifiedMintCount,
   };
 }
