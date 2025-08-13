@@ -1,5 +1,5 @@
 import { Zap, Flame, LogOut } from "lucide-react";
-import React, { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
+import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
@@ -59,14 +59,6 @@ const ReclaimPage = () => {
     ].sort((a, b) => b.count - a.count);
   }, [accOverview]);
 
-  const handleToggle = useCallback((type, index) => {
-    setSelected(prev => {
-      const updated = new Set(prev[type]);
-      updated.has(index) ? updated.delete(index) : updated.add(index);
-      return { ...prev, [type]: updated };
-    });
-  }, []);
-
   const summary = useMemo(() => {
     if (!accOverview) return null;
 
@@ -91,7 +83,12 @@ const ReclaimPage = () => {
 
   const tabComponents = {
     tokens: (
-      <Token type="burn" tokensCount={accOverview?.burnTokenAccCount || 0} selectedTokens={selected} setSelected={setSelected} />
+      <Token
+        type="burn"
+        tokensCount={accOverview?.burnTokenAccCount || 0}
+        selectedTokens={selected.burn}
+        setSelected={setSelected}
+      />
     ),
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };

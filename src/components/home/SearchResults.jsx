@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, Coins, Copy } from "lucide-react";
+import { CheckCircle, Coins, ExternalLink } from "lucide-react";
 import { formatNumber } from "../../utils";
 
 const SearchResults = ({ searchResults, resetSearch }) => {
@@ -52,10 +52,6 @@ const SearchResults = ({ searchResults, resetSearch }) => {
     );
   }
 
-  const copyToClipboard = text => {
-    navigator.clipboard.writeText(text);
-  };
-
   return (
     <div className="max-w-4xl mx-auto mt-16">
       {/* Results Header */}
@@ -93,9 +89,8 @@ const SearchResults = ({ searchResults, resetSearch }) => {
       {searchResults.hasMoreTokens && (
         <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-8">
           <p className="text-yellow-200 text-sm text-center">
-            <strong>Note:</strong> Your portfolio is quite large. Because of this, the total token count, SOL balance,
-            and USD value shown may not include everything. Please note the actual balance might be higher than what's
-            displayed here.
+            <strong>Note:</strong> Your portfolio is quite large. Because of this, the total token count, SOL balance, and USD
+            value shown may not include everything. Please note the actual balance might be higher than what's displayed here.
           </p>
         </div>
       )}
@@ -146,11 +141,14 @@ const SearchResults = ({ searchResults, resetSearch }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(token.mint)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    window.open(`https://solscan.io/account/${token.mint}`, "_blank");
+                  }}
                   className="p-2 text-gray-400 hover:text-white transition-colors"
                   title="Copy mint address"
                 >
-                  <Copy className="w-4 h-4" />
+                  <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             ))}
@@ -165,9 +163,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
               </span>
             </button>
             {searchResults.totalAccounts > 15 && (
-              <span className="text-gray-300 text-sm font-medium">
-                +{searchResults.totalAccounts - 15} more tokens...
-              </span>
+              <span className="text-gray-300 text-sm font-medium">+{searchResults.totalAccounts - 15} more tokens...</span>
             )}
           </div>
         </div>

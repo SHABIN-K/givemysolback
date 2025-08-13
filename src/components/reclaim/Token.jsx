@@ -3,11 +3,9 @@ import { Plus, TrendingUp } from "lucide-react";
 import TokenCard from "./TokenCard";
 import getMintDetails from "../../services/getMintDetails";
 
-const Token = ({ tokensCount = 0, type, setSelected, selectedTokens }) => {
+const Token = ({ tokensCount, type, setSelected, selectedTokens }) => {
   const [safeMints, setSafeMints] = useState([]);
   const [mintInput, setMintInput] = useState("");
-
-  const [selectedBurnTokens, setSelectedBurnTokens] = useState(new Set());
   const [errorMsg, setErrorMsg] = useState("Paste Your mint Address");
 
   const handleKeyPress = e => {
@@ -19,14 +17,14 @@ const Token = ({ tokensCount = 0, type, setSelected, selectedTokens }) => {
   const handleAddSafeToken = useCallback(async () => {
     const mintAddress = mintInput.trim();
 
-    // if (!/^[A-Za-z0-9]{32,44}$/.test(mintAddress)) {
-    //   setErrorMsg("Oops! Invalid mint address");
-    //   setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
-    //   return;
-    // }
+    if (!/^[A-Za-z0-9]{32,44}$/.test(mintAddress)) {
+      setErrorMsg("Oops! Invalid mint address");
+      setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
+      return;
+    }
 
     try {
-      const details = await getMintDetails("6aEHmLAkaKjMuUCoiSQYeKY5rYD6fDzyYuzgTQRvpump");
+      const details = await getMintDetails(mintAddress);
 
       setSafeMints(prev => {
         if (prev.some(t => t.mint === details.mint)) return prev;
@@ -81,7 +79,7 @@ const Token = ({ tokensCount = 0, type, setSelected, selectedTokens }) => {
 
       {/* Manual Tokens List */}
       {safeMints.length > 0 ? (
-        <div className="space-y-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {safeMints.map((token, index) => (
             <TokenCard
               key={index}
@@ -89,7 +87,6 @@ const Token = ({ tokensCount = 0, type, setSelected, selectedTokens }) => {
               index={index}
               isSelected={selectedTokens.has(index)}
               onToggle={i => handleToggle("burn", i)}
-              type={type}
             />
           ))}
         </div>
