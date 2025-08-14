@@ -16,7 +16,7 @@ const ReclaimPage = () => {
   const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
-  const [selected, setSelected] = useState({ burn: new Set() });
+  const [selected, setSelected] = useState([]);
 
   const [activeTab, setActiveTab] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,10 +60,8 @@ const ReclaimPage = () => {
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
-
-    const fullBurnCount = 0;
-    const burnCount = accOverview.burnTokenAccCount - fullBurnCount + selected.burn.size;
-    const verifiedCount = 0;
+    console.log(selected)
+    const burnCount = accOverview.burnTokenAccCount - selected.length;
     const zeroCount = accOverview.zeroBalanceAccCount;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
@@ -74,21 +72,14 @@ const ReclaimPage = () => {
     return {
       burnCount,
       zeroCount,
-      totalSelected: burnCount + verifiedCount,
+      totalSelected: burnCount,
       totalRent,
       zeroBalanceRent,
     };
   }, [accOverview, selected]);
 
   const tabComponents = {
-    tokens: (
-      <TokenSection
-        type="burn"
-        tokensCount={accOverview?.burnTokenAccCount || 0}
-        selectedTokens={selected.burn}
-        setSelected={setSelected}
-      />
-    ),
+    tokens: <TokenSection tokensCount={accOverview?.burnTokenAccCount || 0} safeMints={selected} setSafeMints={setSelected} />,
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 

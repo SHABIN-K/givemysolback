@@ -1,7 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 
-const TokenCard = ({ token, index, handleRemoveToken }) => {
+const TokenCard = ({ token, handleRemoveToken }) => {
   return (
     <div className="flex items-center justify-between p-4 rounded-xl transition-all bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/7">
       <div className="flex items-center space-x-4">
@@ -28,7 +28,7 @@ const TokenCard = ({ token, index, handleRemoveToken }) => {
       <button
         onClick={e => {
           e.stopPropagation();
-          handleRemoveToken(index);
+          handleRemoveToken(token.mint);
         }}
         className="p-2 text-gray-400 hover:text-red-400 transition-colors"
       >

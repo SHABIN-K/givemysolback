@@ -4,8 +4,7 @@ import React, { useCallback, useState } from "react";
 import TokenCard from "./TokenCard";
 import getMintDetails from "../../services/getMintDetails";
 
-const TokenSection = ({ tokensCount, setSelected }) => {
-  const [safeMints, setSafeMints] = useState([]);
+const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
   const [mintInput, setMintInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("Paste Your mint Address");
 
@@ -37,18 +36,10 @@ const TokenSection = ({ tokensCount, setSelected }) => {
       setErrorMsg("Failed to fetch token details");
       setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
     }
-  }, [mintInput]);
+  }, [mintInput, setSafeMints]);
 
-  const handleRemoveToken = index => {
-    const newTokens = safeMints.filter((_, i) => i !== index);
-    setSafeMints(newTokens);
-
-    // Update selections
-    setSelected(prev => {
-      const updated = new Set(prev["burn"]);
-      updated.has(index) ? updated.delete(index) : updated.add(index);
-      return { ...prev, ["burn"]: updated };
-    });
+  const handleRemoveToken = mint => {
+    setSafeMints(prev => prev.filter(token => token.mint !== mint));
   };
 
   return (
@@ -83,7 +74,7 @@ const TokenSection = ({ tokensCount, setSelected }) => {
       {safeMints.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {safeMints.map((token, index) => (
-            <TokenCard key={index} token={token} index={index} handleRemoveToken={handleRemoveToken} />
+            <TokenCard key={index} token={token} handleRemoveToken={handleRemoveToken} />
           ))}
         </div>
       ) : (
