@@ -2,18 +2,17 @@ import { Zap, Flame, LogOut } from "lucide-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
-const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 import InfoBanner from "../components/InfoBanner";
+const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
+
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
-import useSecureSigner from "../hooks/useSecureSigner";
 import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
-  const { signAuthorizationMessage, authorizeTokenClosure } = useSecureSigner();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -60,7 +59,6 @@ const ReclaimPage = () => {
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
-    console.log(selected)
     const burnCount = accOverview.burnTokenAccCount - selected.length;
     const zeroCount = accOverview.zeroBalanceAccCount;
 
@@ -87,16 +85,8 @@ const ReclaimPage = () => {
     setTxStatus(true);
 
     try {
-      const tokenAccounts = ["dcQpxkW9FhVFgS5ZuZ89rGqQFQrKb8PoSRdJZeq9pM8", "2idX5oGgfe5jnqyS7y1H5oKA2enq3nyv3mGTPECAbyVs"];
+      const excluedMint = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
 
-      // 1. Sign secure message
-      const signedData = await signAuthorizationMessage(tokenAccounts);
-
-      // 2. Send signed message to backend (Cloudflare function)
-      const res = await authorizeTokenClosure(signedData);
-
-      // 3. Done ✅
-      console.log("Tokens closed successfully:", signedData, res);
       // console.log(res);
     } catch (err) {
       console.error("TX Error:", err);
