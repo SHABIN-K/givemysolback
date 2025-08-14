@@ -4,7 +4,7 @@ import Loading from "../components/Loading";
 import { Hero, Footer, Features, SearchCard } from "../components/home";
 const SearchResults = lazy(() => import("../components/home/SearchResults"));
 
-import { getAccOverview } from "../services/getAccOverview";
+import { getAccOverview } from "../services/getWalletDetails";
 
 const HomePage = ({ solPrice }) => {
   const [address, setAddress] = useState("");

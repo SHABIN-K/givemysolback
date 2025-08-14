@@ -8,11 +8,16 @@ const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
 import useWalletManager from "../hooks/useWalletManager";
-import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
+import { getAccLookup, getSignableTx } from "../services/getWalletDetails";
+
+import { Transaction } from "@solana/web3.js";
+import solanaClient from "../client/solana";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
+  const wallets = useWallet();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -87,7 +92,31 @@ const ReclaimPage = () => {
     try {
       const ignoreMints = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
 
-      // console.log(res);
+      const body = {
+        wallet: "J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv",
+        ignoreMints,
+      };
+
+      const { txs } = await getSignableTx(body);
+      // console.log(txs);
+      console.log(wallets);
+      // for (const b64Tx of txs) {
+      //   // Decode Base64 to Uint8Array
+      //   const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
+      //   const tx = Transaction.from(txBytes);
+
+      //   console.log(tx);
+      //   // Sign with the wallet
+      //   const signedTx = await wallet.signTransaction(tx);
+
+      //   // Send to Solana
+      //   const txid = await solanaClient.sendRawTransaction(signedTx.serialize());
+      //   console.log("Transaction sent:", txid);
+
+      //   // Optional: confirm transaction
+      //   await solanaClient.confirmTransaction(txid, "confirmed");
+      //   console.log("Transaction confirmed:", txid);
+      // }
     } catch (err) {
       console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");
