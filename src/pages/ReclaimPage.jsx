@@ -10,7 +10,6 @@ import useSecureSigner from "../hooks/useSecureSigner";
 import useWalletManager from "../hooks/useWalletManager";
 import { getAccLookup } from "../services/getAccOverview";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
-import Token from "../components/reclaim/Token";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
@@ -83,7 +82,7 @@ const ReclaimPage = () => {
 
   const tabComponents = {
     tokens: (
-      <Token
+      <TokenSection
         type="burn"
         tokensCount={accOverview?.burnTokenAccCount || 0}
         selectedTokens={selected.burn}

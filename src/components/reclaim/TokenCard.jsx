@@ -1,14 +1,9 @@
 import React from "react";
-import { ExternalLink } from "lucide-react";
+import { X } from "lucide-react";
 
-const TokenCard = ({ token, index, isSelected, onToggle }) => {
+const TokenCard = ({ token, index, handleRemoveToken }) => {
   return (
-    <div
-      className={`flex items-center justify-between p-4 rounded-xl transition-all ${
-        isSelected ? "bg-red-500/10 border-red-500/30" : "bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/70"
-      } ${index >= 6 ? "opacity-90 blur-[0.8px]" : ""}`}
-      onClick={() => onToggle(index)}
-    >
+    <div className="flex items-center justify-between p-4 rounded-xl transition-all bg-gray-900/50 border-gray-700/30 hover:bg-gray-900/7">
       <div className="flex items-center space-x-4">
         <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center overflow-hidden">
           {token.logoURI ? (
@@ -29,16 +24,16 @@ const TokenCard = ({ token, index, isSelected, onToggle }) => {
           <div className="text-white font-semibold">{token.name.slice(0, 15)}</div>
           <div className="text-gray-400 text-sm">{token.symbol}</div>
         </div>
-        <button
-          onClick={e => {
-            e.stopPropagation();
-            window.open(`https://solscan.io/account/${token.mint}`, "_blank");
-          }}
-          className="p-2 text-gray-400 hover:text-white transition-colors"
-        >
-          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-        </button>
       </div>
+      <button
+        onClick={e => {
+          e.stopPropagation();
+          handleRemoveToken(index);
+        }}
+        className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+      >
+        <X className="w-5 h-5" />
+      </button>
     </div>
   );
 };
