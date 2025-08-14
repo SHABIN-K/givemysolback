@@ -44,10 +44,20 @@ export default {
 
     // 🔀 Route matching
     const handler = getHandler(path);
-    if (handler && typeof handler.onRequestGet === "function") {
-      const response = await handler.onRequestGet({ request, env, ctx });
+    if (handler) {
+      let response;
 
-      // 🧠 Ensure handler response has CORS headers
+      if (method === "GET" && typeof handler.onRequestGet === "function") {
+        response = await handler.onRequestGet({ request, env, ctx });
+      } else if (method === "POST" && typeof handler.onRequestPost === "function") {
+        response = await handler.onRequestPost({ request, env, ctx });
+      } else {
+        return new Response("Method Not Allowed", {
+          status: 405,
+          headers: CORS_HEADERS,
+        });
+      }
+
       return new Response(response.body, {
         status: response.status || 200,
         headers: {

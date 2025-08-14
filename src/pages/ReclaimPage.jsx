@@ -85,7 +85,7 @@ const ReclaimPage = () => {
     setTxStatus(true);
 
     try {
-      const excluedMint = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
+      const ignoreMints = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
 
       // console.log(res);
     } catch (err) {
