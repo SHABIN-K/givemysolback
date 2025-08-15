@@ -1,9 +1,6 @@
-import { RPC_URL } from "../utils";
 import { Connection, Transaction } from "@solana/web3.js";
 
-const connection = new Connection(RPC_URL, "processed");
-
-async function serializeBatchArray(batches, ownerPubkey) {
+async function serializeBatchArray(batches, ownerPubkey, connection) {
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("finalized");
 
     return batches.map(batch => {
@@ -17,11 +14,12 @@ async function serializeBatchArray(batches, ownerPubkey) {
     });
 }
 
-async function serializeBatches(ixBatches, ownerPubkey) {
+async function serializeBatches(ixBatches, ownerPubkey, env) {
+    const connection = new Connection(env.RPC_URL, "processed");
     return {
-        burnOnly: await serializeBatchArray(ixBatches?.burnOnlyBatches || [], ownerPubkey),
-        closeOnly: await serializeBatchArray(ixBatches?.closeOnlyBatches || [], ownerPubkey),
-        closeAfterBurn: await serializeBatchArray(ixBatches?.closeAfterBurnBatches || [], ownerPubkey)
+        burnOnly: await serializeBatchArray(ixBatches?.burnOnlyBatches || [], ownerPubkey, connection),
+        closeOnly: await serializeBatchArray(ixBatches?.closeOnlyBatches || [], ownerPubkey, connection),
+        closeAfterBurn: await serializeBatchArray(ixBatches?.closeAfterBurnBatches || [], ownerPubkey, connection)
     };
 }
 

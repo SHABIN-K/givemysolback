@@ -24,14 +24,14 @@ export const getAccOverview = async walletAddress => {
 
 export const getAccLookup = async walletAddress => {
   try {
-    // const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`);
+    const response = await fetch(`${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}`);
 
-    // if (!response.ok) {
-    //   throw new Error(`API Error: ${response.status}`);
-    // }
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
 
-    // const data = await response.json();
-    const data = cache;
+    const data = await response.json();
+    // const data = cache;
     return data;
   } catch (err) {
     console.error("Error fetching account lookup:", err);
@@ -41,20 +41,26 @@ export const getAccLookup = async walletAddress => {
 
 export const getSignableTx = async body => {
   try {
-    // const response = await fetch(`${cloudflareApiUrl}/generate-signable-tx`);
-    const response = await fetch(`http://127.0.0.1:8787/generate-signable-tx`, {
+    const response = await fetch(`${cloudflareApiUrl}/generate-signable-tx`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
+    // const response = await fetch(`http://127.0.0.1:8787/generate-signable-tx`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(body),
+    // });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
     const data = await response.json();
+
+    if (!data) throw new Error("No transactions to process");
     // const data = cacheTx
     return data;
   } catch (err) {

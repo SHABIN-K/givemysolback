@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
 
         const InstructionsBatches = await buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey);
 
-        const serializedTxs = await serializeBatches(InstructionsBatches, ownerPubkey)
+        const serializedTxs = await serializeBatches(InstructionsBatches, ownerPubkey, env)
 
         return new Response(JSON.stringify({
             txs: serializedTxs,
