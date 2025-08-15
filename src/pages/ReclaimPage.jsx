@@ -1,4 +1,6 @@
+import { Transaction } from "@solana/web3.js";
 import { Zap, Flame, LogOut } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
@@ -7,13 +9,11 @@ const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
+import solanaClient from "../client/solana";
 import useWalletManager from "../hooks/useWalletManager";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 import { getAccLookup, getSignableTx } from "../services/getWalletDetails";
 
-import { Transaction } from "@solana/web3.js";
-import solanaClient from "../client/solana";
-import { useWallet } from "@solana/wallet-adapter-react";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
@@ -86,42 +86,49 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const handleProceedTx = async config => {
+  const ignoreMints = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
+
+  const handleProceedTx = async () => {
     setTxStatus(true);
 
     try {
-      const ignoreMints = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
-
-      const body = {
-        wallet: "J8Ahi2n5fNVRXAQ8y9noAmg2ztSrJUyvQ14DbZNu9BVv",
+      // Get signable transactions from backend
+      const { txs } = await getSignableTx({
+        wallet: publicKey,
         ignoreMints,
-      };
+      });
 
-      const { txs } = await getSignableTx(body);
+      if (!txs?.length) {
+        console.warn("No transactions to process");
+        return;
+      }
 
-      // Decode Base64 to Uint8Array
+      // Decode Base64 → Transaction objects
       const transactions = txs.map(b64Tx => {
         const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
         return Transaction.from(txBytes);
       });
 
-      // Sign with the wallet
+      // Sign all tx with the wallet
       const signedTxs = await wallet.signAllTransactions(transactions);
 
-      let txid = [];
+      // Send all transactions first
+      const txids = [];
       for (const signedTx of signedTxs) {
-        const id = await solanaClient.sendRawTransaction(signedTx.serialize());
-        txid.push(id);
+        const txid = await solanaClient.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
+        txids.push(txid);
+        console.log("✅ Sent:", txid.slice(0, 10));
       }
 
-      for (const id of txid) {
-        await solanaClient.confirmTransaction(id, {
+      // Confirm transactions after all have been sent
+      for (const txid of txids) {
+        await solanaClient.confirmTransaction(txid, {
           commitment: "confirmed",
           strategy: { type: "single" },
         });
-        console.log("Transaction confirmed:", id);
+
+        console.log("🎯 Confirmed:", txid.slice(0, 10));
       }
-      
     } catch (err) {
       console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");
