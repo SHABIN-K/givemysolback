@@ -14,7 +14,6 @@ import useWalletManager from "../hooks/useWalletManager";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 import { getAccLookup, getSignableTx } from "../services/getWalletDetails";
 
-
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
   const wallet = useWallet();
@@ -86,7 +85,7 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const ignoreMints = ["2HtBH1HTHA5oK6h1D2vL8GRzSUR24nDec9483tcMbonk", "5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
+  const ignoreMints = ["5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump"];
 
   const handleProceedTx = async () => {
     setTxStatus(true);
@@ -108,7 +107,7 @@ const ReclaimPage = () => {
         const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
         return Transaction.from(txBytes);
       });
-
+      console.log(transactions);
       // Sign all tx with the wallet
       const signedTxs = await wallet.signAllTransactions(transactions);
 

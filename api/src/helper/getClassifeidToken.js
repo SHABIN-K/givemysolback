@@ -25,7 +25,11 @@ function classifyTokenAccounts(tokenAccounts) {
       if (VERIFIED_MINTS.has(account.mint)) {
         verifiedMintCount++;
       } else {
-        burnCandidateAccounts.push(account.address)
+        burnCandidateAccounts.push({
+          address: account.address,
+          mint: account.mint,
+          amount
+        });
       }
     }
   }

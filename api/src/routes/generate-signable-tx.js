@@ -1,8 +1,8 @@
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync, } from "@solana/spl-token";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 import { errorResponse, RPC_URL } from "../utils";
-import buildCloseInstructions from "../helper/buildCloseInstructions";
+import buildInstructions from "../helper/buildInstructions";
 
 export async function onRequestPost({ request, env }) {
     try {
@@ -15,13 +15,12 @@ export async function onRequestPost({ request, env }) {
         if (!accountSnapshot) return errorResponse("No account data found for this wallet", 403);
 
         const ownerPubkey = new PublicKey(wallet);
-        const atas = ignoreMints.map(mint => {
+        const ignoreAtas = ignoreMints.map(mint => {
             const mintPubkey = new PublicKey(mint);
             return getAssociatedTokenAddressSync(mintPubkey, ownerPubkey).toBase58();
         });
 
-        const { zeroBalanceAccounts, burnCandidateAccounts } = JSON.parse(accountSnapshot || "{}");
-        const instructionBatches = await buildCloseInstructions(atas, zeroBalanceAccounts, ownerPubkey);
+        const instructionBatches = await buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey);
 
         const connection = new Connection(RPC_URL, "processed");
         const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("finalized");

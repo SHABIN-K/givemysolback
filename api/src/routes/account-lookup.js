@@ -30,11 +30,11 @@ export async function onRequestGet({ request, env }) {
 
     const { zeroBalanceAccounts, burnCandidateAccounts, verifiedMintCount } = classifyTokenAccounts(tokenAccounts);
 
-    const totalAcnt = totalAccounts - verifiedMintCount 
+    const totalAcnt = totalAccounts - verifiedMintCount
 
     await env.TOKEN_ACCOUNT_CACHE.put(kvKey, JSON.stringify({
       zeroBalanceAccounts, burnCandidateAccounts, totalAccounts: totalAcnt
-    }), { expirationTtl: 1200 });
+    }), { expirationTtl: 600 });
 
     const result = {
       rentPerAccountLamports,
