@@ -17,7 +17,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 
 const ReclaimPage = () => {
   const { publicKey, disconnect } = useWalletManager();
-  const wallets = useWallet();
+  const wallet = useWallet();
 
   const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -98,25 +98,30 @@ const ReclaimPage = () => {
       };
 
       const { txs } = await getSignableTx(body);
-      // console.log(txs);
-      console.log(wallets);
-      // for (const b64Tx of txs) {
-      //   // Decode Base64 to Uint8Array
-      //   const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
-      //   const tx = Transaction.from(txBytes);
 
-      //   console.log(tx);
-      //   // Sign with the wallet
-      //   const signedTx = await wallet.signTransaction(tx);
+      // Decode Base64 to Uint8Array
+      const transactions = txs.map(b64Tx => {
+        const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
+        return Transaction.from(txBytes);
+      });
 
-      //   // Send to Solana
-      //   const txid = await solanaClient.sendRawTransaction(signedTx.serialize());
-      //   console.log("Transaction sent:", txid);
+      // Sign with the wallet
+      const signedTxs = await wallet.signAllTransactions(transactions);
 
-      //   // Optional: confirm transaction
-      //   await solanaClient.confirmTransaction(txid, "confirmed");
-      //   console.log("Transaction confirmed:", txid);
-      // }
+      let txid = [];
+      for (const signedTx of signedTxs) {
+        const id = await solanaClient.sendRawTransaction(signedTx.serialize());
+        txid.push(id);
+      }
+
+      for (const id of txid) {
+        await solanaClient.confirmTransaction(id, {
+          commitment: "confirmed",
+          strategy: { type: "single" },
+        });
+        console.log("Transaction confirmed:", id);
+      }
+      
     } catch (err) {
       console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");
