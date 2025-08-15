@@ -16,16 +16,19 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
 
     // Filter ignored accounts
     const filteredZeroAcc = zeroBalanceAccounts.filter(ata => !ignoreSet.has(ata));
-    const filteredBurnAcc = burnCandidateAccounts.filter(acc => ignoreSet.has(acc.address));
+    const filteredBurnAcc = burnCandidateAccounts.filter(acc => !ignoreSet.has(acc.address));
 
-    const allInstructions = [];
+    const closeOnlyInstr = [];
+    const burnOnlyInstr = [];
+    const closeAfterBurnInstr = [];
 
     // Create instruction sets per chunk
     // Burn candidates: burn then close
     for (const { address, mint, amount } of filteredBurnAcc) {
         const ataPk = new PublicKey(address);
         const mintPk = new PublicKey(mint);
-        allInstructions.push(
+
+        burnOnlyInstr.push(
             createBurnInstruction(
                 ataPk,
                 mintPk,
@@ -34,6 +37,9 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
                 [],
                 TOKEN_PROGRAM_ID
             ),
+        );
+
+        closeAfterBurnInstr.push(
             createCloseAccountInstruction(
                 ataPk,
                 dest,
@@ -43,22 +49,25 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
             )
         );
     }
-    console.log(allInstructions)
 
     // Zero balance accounts: just close
-    // for (const ata of filteredZeroAcc) {
-    //     allInstructions.push(
-    //         createCloseAccountInstruction(
-    //             new PublicKey(ata),
-    //             dest,
-    //             ownerPubkey,
-    //             [],
-    //             TOKEN_PROGRAM_ID
-    //         )
-    //     );
-    // }
-
-    return chunkArray(allInstructions);
+    for (const ata of filteredZeroAcc) {
+        closeOnlyInstr.push(
+            createCloseAccountInstruction(
+                new PublicKey(ata),
+                dest,
+                ownerPubkey,
+                [],
+                TOKEN_PROGRAM_ID
+            )
+        );
+    }
+   
+    return {
+        closeOnlyBatches: chunkArray(closeOnlyInstr, 26),
+        burnOnlyBatches: chunkArray(burnOnlyInstr, 13),
+        closeAfterBurnBatches: chunkArray(closeAfterBurnInstr, 26)
+    };
 }
 
 export default buildInstructions;
