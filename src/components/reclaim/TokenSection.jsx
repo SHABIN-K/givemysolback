@@ -8,6 +8,8 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
   const [mintInput, setMintInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("Paste Your mint Address");
 
+  const LOCAL_STORAGE_KEY = "whitelistedMints";
+
   const handleKeyPress = e => {
     if (e.key === "Enter") {
       handleAddSafeToken();
@@ -23,23 +25,38 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
       return;
     }
 
+    const alreadyExists = safeMints.some(token => token.mint === mintAddress);
+
     try {
+      if (alreadyExists) {
+        console.log("⏩ Mint already saved", mintAddress.slice(0, 8));
+        return;
+      }
+
       const details = await getMintDetails(mintAddress);
 
       setSafeMints(prev => {
         if (prev.some(t => t.mint === details.mint)) return prev;
-        return [...prev, details];
-      });
+        const updated = [...prev, details];
 
-      setMintInput("");
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
     } catch (err) {
       setErrorMsg("Failed to fetch token details");
       setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
+    } finally {
+      setMintInput("");
     }
-  }, [mintInput, setSafeMints]);
+  }, [mintInput, setSafeMints, safeMints]);
 
   const handleRemoveToken = mint => {
-    setSafeMints(prev => prev.filter(token => token.mint !== mint));
+    setSafeMints(prev => {
+      const updated = prev.filter(token => token.mint !== mint);
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
   };
 
   return (

@@ -8,48 +8,40 @@ const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
+import solanaClient from "../client/solana";
 import signAllBatches from "../utils/signAllBatches";
 import useWalletManager from "../hooks/useWalletManager";
+import { getSignableTx } from "../services/getWalletDetails";
+import { useAccountLookup } from "../services/useAccountLookup";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
-import { getAccLookup, getSignableTx } from "../services/getWalletDetails";
 
 const ReclaimPage = () => {
-  const { publicKey, disconnect } = useWalletManager();
   const wallet = useWallet();
+  const { publicKey, disconnect } = useWalletManager();
+  const { accountData: accOverview, loading: isLoading } = useAccountLookup(wallet?.publicKey);
 
-  const [accOverview, setAccOverview] = useState(null);
   const [selected, setSelected] = useState([]);
-
   const [activeTab, setActiveTab] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showTransactionSettings, setShowTransactionSettings] = useState(false);
-  const [txStatus, setTxStatus] = useState(false);
+
   const [txError, setTxError] = useState("");
+  const [txStatus, setTxStatus] = useState(false);
+  const [showTransactionSettings, setShowTransactionSettings] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!publicKey) return;
+    if (!accOverview) return;
 
-      setIsLoading(true);
-      try {
-        const data = await getAccLookup(publicKey);
-        setAccOverview(data);
+    // Restore whitelist from localStorage
+    const stored = localStorage.getItem("whitelistedMints");
+    setSelected(JSON.parse(stored));
 
-        const sorted = [
-          { id: "tokens", count: data.burnTokenAccCount },
-          { id: "zero-balance", count: data.zeroBalanceAccCount },
-        ].sort((a, b) => b.count - a.count);
+    // Sort tabs dynamically
+    const sorted = [
+      { id: "tokens", count: accOverview.burnTokenAccCount },
+      { id: "zero-balance", count: accOverview.zeroBalanceAccCount },
+    ].sort((a, b) => b.count - a.count);
 
-        setActiveTab(sorted[0].id);
-      } catch (error) {
-        console.error("Failed to fetch account data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [publicKey]);
+    setActiveTab(sorted[0].id);
+  }, [accOverview]);
 
   const sortedTabs = useMemo(() => {
     if (!accOverview) return [];
@@ -62,8 +54,8 @@ const ReclaimPage = () => {
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
-    const burnCount = accOverview.burnTokenAccCount - selected.length;
-    const zeroCount = accOverview.zeroBalanceAccCount;
+    const burnCount = accOverview.burnTokenAccCount - selected.length || 0;
+    const zeroCount = accOverview.zeroBalanceAccCount || 0;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
     const zeroBalanceRent = calculateTotalRentInSOL(zeroCount);
@@ -73,7 +65,7 @@ const ReclaimPage = () => {
     return {
       burnCount,
       zeroCount,
-      totalSelected: burnCount,
+      totalSelected: zeroCount + burnCount,
       totalRent,
       zeroBalanceRent,
     };
@@ -84,37 +76,52 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const ignoreMints = ["5zcHcvMhSzo4YjssiZoAmTzVx9JSCCuzwPUdewb1pump", "4LaLFWDtUD22LFp222FY4VtZXChM1etXLCmi6MCJpump"];
-
   const handleProceedTx = async () => {
     setTxStatus(true);
 
     try {
+      const ignoreMints = selected.map(item => item.mint);
+
+      if (selected) return null;
+
       // Get signable transactions from backend
-      const { txs, counts } = await getSignableTx({
+      const { txs } = await getSignableTx({
         wallet: publicKey,
         ignoreMints,
       });
 
-      console.log(txs, counts);
+      console.log(txs);
 
-      // Process in fixed order: closeOnly → burnOnly → closeAfterBurn
+      // Process in fixed order: closeOnly + burnOnly → closeAfterBurn
+      const closeAndBurnTxs = [...(txs.closeOnly || []), ...(txs.burnOnly || [])];
+
       const order = [
-        { key: "closeOnly", label: "Close Only" },
-        { key: "burnOnly", label: "Burn Only" },
-        { key: "closeAfterBurn", label: "Close After Burn" },
+        // Accounts that can be closed immediately (zero balance) or need burning
+        { key: "mergedCloseBurn", label: "Close & Burn Only", txArray: closeAndBurnTxs },
+        // Accounts that must be closed only after their tokens are burned
+        { key: "closeAfterBurn", label: "Close After Burn", txArray: txs.closeAfterBurn || [] },
       ];
 
-      for (const { key, label } of order) {
-        const count = counts[key] || 0;
+      let txids = [];
 
-        if (count === 0) {
+      for (const { label, txArray } of order) {
+        if (!txArray.length) {
           console.log(`⚠️ Skipping ${label} — no transactions`);
           continue;
         }
 
-        console.log(`🚀 Processing ${label} (${count} transactions)`);
-        await signAllBatches(label, txs[key], wallet);
+        console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
+        const batchTxids = await signAllBatches(label, txArray, wallet);
+        txids.push(...batchTxids);
+      }
+
+      for (const txid of txids) {
+        await solanaClient.confirmTransaction(txid, {
+          commitment: "confirmed",
+          strategy: { type: "single" },
+        });
+
+        console.log("🎯Confirmed:", txid.slice(0, 10));
       }
     } catch (err) {
       console.error("TX Error:", err);
@@ -160,7 +167,7 @@ const ReclaimPage = () => {
         </div>
 
         {/* Transaction Summary */}
-        {(summary?.totalSelected > 0 || summary?.zeroCount > 0) && (
+        {summary?.totalSelected > 0 && (
           <TransactionSummary
             summary={{
               burnCount: summary?.burnCount,
@@ -175,19 +182,17 @@ const ReclaimPage = () => {
           <div className="flex flex-col gap-3 sm:gap-4">
             <button
               onClick={() => setShowTransactionSettings(true)}
-              disabled={summary?.totalSelected + summary?.zeroCount === 0}
-              aria-label={`Process ${summary?.zeroCount + summary?.totalSelected} accounts`}
+              disabled={summary?.totalSelected === 0}
+              aria-label={`Process ${summary?.totalSelected} accounts`}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">
-                {summary?.totalSelected + summary?.zeroCount === 0
+                {summary?.totalSelected === 0
                   ? "Nothing to reclaim at the moment"
-                  : `Process ${summary?.zeroCount + summary?.totalSelected} Accounts & Reclaim ${formatNumber(
-                      summary?.totalRent
-                    )} SOL`}
+                  : `Process ${summary?.totalSelected} Accounts & Reclaim ${formatNumber(summary?.totalRent)} SOL`}
               </span>
-              <span className="sm:hidden">Process {summary?.zeroCount + summary?.totalSelected} Accounts</span>
+              <span className="sm:hidden">Process {summary?.totalSelected} Accounts</span>
             </button>
           </div>
         )}

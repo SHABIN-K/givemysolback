@@ -42,14 +42,7 @@ export async function onRequestPost({ request, env }) {
             lastUpdated: Date.now()
         }));
 
-        return new Response(JSON.stringify({
-            txs: serializedTxs,
-            counts: {
-                closeOnly: serializedTxs.closeOnly.length,
-                burnOnly: serializedTxs.burnOnly.length,
-                closeAfterBurn: serializedTxs.closeAfterBurn.length
-            }
-        }), { status: 200 });
+        return new Response(JSON.stringify({ txs: serializedTxs }), { status: 200 });
     } catch (err) {
         return new Response(JSON.stringify({ error: "Internal server error", details: err.message }), { status: 500 });
     }
