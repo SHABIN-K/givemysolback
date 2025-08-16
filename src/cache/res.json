@@ -1,7 +1,7 @@
 {
   "rentPerAccountLamports": 2039280,
-  "totalAccounts": 135,
-  "zeroBalanceAccCount": 38,
-  "burnTokenAccCount": 97,
-  "hasMoreData": true
+  "totalAccounts": 2,
+  "zeroBalanceAccCount": 0,
+  "burnTokenAccCount": 2,
+  "hasMoreData": false
 }

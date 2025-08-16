@@ -18,7 +18,7 @@ import { calculateTotalRentInSOL, formatNumber } from "../utils";
 const ReclaimPage = () => {
   const wallet = useWallet();
   const { publicKey, disconnect } = useWalletManager();
-  const { accountData: accOverview, loading: isLoading } = useAccountLookup(wallet?.publicKey);
+  const { accountData: accOverview, loading: isLoading } = useAccountLookup(publicKey);
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -41,7 +41,7 @@ const ReclaimPage = () => {
     ].sort((a, b) => b.count - a.count);
 
     setActiveTab(sorted[0].id);
-  }, [accOverview]);
+  }, [accOverview, publicKey]);
 
   const sortedTabs = useMemo(() => {
     if (!accOverview) return [];
