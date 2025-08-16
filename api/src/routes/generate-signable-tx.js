@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
             totalProcessed = parsed.totalReclaimedAccounts || 0;
         }
 
-        if (!accountSnapshot) return errorResponse("No account data found for this wallet", 403);
+        if (!accountSnapshot) return errorResponse("No account data found for this wallet", 404);
 
         const ownerPubkey = new PublicKey(wallet);
         const ignoreAtas = ignoreMints.map(mint => {

@@ -34,7 +34,7 @@ export async function onRequestGet({ request, env }) {
 
     await env.TOKEN_ACCOUNT_CACHE.put(kvKey, JSON.stringify({
       zeroBalanceAccounts, burnCandidateAccounts, totalAccounts: totalAcnt
-    }), { expirationTtl: 600 });
+    }), { expirationTtl: 1000 });
 
     const result = {
       rentPerAccountLamports,
