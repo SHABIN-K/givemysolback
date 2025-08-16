@@ -1,7 +1,7 @@
-import { Transaction } from "@solana/web3.js";
 import solanaClient from "../client/solana";
+import { Transaction } from "@solana/web3.js";
 
-async function signAllBatches(label, txs, wallet) {
+async function signAllBatches(label, txs, wallet, feePayerKey) {
     if (!txs?.length) {
         console.log(`⚠️ No transactions in section: ${label}`);
         return [];
@@ -19,12 +19,21 @@ async function signAllBatches(label, txs, wallet) {
         // Update blockhash & lastValidBlockHeight
         tx.recentBlockhash = blockhash;
         tx.lastValidBlockHeight = lastValidBlockHeight;
-        tx.feePayer = wallet.publicKey;
+        tx.feePayer = feePayerKey ? feePayerKey.publicKey : wallet.publicKey;
+
         return tx;
     });
 
     // Sign all
-    const signedTxs = await wallet.signAllTransactions(transactions);
+    let signedTxs = await wallet.signAllTransactions(transactions);
+
+    // Add feePayer signature if feepayer is availbe
+    if (feePayerKey && feePayerKey.publicKey.toBase58() !== wallet.publicKey.toBase58()) {
+        signedTxs = signedTxs.map(tx => {
+            tx.partialSign(feePayerKey);
+            return tx;
+        });
+    }
 
     // Send Tx
     const txids = [];
@@ -35,7 +44,7 @@ async function signAllBatches(label, txs, wallet) {
     }
 
     return txids;
-} 
+}
 
 
 export default signAllBatches

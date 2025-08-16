@@ -15,6 +15,8 @@ import { getSignableTx } from "../services/getWalletDetails";
 import { useAccountLookup } from "../services/useAccountLookup";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
+import { PublicKey } from "@solana/web3.js";
+
 const ReclaimPage = () => {
   const wallet = useWallet();
   const { publicKey, disconnect } = useWalletManager();
@@ -25,7 +27,7 @@ const ReclaimPage = () => {
 
   const [txError, setTxError] = useState("");
   const [txStatus, setTxStatus] = useState(false);
-  const [showTransactionSettings, setShowTransactionSettings] = useState(false);
+  const [showTransactionSettings, setShowTransactionSettings] = useState(true);
 
   useEffect(() => {
     if (!accOverview) return;
@@ -76,22 +78,26 @@ const ReclaimPage = () => {
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
   };
 
-  const handleProceedTx = async () => {
+  const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
     setTxStatus(true);
 
     try {
       const ignoreMints = selected.map(item => item.mint);
-
-      if (selected) return null;
+      const feePayer = feePayerKey ? feePayerKey.publicKey.toBase58() : undefined;
 
       // Get signable transactions from backend
       const { txs } = await getSignableTx({
         wallet: publicKey,
         ignoreMints,
+        paymentConfig: {
+          feePayer,
+          rentReceiver,
+          commissionPercent,
+        },
       });
 
       console.log(txs);
-
+      // if (selected) return null;
       // Process in fixed order: closeOnly + burnOnly → closeAfterBurn
       const closeAndBurnTxs = [...(txs.closeOnly || []), ...(txs.burnOnly || [])];
 
@@ -111,7 +117,7 @@ const ReclaimPage = () => {
         }
 
         console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
-        const batchTxids = await signAllBatches(label, txArray, wallet);
+        const batchTxids = await signAllBatches(label, txArray, wallet, feePayerKey);
         txids.push(...batchTxids);
       }
 

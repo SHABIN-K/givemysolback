@@ -1,15 +1,40 @@
 import { Zap } from "lucide-react";
+import bs58 from "bs58";
+import { Keypair } from "@solana/web3.js";
+
 import React, { useState } from "react";
 
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
 
 const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
-  const [gasPayment, setGasPayment] = useState(false);
-  const [rentCollection, setRentCollection] = useState(false);
-  const [donationPercent, setDonationPercent] = useState(0);
-  const [privateKey, setPrivateKey] = useState("");
+  const [feePayerKey, setFeePayerKey] = useState("");
   const [rentAddress, setRentAddress] = useState("");
+  const [donationPercent, setDonationPercent] = useState(0);
+
+  const [config, setConfig] = useState({
+    gasPayment: false,
+    rentCollection: false,
+  });
+
+  const toggleConfig = key => {
+    setConfig(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleProceedTx = () => {
+    let keypair;
+
+    if (feePayerKey) {
+      const secretKey = bs58.decode(feePayerKey);
+      keypair = Keypair.fromSecretKey(secretKey);
+    }
+
+    onProceed({
+      feePayerKey: keypair || undefined,
+      rentReceiver: rentAddress || undefined,
+      commissionPercent: donationPercent,
+    });
+  };
 
   return (
     <div className="mt-8">
@@ -18,18 +43,18 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
 
         <ToggleInputSection
           label="Unified Gas Payment"
-          isEnabled={gasPayment}
-          onToggle={() => setGasPayment(!gasPayment)}
-          inputValue={privateKey}
-          onInputChange={e => setPrivateKey(e.target.value)}
+          isEnabled={config.gasPayment}
+          onToggle={() => toggleConfig("gasPayment")}
+          inputValue={feePayerKey}
+          onInputChange={e => setFeePayerKey(e.target.value)}
           placeholder="Enter or paste private key"
           tooltipAction={"gasPayment"}
         />
 
         <ToggleInputSection
           label="Unified Rent Collection Address"
-          isEnabled={rentCollection}
-          onToggle={() => setRentCollection(!rentCollection)}
+          isEnabled={config.rentCollection}
+          onToggle={() => toggleConfig("rentCollection")}
           inputValue={rentAddress}
           onInputChange={e => setRentAddress(e.target.value)}
           placeholder="Enter collection address"
@@ -41,7 +66,7 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
 
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <button
-          onClick={onProceed}
+          onClick={handleProceedTx}
           disabled={isLoading}
           className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
         >

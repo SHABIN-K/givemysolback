@@ -7,13 +7,17 @@ import buildInstructions from "../helper/buildInstructions";
 
 export async function onRequestPost({ request, env }) {
     try {
-        const { wallet, ignoreMints } = await request.json();
+        const { wallet, ignoreMints, paymentConfig } = await request.json();
 
         if (!wallet) return errorResponse("Missing fields in request");
 
+        let totalProcessed = 0;
         const kvKey = `${wallet}-account-data`;
         const global_total_key = "global_reclaim_total";
-        let totalProcessed = 0;
+        const userPubkey = new PublicKey(wallet);
+        const masterPubkey = new PublicKey("AK7ecjPXdnk2svnTUXWzRX1d6xfC2EhRGPP56g5GLsvn");
+        const feePayerPubkey = paymentConfig?.feePayer ? new PublicKey(paymentConfig.feePayer) : userPubkey;
+        const rentReceiverPubkey = paymentConfig?.rentReceiver ? new PublicKey(paymentConfig.rentReceiver) : userPubkey;
 
         const accountSnapshot = await env.TOKEN_ACCOUNT_CACHE.get(kvKey);
         const reclaimTotal = await env.TOKEN_ACCOUNT_CACHE.get(global_total_key);
@@ -25,15 +29,14 @@ export async function onRequestPost({ request, env }) {
 
         if (!accountSnapshot) return errorResponse("No account data found for this wallet", 404);
 
-        const ownerPubkey = new PublicKey(wallet);
-        const ignoreAtas = ignoreMints.map(mint => {
+        const ignoreAtas = ignoreMints?.map(mint => {
             const mintPubkey = new PublicKey(mint);
-            return getAssociatedTokenAddressSync(mintPubkey, ownerPubkey).toBase58();
+            return getAssociatedTokenAddressSync(mintPubkey, userPubkey).toBase58();
         });
 
-        const InstructionsBatches = await buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey);
+        const InstructionsBatches = await buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiverPubkey);
 
-        const serializedTxs = await serializeBatches(InstructionsBatches, ownerPubkey, env)
+        const serializedTxs = await serializeBatches(InstructionsBatches, feePayerPubkey, env)
 
         const newTotal = totalProcessed + InstructionsBatches.totalAccounts;
 

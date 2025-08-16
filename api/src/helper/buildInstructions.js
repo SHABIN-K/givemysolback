@@ -7,7 +7,7 @@ function chunkArray(arr, size = 1) {
     return chunks;
 }
 
-async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
+async function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiverPubkey) {
     const { zeroBalanceAccounts = [], burnCandidateAccounts = [], totalAccounts } = JSON.parse(accountSnapshot || "{}");
 
     const ignoreSet = new Set(ignoreAtas);
@@ -31,7 +31,7 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
             createBurnInstruction(
                 ataPk,
                 mintPk,
-                ownerPubkey,
+                userPubkey,
                 amount,
                 [],
                 TOKEN_PROGRAM_ID
@@ -42,7 +42,7 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
             createCloseAccountInstruction(
                 ataPk,
                 dest,
-                ownerPubkey,
+                userPubkey,
                 [],
                 TOKEN_PROGRAM_ID
             )
@@ -55,7 +55,7 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
             createCloseAccountInstruction(
                 new PublicKey(ata),
                 dest,
-                ownerPubkey,
+                userPubkey,
                 [],
                 TOKEN_PROGRAM_ID
             )

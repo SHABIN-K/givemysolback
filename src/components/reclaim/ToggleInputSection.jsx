@@ -13,7 +13,7 @@ const Tooltip = ({ content, hoveredTooltip, children }) => (
   </div>
 );
 
-const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputChange, placeholder, onHover, tooltipAction }) => {
+const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputChange, placeholder, tooltipAction }) => {
   const [hoveredTooltip, setHoveredTooltip] = useState(null);
 
   const tooltips = {
@@ -27,17 +27,8 @@ const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputCha
     <div className="mb-6 sm:mb-8">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div
-            className={`w-12 h-6 rounded-full transition-colors ${
-              isEnabled ? "bg-blue-500" : "bg-gray-600"
-            } relative cursor-pointer`}
-            onClick={onToggle}
-          >
-            <div
-              className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
-                isEnabled ? "translate-x-6" : "translate-x-0.5"
-              }`}
-            />
+          <div  className={`w-12 h-6 rounded-full transition-colors ${isEnabled ? "bg-blue-500" : "bg-gray-600"} relative cursor-pointer`} onClick={onToggle}>
+            <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${isEnabled ? "translate-x-6" : "translate-x-0.5"}`}/>
           </div>
           <span className="text-white font-semibold text-sm sm:text-base">{label}</span>
           <Tooltip content={tooltips[tooltipAction]} hoveredTooltip={hoveredTooltip}>
