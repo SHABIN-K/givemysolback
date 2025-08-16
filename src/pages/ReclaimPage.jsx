@@ -27,7 +27,7 @@ const ReclaimPage = () => {
 
   const [txError, setTxError] = useState("");
   const [txStatus, setTxStatus] = useState(false);
-  const [showTransactionSettings, setShowTransactionSettings] = useState(true);
+  const [showTransactionSettings, setShowTransactionSettings] = useState(false);
 
   useEffect(() => {
     if (!accOverview) return;
