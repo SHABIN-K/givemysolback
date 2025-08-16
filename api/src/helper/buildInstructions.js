@@ -7,9 +7,8 @@ function chunkArray(arr, size = 1) {
     return chunks;
 }
 
-
 async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
-    const { zeroBalanceAccounts = [], burnCandidateAccounts = [] } = JSON.parse(accountSnapshot || "{}");
+    const { zeroBalanceAccounts = [], burnCandidateAccounts = [], totalAccounts } = JSON.parse(accountSnapshot || "{}");
 
     const ignoreSet = new Set(ignoreAtas);
     const dest = new PublicKey("AK7ecjPXdnk2svnTUXWzRX1d6xfC2EhRGPP56g5GLsvn");
@@ -62,11 +61,12 @@ async function buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey) {
             )
         );
     }
-   
+
     return {
         closeOnlyBatches: chunkArray(closeOnlyInstr, 26),
         burnOnlyBatches: chunkArray(burnOnlyInstr, 13),
-        closeAfterBurnBatches: chunkArray(closeAfterBurnInstr, 26)
+        closeAfterBurnBatches: chunkArray(closeAfterBurnInstr, 26),
+        totalAccounts
     };
 }
 

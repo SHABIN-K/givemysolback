@@ -12,7 +12,17 @@ export async function onRequestPost({ request, env }) {
         if (!wallet) return errorResponse("Missing fields in request");
 
         const kvKey = `${wallet}-account-data`;
+        const global_total_key = "global_reclaim_total";
+        let totalProcessed = 0;
+
         const accountSnapshot = await env.TOKEN_ACCOUNT_CACHE.get(kvKey);
+        const reclaimTotal = await env.TOKEN_ACCOUNT_CACHE.get(global_total_key);
+
+        if (reclaimTotal) {
+            const parsed = JSON.parse(reclaimTotal);
+            totalProcessed = parsed.totalReclaimedAccounts || 0;
+        }
+
         if (!accountSnapshot) return errorResponse("No account data found for this wallet", 403);
 
         const ownerPubkey = new PublicKey(wallet);
@@ -24,6 +34,13 @@ export async function onRequestPost({ request, env }) {
         const InstructionsBatches = await buildInstructions(ignoreAtas, accountSnapshot, ownerPubkey);
 
         const serializedTxs = await serializeBatches(InstructionsBatches, ownerPubkey, env)
+
+        const newTotal = totalProcessed + InstructionsBatches.totalAccounts;
+
+        await env.TOKEN_ACCOUNT_CACHE.put(global_total_key, JSON.stringify({
+            totalReclaimedAccounts: newTotal,
+            lastUpdated: Date.now()
+        }));
 
         return new Response(JSON.stringify({
             txs: serializedTxs,
