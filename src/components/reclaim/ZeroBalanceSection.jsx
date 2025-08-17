@@ -6,12 +6,14 @@ import EmptyState from "./EmptyState";
 const ZeroBalanceSection = ({ count, totalRent }) => {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white flex items-center">
-          <Zap className="w-5 h-5 mr-2 text-green-400" />
-          Zero Balance Accounts ({count})
-        </h3>
-      </div>
+      {count != 0 && (
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-white flex items-center">
+            <Zap className="w-5 h-5 mr-2 text-green-400" />
+            Zero Balance Accounts ({count})
+          </h3>
+        </div>
+      )}
 
       {count === 0 ? (
         <EmptyState

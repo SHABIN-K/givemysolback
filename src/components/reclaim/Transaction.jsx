@@ -1,8 +1,7 @@
-import { Zap } from "lucide-react";
 import bs58 from "bs58";
-import { Keypair } from "@solana/web3.js";
-
+import { Zap } from "lucide-react";
 import React, { useState } from "react";
+import { Keypair } from "@solana/web3.js";
 
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
@@ -16,6 +15,7 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
     gasPayment: false,
     rentCollection: false,
   });
+  const [errorMsg, setErrorMsg] = useState("Paste Your Wallet Address");
 
   const toggleConfig = key => {
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
@@ -23,6 +23,12 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
 
   const handleProceedTx = () => {
     let keypair;
+
+    if (!/^[A-Za-z0-9]{32,44}$/.test(rentAddress)) {
+      setErrorMsg("Oops! Invalid Solana address");
+      setTimeout(() => setErrorMsg("Enter Wallet Address"), 2800);
+      return;
+    }
 
     if (feePayerKey) {
       const secretKey = bs58.decode(feePayerKey);

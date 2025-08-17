@@ -11,15 +11,15 @@ import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } f
 import solanaClient from "../client/solana";
 import signAllBatches from "../utils/signAllBatches";
 import useWalletManager from "../hooks/useWalletManager";
+import { decryptPrivateKey } from "../utils/EncryptStorage";
 import { getSignableTx } from "../services/getWalletDetails";
 import { useAccountLookup } from "../services/useAccountLookup";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
-import { decryptPrivateKey } from "../utils/EncryptStorage";
 
 const ReclaimPage = () => {
   const wallet = useWallet();
   const { walletAddress, publicKey: walletPubkey, disconnect, source } = useWalletManager();
-  const { accountData: accOverview, loading: isLoading } = useAccountLookup(walletAddress);
+  const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup(walletAddress);
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -95,7 +95,6 @@ const ReclaimPage = () => {
         },
       });
 
-      console.log(txs);
       // if (selected) return null;
       // Process in fixed order: closeOnly + burnOnly → closeAfterBurn
       const closeAndBurnTxs = [...(txs.closeOnly || []), ...(txs.burnOnly || [])];
@@ -110,7 +109,10 @@ const ReclaimPage = () => {
       let txids = [];
       let walletkeypair = null;
       if (source === "import") {
-        const passphrase = prompt("Enter your wallet passphrase:");
+        const passphrase = prompt(
+          "Enter the password you set when importing your wallet.\n" +
+            "This is the password you created at the time of wallet import, and it will be used to decrypt your wallet."
+        );
         // Decrypt the imported wallet's secret key
         walletkeypair = decryptPrivateKey(passphrase);
       }
@@ -143,6 +145,8 @@ const ReclaimPage = () => {
 
         console.log("🎯Confirmed:", txid.slice(0, 10));
       }
+
+      refetch();
     } catch (err) {
       console.error("TX Error:", err);
       setTxError(err.message || "Transaction failed");

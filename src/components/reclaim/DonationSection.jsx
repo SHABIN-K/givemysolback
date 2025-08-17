@@ -16,6 +16,7 @@ const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) =
       <p className="text-gray-400 text-xs sm:text-sm mb-4">
         Help us maintain and improve this free service. Your donation supports continued development.
       </p>
+
       <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-4">
         {donationOptions.map(percent => (
           <button
@@ -31,6 +32,7 @@ const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) =
           </button>
         ))}
       </div>
+      
       {donationPercent > 0 && (
         <div className="bg-pink-500/10 border border-pink-500/20 rounded-xl p-4">
           <div className="flex justify-between text-sm">
