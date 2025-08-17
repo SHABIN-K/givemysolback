@@ -88,7 +88,7 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
       </div>
 
       {/* Manual Tokens List */}
-      {safeMints.length > 0 ? (
+      {safeMints?.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {safeMints.map((token, index) => (
             <TokenCard key={index} token={token} handleRemoveToken={handleRemoveToken} />

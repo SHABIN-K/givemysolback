@@ -11,7 +11,7 @@ import { ConnectedState, ConnectingState, PrivateKeyImport, WalletConnectionOpti
 
 const WalletConnectionPage = () => {
   const { setVisible } = useWalletModal();
-  const { connected, publicKey, disconnect, isChecking } = useWalletManager();
+  const { connected, walletAddress: publicKey, disconnect, isChecking } = useWalletManager();
 
   const [pubKey, setPubKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");

@@ -1,3 +1,4 @@
+import { PublicKey } from "@solana/web3.js";
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 
@@ -40,7 +41,8 @@ export default function useWalletManager() {
 
   return {
     connected,
-    publicKey,
+    walletAddress: publicKey,
+    publicKey: publicKey ? new PublicKey(publicKey) : null,
     disconnect,
     source: isExtensionConnected ? "connect" : isImportedConnected ? "import" : null,
     isChecking,

@@ -1,7 +1,7 @@
 import solanaClient from "../client/solana";
 import { Transaction } from "@solana/web3.js";
 
-async function signAllBatches(label, txs, wallet, feePayerKey) {
+async function signAllBatches(label, txs, browserWallet, signer, walletPubkey, feePayerKey) {
     if (!txs?.length) {
         console.log(`⚠️ No transactions in section: ${label}`);
         return [];
@@ -9,7 +9,6 @@ async function signAllBatches(label, txs, wallet, feePayerKey) {
 
     // Get a fresh blockhash here
     const { blockhash, lastValidBlockHeight } = await solanaClient.getLatestBlockhash("finalized");
-
 
     // Decode Base64 → Transaction[]
     const transactions = txs.map(b64Tx => {
@@ -19,16 +18,29 @@ async function signAllBatches(label, txs, wallet, feePayerKey) {
         // Update blockhash & lastValidBlockHeight
         tx.recentBlockhash = blockhash;
         tx.lastValidBlockHeight = lastValidBlockHeight;
-        tx.feePayer = feePayerKey ? feePayerKey.publicKey : wallet.publicKey;
+        tx.feePayer = feePayerKey ? feePayerKey.publicKey : walletPubkey;
 
         return tx;
     });
 
     // Sign all
-    let signedTxs = await wallet.signAllTransactions(transactions);
+    let signedTxs;
+
+    if (browserWallet?.signAllTransactions) {
+        console.log(browserWallet, "je;;p")
+        signedTxs = await browserWallet.signAllTransactions(transactions);
+    } else if (signer) {
+        console.log(signer)
+        signedTxs = transactions.map(tx => {
+            tx.sign(signer);
+            return tx;
+        });
+    } else {
+        throw new Error("No signer available. Connect a wallet or import one.");
+    }
 
     // Add feePayer signature if feepayer is availbe
-    if (feePayerKey && feePayerKey.publicKey.toBase58() !== wallet.publicKey.toBase58()) {
+    if (feePayerKey && feePayerKey.publicKey.toBase58() !== walletPubkey.toBase58()) {
         signedTxs = signedTxs.map(tx => {
             tx.partialSign(feePayerKey);
             return tx;

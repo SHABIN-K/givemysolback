@@ -14,13 +14,12 @@ import useWalletManager from "../hooks/useWalletManager";
 import { getSignableTx } from "../services/getWalletDetails";
 import { useAccountLookup } from "../services/useAccountLookup";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
-
-import { PublicKey } from "@solana/web3.js";
+import { decryptPrivateKey } from "../utils/EncryptStorage";
 
 const ReclaimPage = () => {
   const wallet = useWallet();
-  const { publicKey, disconnect } = useWalletManager();
-  const { accountData: accOverview, loading: isLoading } = useAccountLookup(publicKey);
+  const { walletAddress, publicKey: walletPubkey, disconnect, source } = useWalletManager();
+  const { accountData: accOverview, loading: isLoading } = useAccountLookup(walletAddress);
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -34,16 +33,16 @@ const ReclaimPage = () => {
 
     // Restore whitelist from localStorage
     const stored = localStorage.getItem("whitelistedMints");
-    setSelected(JSON.parse(stored));
+    setSelected(stored ? JSON.parse(stored) : []);
 
     // Sort tabs dynamically
     const sorted = [
-      { id: "tokens", count: accOverview.burnTokenAccCount },
-      { id: "zero-balance", count: accOverview.zeroBalanceAccCount },
+      { id: "tokens", count: accOverview?.burnTokenAccCount },
+      { id: "zero-balance", count: accOverview?.zeroBalanceAccCount },
     ].sort((a, b) => b.count - a.count);
 
     setActiveTab(sorted[0].id);
-  }, [accOverview, publicKey]);
+  }, [accOverview, walletAddress]);
 
   const sortedTabs = useMemo(() => {
     if (!accOverview) return [];
@@ -56,7 +55,7 @@ const ReclaimPage = () => {
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
-    const burnCount = accOverview.burnTokenAccCount - selected.length || 0;
+    const burnCount = accOverview.burnTokenAccCount - selected?.length || 0;
     const zeroCount = accOverview.zeroBalanceAccCount || 0;
 
     const burnRent = calculateTotalRentInSOL(burnCount);
@@ -85,9 +84,17 @@ const ReclaimPage = () => {
       const ignoreMints = selected.map(item => item.mint);
       const feePayer = feePayerKey ? feePayerKey.publicKey.toBase58() : undefined;
 
+      if (source === "import") {
+        const passphrase = prompt("Enter your wallet passphrase:");
+        // Decrypt the imported wallet's secret key
+        const decryptedSecretKey = decryptPrivateKey(passphrase);
+        console.log(decryptedSecretKey);
+      }
+      
+      if (selected) return null;
       // Get signable transactions from backend
       const { txs } = await getSignableTx({
-        wallet: publicKey,
+        wallet: walletAddress,
         ignoreMints,
         paymentConfig: {
           feePayer,
@@ -108,6 +115,12 @@ const ReclaimPage = () => {
         { key: "closeAfterBurn", label: "Close After Burn", txArray: txs.closeAfterBurn || [] },
       ];
 
+      if (source === "import") {
+        const passphrase = prompt("Enter your wallet passphrase:");
+        // Decrypt the imported wallet's secret key
+        const decryptedSecretKey = decryptPrivateKey(passphrase);
+        console.log(decryptedSecretKey);
+      }
       let txids = [];
 
       for (const { label, txArray } of order) {
@@ -117,7 +130,7 @@ const ReclaimPage = () => {
         }
 
         console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
-        const batchTxids = await signAllBatches(label, txArray, wallet, feePayerKey);
+        const batchTxids = await signAllBatches(label, txArray, wallet, walletPubkey, feePayerKey);
         txids.push(...batchTxids);
       }
 

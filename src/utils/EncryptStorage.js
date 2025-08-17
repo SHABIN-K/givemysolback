@@ -4,16 +4,15 @@ export const STORAGE_KEY = "encryptedPrivateKey";
 const MAX_LIFETIME = 1 * 60 * 60 * 1000; // 1 hours in ms
 
 export function decryptPrivateKey(passphrase) {
-  const item = localStorage.getItem(STORAGE_KEY);
-  if (!item) return null;
-
   try {
-    const { encrypted } = JSON.parse(item);
+    const { encrypted } = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!encrypted) return false;
     const bytes = CryptoJS.AES.decrypt(encrypted, passphrase);
     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-    return decrypted || null;
-  } catch {
-    return null;
+    return decrypted || false;
+  } catch (err) {
+    console.log("Failed to decrypt. Check your passphrase.", err)
+    return false;
   }
 }
 
