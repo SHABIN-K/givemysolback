@@ -1,4 +1,6 @@
+import bs58 from "bs58";
 import CryptoJS from "crypto-js";
+import { Keypair } from "@solana/web3.js";
 
 export const STORAGE_KEY = "encryptedPrivateKey";
 const MAX_LIFETIME = 1 * 60 * 60 * 1000; // 1 hours in ms
@@ -9,7 +11,11 @@ export function decryptPrivateKey(passphrase) {
     if (!encrypted) return false;
     const bytes = CryptoJS.AES.decrypt(encrypted, passphrase);
     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-    return decrypted || false;
+
+    const secretKeyBytes = bs58.decode(decrypted);
+    const signer = Keypair.fromSecretKey(secretKeyBytes);
+    
+    return signer || false;
   } catch (err) {
     console.log("Failed to decrypt. Check your passphrase.", err)
     return false;

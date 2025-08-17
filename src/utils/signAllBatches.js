@@ -1,7 +1,7 @@
 import solanaClient from "../client/solana";
 import { Transaction } from "@solana/web3.js";
 
-async function signAllBatches(label, txs, browserWallet, signer, walletPubkey, feePayerKey) {
+async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey) {
     if (!txs?.length) {
         console.log(`⚠️ No transactions in section: ${label}`);
         return [];
@@ -26,13 +26,11 @@ async function signAllBatches(label, txs, browserWallet, signer, walletPubkey, f
     // Sign all
     let signedTxs;
 
-    if (browserWallet?.signAllTransactions) {
-        console.log(browserWallet, "je;;p")
+    if (browserWallet?.signAllTransactions && !walletKeypair) {
         signedTxs = await browserWallet.signAllTransactions(transactions);
-    } else if (signer) {
-        console.log(signer)
+    } else if (walletKeypair) {
         signedTxs = transactions.map(tx => {
-            tx.sign(signer);
+            tx.sign(walletKeypair);
             return tx;
         });
     } else {

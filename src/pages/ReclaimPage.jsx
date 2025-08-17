@@ -84,14 +84,6 @@ const ReclaimPage = () => {
       const ignoreMints = selected.map(item => item.mint);
       const feePayer = feePayerKey ? feePayerKey.publicKey.toBase58() : undefined;
 
-      if (source === "import") {
-        const passphrase = prompt("Enter your wallet passphrase:");
-        // Decrypt the imported wallet's secret key
-        const decryptedSecretKey = decryptPrivateKey(passphrase);
-        console.log(decryptedSecretKey);
-      }
-      
-      if (selected) return null;
       // Get signable transactions from backend
       const { txs } = await getSignableTx({
         wallet: walletAddress,
@@ -115,13 +107,13 @@ const ReclaimPage = () => {
         { key: "closeAfterBurn", label: "Close After Burn", txArray: txs.closeAfterBurn || [] },
       ];
 
+      let txids = [];
+      let walletkeypair = null;
       if (source === "import") {
         const passphrase = prompt("Enter your wallet passphrase:");
         // Decrypt the imported wallet's secret key
-        const decryptedSecretKey = decryptPrivateKey(passphrase);
-        console.log(decryptedSecretKey);
+        walletkeypair = decryptPrivateKey(passphrase);
       }
-      let txids = [];
 
       for (const { label, txArray } of order) {
         if (!txArray.length) {
@@ -130,7 +122,16 @@ const ReclaimPage = () => {
         }
 
         console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
-        const batchTxids = await signAllBatches(label, txArray, wallet, walletPubkey, feePayerKey);
+
+        const batchTxids = await signAllBatches(
+          label,
+          txArray,
+          wallet, // browser wallet adapter
+          walletkeypair, // Keypair signer for imported wallet
+          walletPubkey,
+          feePayerKey
+        );
+
         txids.push(...batchTxids);
       }
 

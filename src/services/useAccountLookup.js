@@ -8,7 +8,7 @@ const fetcher = (url) => fetch(url).then(res => {
 });
 
 export function useAccountLookup(walletAddress) {
-    const shouldFetch = !walletAddress ? `${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}` : null;
+    const shouldFetch = walletAddress ? `${cloudflareApiUrl}/account-lookup?wallet=${walletAddress}` : null;
     const { data, error, isLoading } = useSWR(shouldFetch, fetcher, {
         refreshInterval: 15 * 60 * 1000,
         revalidateOnFocus: false,
