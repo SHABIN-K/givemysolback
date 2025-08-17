@@ -39,7 +39,7 @@ export const getBatchTokenAccounts = async (wallet, env) => {
   let hasMore = true;
   let allTokenAccounts = [];
 
-  while (hasMore && currentPage <= 5) {
+  while (hasMore && currentPage <= 3) {
     const { total, limit, token_accounts } = await getTokenAccounts(wallet, currentPage, env);
     allTokenAccounts = allTokenAccounts.concat(token_accounts || []);
 

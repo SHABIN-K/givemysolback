@@ -5,14 +5,14 @@ import { errorResponse, rentPerAccountLamports } from "../utils";
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const wallet = url.searchParams.get("wallet");
+  const skipCache = url.searchParams.get("skipCache") === "true";
 
   if (!wallet) return errorResponse("Missing wallet address")
 
   const kvKey = `${wallet}-account-data`;
 
   try {
-
-    const cached = await env.TOKEN_ACCOUNT_CACHE.get(kvKey, { type: "json" });
+    const cached = !skipCache ? await env.TOKEN_ACCOUNT_CACHE.get(kvKey, { type: "json" }) : null;
     if (cached) {
 
       const result = {

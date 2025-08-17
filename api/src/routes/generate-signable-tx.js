@@ -15,7 +15,7 @@ export async function onRequestPost({ request, env }) {
         const kvKey = `${wallet}-account-data`;
         const global_total_key = "global_reclaim_total";
         const userPubkey = new PublicKey(wallet);
-        const masterPubkey = new PublicKey("AK7ecjPXdnk2svnTUXWzRX1d6xfC2EhRGPP56g5GLsvn");
+        const commissionPercent = Math.min(100, Math.max(0, paymentConfig.commissionPercent ?? 5));  // default 5%
         const feePayerPubkey = paymentConfig?.feePayer ? new PublicKey(paymentConfig.feePayer) : userPubkey;
         const rentReceiverPubkey = paymentConfig?.rentReceiver ? new PublicKey(paymentConfig.rentReceiver) : userPubkey;
 
@@ -27,14 +27,20 @@ export async function onRequestPost({ request, env }) {
             totalProcessed = parsed.totalReclaimedAccounts || 0;
         }
 
-        if (!accountSnapshot) return errorResponse("No account data found for this wallet", 404);
+        if (!accountSnapshot) return errorResponse("No account data found in this wallet", 404);
 
         const ignoreAtas = ignoreMints?.map(mint => {
             const mintPubkey = new PublicKey(mint);
             return getAssociatedTokenAddressSync(mintPubkey, userPubkey).toBase58();
         });
 
-        const InstructionsBatches = await buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiverPubkey);
+        const InstructionsBatches = await buildInstructions(
+            ignoreAtas,
+            accountSnapshot,
+            userPubkey,
+            rentReceiverPubkey,
+            commissionPercent
+        );
 
         const serializedTxs = await serializeBatches(InstructionsBatches, feePayerPubkey, env)
 
