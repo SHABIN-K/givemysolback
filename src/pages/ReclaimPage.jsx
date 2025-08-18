@@ -79,11 +79,15 @@ const ReclaimPage = () => {
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
     setTxStatus(true);
-
     try {
-      const ignoreMints = selected.map(item => item.mint);
+      const ignoreMints = selected.map(item => ({
+        mint: item.mint,
+        token22: item.token22,
+      }));
+
       const feePayer = feePayerKey ? feePayerKey.publicKey.toBase58() : undefined;
 
+      // if (selected) return null;
       // Get signable transactions from backend
       const { txs } = await getSignableTx({
         wallet: walletAddress,
@@ -95,15 +99,11 @@ const ReclaimPage = () => {
         },
       });
 
-      // if (selected) return null;
-      // Process in fixed order: closeOnly + burnOnly → closeAfterBurn
-      const closeAndBurnTxs = [...(txs.closeOnly || []), ...(txs.burnOnly || [])];
-
+      // Process in fixed order: closeOnly → burnOnly → closeAfterBurn
       const order = [
-        // Accounts that can be closed immediately (zero balance) or need burning
-        { key: "mergedCloseBurn", label: "Close & Burn Only", txArray: closeAndBurnTxs },
-        // Accounts that must be closed only after their tokens are burned
-        { key: "closeAfterBurn", label: "Close After Burn", txArray: txs.closeAfterBurn || [] },
+        { label: "Close Only", txArray: txs.closeOnly || [] },
+        { label: "Burn Only", txArray: txs.burnOnly || [] },
+        { label: "Close After Burn", txArray: txs.closeAfterBurn || [] },
       ];
 
       let txids = [];

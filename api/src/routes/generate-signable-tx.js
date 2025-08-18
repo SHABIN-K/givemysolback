@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync, } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, } from "@solana/spl-token";
 
 import { errorResponse } from "../utils";
 import serializeBatches from "../helper/serializeBatches";
@@ -29,9 +29,16 @@ export async function onRequestPost({ request, env }) {
 
         if (!accountSnapshot) return errorResponse("No account data found in this wallet", 404);
 
-        const ignoreAtas = ignoreMints?.map(mint => {
+        const ignoreAtas = ignoreMints?.map(({ mint, token22 }) => {
             const mintPubkey = new PublicKey(mint);
-            return getAssociatedTokenAddressSync(mintPubkey, userPubkey).toBase58();
+            const programId = token22 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID;
+
+            return getAssociatedTokenAddressSync(
+                mintPubkey,
+                userPubkey,
+                false,
+                programId,
+            ).toBase58();
         });
 
         const InstructionsBatches = await buildInstructions(

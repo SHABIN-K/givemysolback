@@ -48,9 +48,20 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
     // Send Tx
     const txids = [];
     for (const signedTx of signedTxs) {
-        const txid = await solanaClient.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
-        txids.push(txid);
-        console.log(`✅ [${label}] Sent:`, txid.slice(0, 10));
+        try {
+            const txid = await solanaClient.sendRawTransaction(
+                signedTx.serialize(),
+                { skipPreflight: false }
+            );
+            txids.push(txid);
+            console.log(`✅ [${label}] Sent:`, txid.slice(0, 10));
+        } catch (e) {
+            if (e.logs) {
+                console.error("Transaction failed logs:", e.logs);
+            } else {
+                console.error("Transaction failed:", e);
+            }
+        }
     }
 
     return txids;

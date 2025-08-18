@@ -35,7 +35,7 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
       }
 
       const details = await getMintDetails(mintAddress);
-
+     
       setSafeMints(prev => {
         if (prev.some(t => t.mint === details.mint)) return prev;
         const updated = [...prev, details];

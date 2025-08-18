@@ -24,11 +24,11 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
   const handleProceedTx = () => {
     let keypair;
 
-    if (!/^[A-Za-z0-9]{32,44}$/.test(rentAddress)) {
-      setErrorMsg("Oops! Invalid Solana address");
-      setTimeout(() => setErrorMsg("Enter Wallet Address"), 2800);
-      return;
-    }
+    // if (!/^[A-Za-z0-9]{32,44}$/.test(rentAddress)) {
+    //   setErrorMsg("Oops! Invalid Solana address");
+    //   setTimeout(() => setErrorMsg("Enter Wallet Address"), 2800);
+    //   return;
+    // }
 
     if (feePayerKey) {
       const secretKey = bs58.decode(feePayerKey);

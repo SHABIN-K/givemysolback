@@ -10,6 +10,7 @@ async function getMintDetails(mint) {
             symbol: data[0]?.symbol || "???",
             name: data[0]?.name || "Unknown",
             logoURI: data[0]?.icon || null,
+            token22: data[0]?.tokenProgram === "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
         }
     } catch (error) {
         console.error("[JUP-API-ERROR] :", error);

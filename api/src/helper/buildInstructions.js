@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createCloseAccountInstruction, createBurnInstruction, closeAccount } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, createCloseAccountInstruction, createBurnInstruction } from "@solana/spl-token";
 
 function chunkArray(arr, size = 1) {
     const chunks = [];
