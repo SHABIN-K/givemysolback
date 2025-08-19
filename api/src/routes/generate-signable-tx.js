@@ -49,7 +49,7 @@ export async function onRequestPost({ request, env }) {
             commissionPercent
         );
 
-        const serializedTxs = await serializeBatches(InstructionsBatches, feePayerPubkey, env)
+        const serializedTxs = await serializeBatches(InstructionsBatches, feePayerPubkey)
 
         const newTotal = totalProcessed + InstructionsBatches.totalAccounts;
 

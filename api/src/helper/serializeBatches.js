@@ -1,25 +1,26 @@
-import { Connection, Transaction } from "@solana/web3.js";
+import { TransactionMessage, VersionedTransaction } from "@solana/web3.js";
+import { toBase64 } from "../utils";
 
-async function serializeBatchArray(batches, feePayer, connection) {
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("finalized");
-
+async function serializeBatchArray(batches, feePayer) {
     return batches.map(batch => {
-        const tx = new Transaction({
-            blockhash,
-            lastValidBlockHeight,
-            feePayer
-        }).add(...batch);
+        const messageV0 = new TransactionMessage({
+            payerKey: feePayer,
+            recentBlockhash: "11111111111111111111111111111111",
+            instructions: batch
+        }).compileToV0Message();
 
-        return tx.serialize({ requireAllSignatures: false, verifySignatures: false }).toString("base64");
+        const vtx = new VersionedTransaction(messageV0);
+        
+        // Serialize to base64
+        return toBase64(vtx.serialize());
     });
 }
 
-async function serializeBatches(ixBatches, feePayer, env) {
-    const connection = new Connection(env.RPC_URL, "processed");
+async function serializeBatches(ixBatches, feePayer) {
     return {
-        burnOnly: await serializeBatchArray(ixBatches?.burnOnlyBatches || [], feePayer, connection),
-        closeOnly: await serializeBatchArray(ixBatches?.closeOnlyBatches || [], feePayer, connection),
-        closeAfterBurn: await serializeBatchArray(ixBatches?.closeAfterBurnBatches || [], feePayer, connection)
+        burnOnly: await serializeBatchArray(ixBatches?.burnOnlyBatches || [], feePayer),
+        closeOnly: await serializeBatchArray(ixBatches?.closeOnlyBatches || [], feePayer),
+        closeAfterBurn: await serializeBatchArray(ixBatches?.closeAfterBurnBatches || [], feePayer)
     };
 }
 
