@@ -11,7 +11,6 @@ async function stripBadInstructions(signedTx, failedIx) {
         });
 
         if (!simResult.value.err) {
-            console.log("✅ All remaining instructions passed");
             break;
         }
 

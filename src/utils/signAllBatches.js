@@ -2,9 +2,7 @@ import solanaClient from "../client/solana";
 import stripBadInstructions from "./stripBadInstructions";
 import { VersionedTransaction } from "@solana/web3.js";
 
-async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey) {
-    let failedInstructions = [];
-
+async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey, failedInstructions) {
     // Decode Base64 → VersionedTransaction[] and strip bad instructions in parallel
     const transactions = await Promise.all(
         txs.map(async (b64Tx, i) => {
@@ -23,13 +21,6 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
             return cleanedTx;
         })
     );
-
-    if (failedInstructions.length > 0) {
-        console.warn(`⚠️ [${label}] Transaction removed failing instructions:`, failedInstructions.map(b => b.index));
-        const storageKey = `failedIx_${walletPubkey.toBase58()}`;
-        const indices = failedInstructions.map(b => b.ata);
-        localStorage.setItem(storageKey, JSON.stringify(indices));
-    }
 
     // Get a fresh blockhash 
     const { blockhash, lastValidBlockHeight } = await solanaClient.getLatestBlockhash("finalized");
@@ -51,7 +42,7 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
         signedTxs = await browserWallet.signAllTransactions(validTransactions);
     } else if (walletKeypair) {
         signedTxs = validTransactions.map(tx => {
-            tx.sign(walletKeypair);
+            tx.sign([walletKeypair]);
             return tx;
         });
     } else {
@@ -60,10 +51,7 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
 
     // Add feePayer signature if feepayer is availbe
     if (feePayerKey && feePayerKey.publicKey.toBase58() !== walletPubkey.toBase58()) {
-        signedTxs = signedTxs.map(tx => {
-            tx.partialSign(feePayerKey);
-            return tx;
-        });
+        signedTxs.forEach(tx => tx.sign([feePayerKey]));
     }
 
     // Send Tx

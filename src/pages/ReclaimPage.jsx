@@ -79,6 +79,11 @@ const ReclaimPage = () => {
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
     setTxStatus(true);
+    const storageKey = `failedIx_${walletPubkey.toBase58()}`;
+
+    const item = localStorage.getItem(storageKey);
+    const uniqueATAs = [...new Set(item ? JSON.parse(item) : [])];
+
     try {
       const ignoreMints = selected.map(item => ({
         mint: item.mint,
@@ -92,6 +97,7 @@ const ReclaimPage = () => {
       const { txs } = await getSignableTx({
         wallet: walletAddress,
         ignoreMints,
+        invalidATA: uniqueATAs,
         paymentConfig: {
           feePayer,
           rentReceiver,
@@ -107,6 +113,7 @@ const ReclaimPage = () => {
       ];
 
       let txids = [];
+      let failedInstructions = [];
       let walletkeypair = null;
       if (source === "import") {
         const passphrase = prompt(
@@ -131,10 +138,16 @@ const ReclaimPage = () => {
           wallet, // browser wallet adapter
           walletkeypair, // Keypair signer for imported wallet
           walletPubkey,
-          feePayerKey
+          feePayerKey,
+          failedInstructions
         );
 
         txids.push(...batchTxids);
+      }
+
+      if (failedInstructions.length > 0) {
+        const indices = failedInstructions.map(b => b.ata);
+        localStorage.setItem(storageKey, JSON.stringify(indices));
       }
 
       for (const txid of txids) {
