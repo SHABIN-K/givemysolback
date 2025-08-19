@@ -1,35 +1,56 @@
 import solanaClient from "../client/solana";
-import { Transaction } from "@solana/web3.js";
+import stripBadInstructions from "./stripBadInstructions";
+import { VersionedTransaction } from "@solana/web3.js";
 
 async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey) {
-    if (!txs?.length) {
-        console.log(`⚠️ No transactions in section: ${label}`);
-        return [];
+    let failedInstructions = [];
+
+    // Decode Base64 → VersionedTransaction[] and strip bad instructions in parallel
+    const transactions = await Promise.all(
+        txs.map(async (b64Tx, i) => {
+            const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
+            const vtx = VersionedTransaction.deserialize(txBytes);
+
+            // Strip failing instructions BEFORE signing
+            const cleanedTx = await stripBadInstructions(vtx, failedInstructions);
+
+            // Skip empty transactions
+            if (cleanedTx.message.compiledInstructions.length === 0) {
+                console.warn(`⚠️ [${label}] Transaction #${i} has no instructions after stripping. Skipping.`);
+                return null;
+            }
+
+            return cleanedTx;
+        })
+    );
+
+    if (failedInstructions.length > 0) {
+        console.warn(`⚠️ [${label}] Transaction removed failing instructions:`, failedInstructions.map(b => b.index));
+        const storageKey = `failedIx_${walletPubkey.toBase58()}`;
+        const indices = failedInstructions.map(b => b.ata);
+        localStorage.setItem(storageKey, JSON.stringify(indices));
     }
 
-    // Get a fresh blockhash here
+    // Get a fresh blockhash 
     const { blockhash, lastValidBlockHeight } = await solanaClient.getLatestBlockhash("finalized");
 
-    // Decode Base64 → Transaction[]
-    const transactions = txs.map(b64Tx => {
-        const txBytes = Uint8Array.from(atob(b64Tx), c => c.charCodeAt(0));
-        const tx = Transaction.from(txBytes);
+    // Filter out null (empty) transactions
+    const validTransactions = transactions
+        .filter(tx => tx !== null)
+        .map(tx => {
+            tx.message.recentBlockhash = blockhash;
+            tx.lastValidBlockHeight = lastValidBlockHeight;
+            return tx;
+        });
 
-        // Update blockhash & lastValidBlockHeight
-        tx.recentBlockhash = blockhash;
-        tx.lastValidBlockHeight = lastValidBlockHeight;
-        tx.feePayer = feePayerKey ? feePayerKey.publicKey : walletPubkey;
-
-        return tx;
-    });
 
     // Sign all
     let signedTxs;
 
     if (browserWallet?.signAllTransactions && !walletKeypair) {
-        signedTxs = await browserWallet.signAllTransactions(transactions);
+        signedTxs = await browserWallet.signAllTransactions(validTransactions);
     } else if (walletKeypair) {
-        signedTxs = transactions.map(tx => {
+        signedTxs = validTransactions.map(tx => {
             tx.sign(walletKeypair);
             return tx;
         });
@@ -47,20 +68,16 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
 
     // Send Tx
     const txids = [];
+
     for (const signedTx of signedTxs) {
         try {
-            const txid = await solanaClient.sendRawTransaction(
-                signedTx.serialize(),
-                { skipPreflight: false }
-            );
+            //send the cleaned transaction (without failing instructions)
+            const txid = await solanaClient.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
             txids.push(txid);
+
             console.log(`✅ [${label}] Sent:`, txid.slice(0, 10));
         } catch (e) {
-            if (e.logs) {
-                console.error("Transaction failed logs:", e.logs);
-            } else {
-                console.error("Transaction failed:", e);
-            }
+            console.error("❌ Transaction completely failed:", e);
         }
     }
 
