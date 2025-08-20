@@ -31,17 +31,6 @@ export default {
       });
     }
 
-    // 🔒 Global api key checker
-    if (env.PROJECT_MODE === "PRODUCTION") {
-      const key = request.headers.get("x-api-key");
-      if (key !== env.PRIVATE_API_KEY) {
-        return new Response("Unauthorized – Invalid API key", {
-          status: 403,
-          headers: CORS_HEADERS,
-        });
-      }
-    }
-
     // 🔀 Route matching
     const handler = getHandler(path);
     if (handler) {
