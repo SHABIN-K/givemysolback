@@ -7,7 +7,7 @@ import buildInstructions from "../helper/buildInstructions";
 
 export async function onRequestPost({ request, env }) {
     try {
-        const { wallet, ignoreMints, paymentConfig } = await request.json();
+        const { wallet, ignoreMints, invalidATA, paymentConfig } = await request.json();
 
         if (!wallet) return errorResponse("Missing fields in request");
 
@@ -46,7 +46,8 @@ export async function onRequestPost({ request, env }) {
             accountSnapshot,
             userPubkey,
             rentReceiverPubkey,
-            commissionPercent
+            commissionPercent,
+            invalidATA
         );
 
         const serializedTxs = await serializeBatches(InstructionsBatches, feePayerPubkey)

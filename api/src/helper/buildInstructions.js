@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, createCloseAccountInstruction, createBurnInstruction } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, createCloseAccountInstruction, createBurnInstruction, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 function chunkArray(arr, size = 1) {
     const chunks = [];
@@ -17,16 +17,18 @@ function chunkArray(arr, size = 1) {
  * @param {PublicKey} userPubkey - The public key of the user whose accounts are being processed.
  * @param {PublicKey} rentReceiverPubkey - The public key that will receive any reclaimed SOL (rent) from closed accounts.
  * @param {number} commissionPercent - The percentage of accounts to take as commission during processing.
+ * @param {Array} invalidATA - List of ATA to change to token22 format during processing.
  *
  * @returns {Promise<Array>} Array of Solana transaction instructions ready to be sent.
  *
  * This function filters out ignored ATAs,
  * and generates all instructions needed to close accounts and send rent/fees accordingly.
  */
-function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiverPubkey, commissionPercent) {
+function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiverPubkey, commissionPercent, invalidATA) {
     const { zeroBalanceAccounts = [], burnCandidateAccounts = [], totalAccounts } = JSON.parse(accountSnapshot || "{}");
 
     const ignoreSet = new Set(ignoreAtas);
+    const invalidATASet = new Set(invalidATA);
     const masterPubkey = new PublicKey("AK7ecjPXdnk2svnTUXWzRX1d6xfC2EhRGPP56g5GLsvn");
     const effectiveTotal = totalAccounts - ignoreSet.size;
     const commissionAccounts = totalAccounts > 10 ? Math.ceil((effectiveTotal * commissionPercent) / 100) : 0;
@@ -41,17 +43,23 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
 
     let remainingCommission = commissionAccounts;
 
+    const getDestinationAndProgram = (ata, remainingCommission) => {
+        const destination = remainingCommission > 0 ? masterPubkey : rentReceiverPubkey;
+        const programId = invalidATASet.has(ata) ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID;
+        return { destination, programId };
+    };
+
     // Create instruction sets per chunk
     // Zero balance accounts: just close
     for (const ata of filteredZeroAcc) {
-        const destination = remainingCommission > 0 ? masterPubkey : rentReceiverPubkey;
+        const { destination, programId } = getDestinationAndProgram(ata, remainingCommission);
         closeOnlyInstr.push(
             createCloseAccountInstruction(
                 new PublicKey(ata),
                 destination,
                 userPubkey,
                 [],
-                TOKEN_PROGRAM_ID
+                programId
             )
         );
 
@@ -62,7 +70,7 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
     for (const { address, mint, amount } of filteredBurnAcc) {
         const ataPk = new PublicKey(address);
         const mintPk = new PublicKey(mint);
-        const destination = remainingCommission > 0 ? masterPubkey : rentReceiverPubkey;
+        const { destination, programId } = getDestinationAndProgram(address, remainingCommission);
 
         burnOnlyInstr.push(
             createBurnInstruction(
@@ -71,7 +79,7 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
                 userPubkey,
                 amount,
                 [],
-                TOKEN_PROGRAM_ID
+                programId
             ),
         );
 
@@ -81,7 +89,7 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
                 destination,
                 userPubkey,
                 [],
-                TOKEN_PROGRAM_ID
+                programId
             )
         );
 
@@ -97,4 +105,3 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
 }
 
 export default buildInstructions;
-  
