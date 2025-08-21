@@ -1,10 +1,12 @@
-import { Zap, Flame, LogOut } from "lucide-react";
+import { Zap, LogOut } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
 import Loading from "../components/Loading";
 import InfoBanner from "../components/InfoBanner";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
+const TransactionModal = lazy(() => import("../components/reclaim/TransactionModal"));
+// import TransactionModal from "../components/reclaim/TransactionModal";
 
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
@@ -23,9 +25,21 @@ const ReclaimPage = () => {
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
+  const [progress, setProgress] = useState({
+    isProcessing: false,
+    isComplete: false,
+    hasError: false,
+    step: 0,
+    batch: 0,
+    tx: 0,
+    stepStatus: {},
+    failedBatches: [],
+    skippedBatches: [],
+    successfulTxs: 0,
+    failedTxs: 0,
+  });
 
-  const [txError, setTxError] = useState("");
-  const [txStatus, setTxStatus] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showTransactionSettings, setShowTransactionSettings] = useState(false);
 
   useEffect(() => {
@@ -35,23 +49,8 @@ const ReclaimPage = () => {
     const stored = localStorage.getItem("whitelistedMints");
     setSelected(stored ? JSON.parse(stored) : []);
 
-    // Sort tabs dynamically
-    const sorted = [
-      { id: "tokens", count: accOverview?.burnTokenAccCount },
-      { id: "zero-balance", count: accOverview?.zeroBalanceAccCount },
-    ].sort((a, b) => b.count - a.count);
-
-    setActiveTab(sorted[0].id);
+    setActiveTab("tokens");
   }, [accOverview, walletAddress]);
-
-  const sortedTabs = useMemo(() => {
-    if (!accOverview) return [];
-
-    return [
-      { id: "tokens", label: "Burn", count: accOverview?.burnTokenAccCount, icon: Flame, color: "red" },
-      { id: "zero-balance", label: "Zero Balance", count: accOverview?.zeroBalanceAccCount, icon: Zap, color: "green" },
-    ].sort((a, b) => b.count - a.count);
-  }, [accOverview]);
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
@@ -78,7 +77,27 @@ const ReclaimPage = () => {
   };
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
-    setTxStatus(true);
+    setIsModalOpen(true);
+
+    setProgress(prev => ({
+      ...prev,
+      isProcessing: true,
+      isComplete: false,
+      hasError: false,
+      step: 0,
+      batch: 0,
+      tx: 0,
+      stepStatus: {},
+      failedBatches: [],
+      skippedBatches: [],
+      successfulTxs: 0,
+      failedTxs: 0,
+    }));
+
+    let failedTxs = 0;
+    const stepStatus = {};
+    const skippedBatches = [];
+
     const storageKey = `failedIx_${walletPubkey.toBase58()}`;
 
     const item = localStorage.getItem(storageKey);
@@ -92,7 +111,6 @@ const ReclaimPage = () => {
 
       const feePayer = feePayerKey ? feePayerKey.publicKey.toBase58() : undefined;
 
-      // if (selected) return null;
       // Get signable transactions from backend
       const { txs } = await getSignableTx({
         wallet: walletAddress,
@@ -105,7 +123,7 @@ const ReclaimPage = () => {
         },
       });
 
-      // Process in fixed order: closeOnly → burnOnly → closeAfterBurn
+      // Process in order: closeOnly → burnOnly → closeAfterBurn
       const order = [
         { label: "Close Only", txArray: txs.closeOnly || [] },
         { label: "Burn Only", txArray: txs.burnOnly || [] },
@@ -115,21 +133,40 @@ const ReclaimPage = () => {
       let txids = [];
       let failedInstructions = [];
       let walletkeypair = null;
+
       if (source === "import") {
-        const passphrase = prompt(
-          "Enter the password you set when importing your wallet.\n" +
-            "This is the password you created at the time of wallet import, and it will be used to decrypt your wallet."
-        );
+        const passphrase = prompt("Enter the password you set when importing your wallet");
+
+        if (!passphrase || passphrase.length < 6) {
+          setIsModalOpen(false);
+          return;
+        }
+
         // Decrypt the imported wallet's secret key
         walletkeypair = decryptPrivateKey(passphrase);
+
+        // Check if decryption failed
+        if (!walletkeypair) {
+          console.log("Failed to decrypt wallet with provided password");
+          setIsModalOpen(false);
+          return;
+        }
       }
 
-      for (const { label, txArray } of order) {
+      stepStatus.fetching = "success";
+      setProgress(prev => ({ ...prev, stepStatus, step: 0 }));
+
+      for (let batchIndex = 0; batchIndex < order.length; batchIndex++) {
+        const { label, txArray } = order[batchIndex];
+
         if (!txArray.length) {
           console.log(`⚠️ Skipping ${label} — no transactions`);
+          skippedBatches.push(batchIndex);
+          setProgress(prev => ({ ...prev, skippedBatches }));
           continue;
         }
 
+        setProgress(prev => ({ ...prev, step: 1, batch: batchIndex, tx: 0 }));
         console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
 
         const batchTxids = await signAllBatches(
@@ -139,7 +176,14 @@ const ReclaimPage = () => {
           walletkeypair, // Keypair signer for imported wallet
           walletPubkey,
           feePayerKey,
-          failedInstructions
+          failedInstructions,
+          ({ txIndex, status }) => {
+            setProgress(prev => {
+              const successfulTxs = status === "success" ? prev.successfulTxs + 1 : prev.successfulTxs;
+              const failedTxs = status === "failed" ? prev.failedTxs + 1 : prev.failedTxs;
+              return { ...prev, tx: txIndex + 1, successfulTxs, failedTxs };
+            });
+          }
         );
 
         txids.push(...batchTxids);
@@ -150,22 +194,28 @@ const ReclaimPage = () => {
         localStorage.setItem(storageKey, JSON.stringify(indices));
       }
 
-      for (const txid of txids) {
+      for (const [i, txid] of txids.entries()) {
         await solanaClient.confirmTransaction(txid, {
           commitment: "confirmed",
           strategy: { type: "single" },
         });
 
         console.log("🎯Confirmed:", txid.slice(0, 10));
+        setProgress(prev => ({ ...prev, step: 2, tx: i + 1 }));
       }
+
+      setProgress(prev => ({
+        ...prev,
+        step: 3,
+        isProcessing: false,
+        isComplete: true,
+        hasError: failedTxs > 0,
+      }));
 
       refetch();
     } catch (err) {
       console.error("TX Error:", err);
-      setTxError(err.message || "Transaction failed");
-    } finally {
-      setTxStatus(false);
-      setTxError("");
+      setIsModalOpen(false);
     }
   };
 
@@ -190,7 +240,7 @@ const ReclaimPage = () => {
           Disconnect
         </button>
 
-        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} tabs={sortedTabs} />
+        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} accOverview={accOverview} />
 
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
           {accOverview?.hasMoreData && (
@@ -236,12 +286,53 @@ const ReclaimPage = () => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTx} isLoading={txStatus} />
+            <TxConfig onProceed={handleProceedTx} isLoading={isModalOpen} />
           </Suspense>
         )}
       </div>
+
+      <TransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        summary={{
+          burnCount: summary?.burnCount,
+          zeroCount: summary?.zeroCount,
+          totalRent: summary?.totalRent,
+        }}
+        progress={progress}
+      />
     </>
   );
 };
 
 export default ReclaimPage;
+
+/*
+<div className="flex items-center justify-between mb-8">
+<button
+  onClick={() => navigate('/')}
+  className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
+>
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+  </svg>
+  <span className="hidden sm:inline">Back to Search</span>
+  <span className="sm:hidden">Back</span>
+</button>
+
+<button
+  onClick={() => {
+    // Add wallet disconnect logic here
+    console.log('Disconnecting wallet...');
+    navigate('/');
+  }}
+  className="flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 rounded-xl text-red-300 hover:text-red-200 transition-all duration-300"
+>
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+  </svg>
+  <span className="hidden sm:inline">Disconnect Wallet</span>
+  <span className="sm:hidden">Disconnect</span>
+</button>
+</div>
+*/

@@ -2,7 +2,7 @@ import solanaClient from "../client/solana";
 import stripBadInstructions from "./stripBadInstructions";
 import { VersionedTransaction } from "@solana/web3.js";
 
-async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey, failedInstructions) {
+async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey, failedInstructions, onTxProgress) {
     // Decode Base64 → VersionedTransaction[] and strip bad instructions in parallel
     const transactions = await Promise.all(
         txs.map(async (b64Tx, i) => {
@@ -54,18 +54,22 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
         signedTxs.forEach(tx => tx.sign([feePayerKey]));
     }
 
+    onTxProgress?.({ txIndex: signedTxs?.length });
+
     // Send Tx
     const txids = [];
 
-    for (const signedTx of signedTxs) {
+    for (const [i, signedTx] of signedTxs.entries()) {
         try {
             //send the cleaned transaction (without failing instructions)
             const txid = await solanaClient.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
             txids.push(txid);
 
             console.log(`✅ [${label}] Sent:`, txid.slice(0, 10));
+            onTxProgress?.({ txIndex: i, status: "success" });
         } catch (e) {
             console.error("❌ Transaction completely failed:", e);
+            onTxProgress?.({ txIndex: i, status: "failed" });
         }
     }
 

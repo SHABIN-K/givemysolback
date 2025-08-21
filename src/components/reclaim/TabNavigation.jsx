@@ -1,6 +1,13 @@
 import React from "react";
+import { Flame, Zap } from "lucide-react";
 
-const TabNavigation = ({ activeTab, setActiveTab, tabs }) => {
+const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
+
+  const tabs = [
+    { id: "tokens", label: "Burn", count: accOverview.burnTokenAccCount, icon: Flame, color: "red" },
+    { id: "zero-balance", label: "Zero Balance", count: accOverview.zeroBalanceAccCount, icon: Zap, color: "green" },
+  ];
+
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
       {tabs.map(tab => {

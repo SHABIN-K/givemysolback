@@ -1,4 +1,3 @@
-import cacheTx from "../cache/tx.json";
 import cloudflareApiUrl from "../client/cloudflare";
 
 export const getAccOverview = async walletAddress => {
@@ -30,20 +29,12 @@ export const getSignableTx = async body => {
       },
       body: JSON.stringify(body),
     });
-    // const response = await fetch(`http://127.0.0.1:8787/generate-signable-tx`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(body),
-    // });
 
     if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
     const data = await response.json();
 
     if (!data) throw new Error("No transactions to process");
-    // const data = cacheTx
     return data;
   } catch (err) {
     console.error("Error fetching signable transaction:", err);
