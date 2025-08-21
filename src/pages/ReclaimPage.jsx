@@ -1,4 +1,5 @@
 import { Zap, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
@@ -6,7 +7,6 @@ import Loading from "../components/Loading";
 import InfoBanner from "../components/InfoBanner";
 const TxConfig = lazy(() => import("../components/reclaim/Transaction"));
 const TransactionModal = lazy(() => import("../components/reclaim/TransactionModal"));
-// import TransactionModal from "../components/reclaim/TransactionModal";
 
 import { TokenSection, TransactionSummary, ZeroBalanceSection, TabNavigation } from "../components/reclaim";
 
@@ -20,6 +20,7 @@ import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
 const ReclaimPage = () => {
   const wallet = useWallet();
+  const navigate = useNavigate();
   const { walletAddress, publicKey: walletPubkey, disconnect, source } = useWalletManager();
   const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup(walletAddress);
 
@@ -169,6 +170,8 @@ const ReclaimPage = () => {
         setProgress(prev => ({ ...prev, step: 1, batch: batchIndex, tx: 0 }));
         console.log(`🚀 Processing ${label} (${txArray.length} transactions)`);
 
+        if (batchIndex === 2) await new Promise(resolve => setTimeout(resolve, 1000));
+
         const batchTxids = await signAllBatches(
           label,
           txArray,
@@ -232,13 +235,34 @@ const ReclaimPage = () => {
           <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
         </div>
 
-        <button
-          onClick={disconnect}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium shadow-sm border border-neutral-700 transition-all"
-        >
-          <LogOut className="w-4 h-4" />
-          Disconnect
-        </button>
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="hidden sm:inline">Back to Search</span>
+            <span className="sm:hidden">Back</span>
+          </button>
+
+          <button
+            onClick={disconnect}
+            className="flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 rounded-xl text-red-300 hover:text-red-200 transition-all duration-300"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span className="hidden sm:inline">Disconnect Wallet</span>
+            <span className="sm:hidden">Disconnect</span>
+          </button>
+        </div>
 
         <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} accOverview={accOverview} />
 
@@ -306,33 +330,3 @@ const ReclaimPage = () => {
 };
 
 export default ReclaimPage;
-
-/*
-<div className="flex items-center justify-between mb-8">
-<button
-  onClick={() => navigate('/')}
-  className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
->
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-  </svg>
-  <span className="hidden sm:inline">Back to Search</span>
-  <span className="sm:hidden">Back</span>
-</button>
-
-<button
-  onClick={() => {
-    // Add wallet disconnect logic here
-    console.log('Disconnecting wallet...');
-    navigate('/');
-  }}
-  className="flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 rounded-xl text-red-300 hover:text-red-200 transition-all duration-300"
->
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-  </svg>
-  <span className="hidden sm:inline">Disconnect Wallet</span>
-  <span className="sm:hidden">Disconnect</span>
-</button>
-</div>
-*/
