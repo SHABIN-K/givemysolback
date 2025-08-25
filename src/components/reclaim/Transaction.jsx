@@ -6,7 +6,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
 
-const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
+const Transaction = ({ onProceed, isLoading }) => {
   const [feePayerKey, setFeePayerKey] = useState("");
   const [rentAddress, setRentAddress] = useState("");
   const [donationPercent, setDonationPercent] = useState(5);
@@ -87,7 +87,7 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
           </div>
         )}
 
-        <DonationSection totalAmount={totalAmount} donationPercent={donationPercent} setDonationPercent={setDonationPercent} />
+        <DonationSection donationPercent={donationPercent} setDonationPercent={setDonationPercent} />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -97,14 +97,7 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
           className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
         >
           <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-          {isLoading ? (
-            <span>Loading .....</span>
-          ) : (
-            <>
-              <span className="hidden sm:inline">Execute Transaction</span>
-              <span className="sm:hidden">Execute</span>
-            </>
-          )}
+          {isLoading ? <span>Loading .....</span> : <span>Sign & Send</span>}
         </button>
       </div>
     </div>

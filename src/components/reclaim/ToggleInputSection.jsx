@@ -24,7 +24,7 @@ const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputCha
   };
 
   return (
-    <div className="mb-6 sm:mb-8">
+    <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div

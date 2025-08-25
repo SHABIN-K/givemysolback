@@ -6,7 +6,7 @@ const TransactionSummary = ({ summary }) => {
     { key: "zeroCount", color: "text-orange-400", label: "Zero Balance", format: v => v },
     { key: "burnCount", color: "text-red-400", label: "Burn Tokens", format: v => v },
     { key: "totalRent", color: "text-purple-400", label: "Total Rent", format: v => `${formatNumber(v)} SOL` },
-    { key: "totalUSD", color: "text-green-400", label: "Total Value", format: v => `${formatNumber(v, 2)}$` },
+    { key: "totalUSD", color: "text-green-400", label: "Total Value", format: v => `$${formatNumber(v, 2)}` },
   ];
 
   return (

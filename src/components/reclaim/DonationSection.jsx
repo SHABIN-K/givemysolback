@@ -2,13 +2,52 @@ import React from "react";
 import { Gift } from "lucide-react";
 import { formatNumber } from "../../utils";
 
-const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) => {
+const DONATION_CONFIG = {
+  0: {
+    gradient: "from-gray-500/10 to-gray-600/10",
+    borderColor: "border-gray-500/20",
+    textColor: "text-gray-300",
+    bgColor: "bg-gray-500/10",
+    title: "You'll receive 100%",
+    subtitle: "Every SOL goes to you!",
+    description: "We appreciate you using our free service! 🙏",
+    requiresShare: true,
+  },
+  5: {
+    gradient: "from-blue-500/10 to-cyan-500/10",
+    borderColor: "border-blue-500/20",
+    textColor: "text-blue-300",
+    bgColor: "bg-blue-500/10",
+    title: "You'll receive 95%",
+    subtitle: "You're awesome!",
+    description: "Small tip, big impact! Helps us keep the lights on ⚡",
+  },
+  50: {
+    gradient: "from-purple-500/10 to-pink-500/10",
+    borderColor: "border-purple-500/20",
+    textColor: "text-purple-300",
+    bgColor: "bg-purple-500/10",
+    title: "You'll receive 50%",
+    subtitle: "You're incredible!",
+    description: "Generous soul! You're helping us build amazing features 🔥",
+  },
+  100: {
+    gradient: "from-yellow-500/10 to-orange-500/10",
+    borderColor: "border-yellow-500/20",
+    textColor: "text-yellow-300",
+    bgColor: "bg-yellow-500/10",
+    title: "You're donating everything!",
+    subtitle: "LEGEND STATUS!",
+    description: "Ultimate chad move! You're a true community hero! 👑",
+  },
+};
+
+const DonationSection = ({ donationPercent, setDonationPercent }) => {
   const donationOptions = [0, 5, 50, 100];
-  const donation = totalAmount * (donationPercent / 100);
-  const net = totalAmount - donation;
+  const currentConfig = DONATION_CONFIG[donationPercent];
 
   return (
-    <div className="mb-6 sm:mb-8">
+    <>
       <div className="flex items-center space-x-3 mb-2">
         <Gift className="w-5 h-5 text-pink-400" />
         <h4 className="text-white font-semibold text-sm sm:text-base">Keep this service free & growing 🚀</h4>
@@ -33,19 +72,17 @@ const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) =
         ))}
       </div>
 
-      {donationPercent > 0 && (
-        <div className="bg-pink-500/10 border border-pink-500/20 rounded-xl p-4">
-          <div className="flex justify-between text-sm">
-            <span className="text-pink-300">Donation ({donationPercent}%):</span>
-            <span className="text-pink-400 font-semibold">{formatNumber(donation)} SOL</span>
-          </div>
-          <div className="flex justify-between text-sm mt-2">
-            <span className="text-white">You'll receive:</span>
-            <span className="text-green-400 font-semibold">{formatNumber(net)} SOL</span>
-          </div>
+      {currentConfig && (
+        <div
+          className={`text-center p-3 bg-gradient-to-r ${currentConfig.gradient} border ${currentConfig.borderColor} rounded-lg`}
+        >
+          <p className={`${currentConfig.textColor} text-sm`}>
+            💯 <strong>{currentConfig.title}</strong> - {currentConfig.subtitle}
+          </p>
+          <p className={`${currentConfig.textColor.replace("300", "200")} text-xs mt-1`}>{currentConfig.description}</p>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
