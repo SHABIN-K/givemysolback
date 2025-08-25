@@ -9,12 +9,12 @@ const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) =
 
   return (
     <div className="mb-6 sm:mb-8">
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="flex items-center space-x-3 mb-2">
         <Gift className="w-5 h-5 text-pink-400" />
-        <h4 className="text-white font-semibold text-sm sm:text-base">Support Development</h4>
+        <h4 className="text-white font-semibold text-sm sm:text-base">Keep this service free & growing 🚀</h4>
       </div>
       <p className="text-gray-400 text-xs sm:text-sm mb-4">
-        Help us maintain and improve this free service. Your donation supports continued development.
+        Even a small donation helps us improve features and keep access free for everyone.
       </p>
 
       <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-4">
@@ -32,7 +32,7 @@ const DonationSection = ({ totalAmount, donationPercent, setDonationPercent }) =
           </button>
         ))}
       </div>
-      
+
       {donationPercent > 0 && (
         <div className="bg-pink-500/10 border border-pink-500/20 rounded-xl p-4">
           <div className="flex justify-between text-sm">

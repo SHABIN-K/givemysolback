@@ -2,8 +2,8 @@ import React, { useCallback, useState } from "react";
 import { Flame, Plus, TrendingUp } from "lucide-react";
 
 import TokenCard from "./TokenCard";
-import getMintDetails from "../../services/getMintDetails";
 import EmptyState from "./EmptyState";
+import getMintDetails from "../../services/getMintDetails";
 
 const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
   const [mintInput, setMintInput] = useState("");
@@ -17,12 +17,17 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
     }
   };
 
+  const resetInput = () => {
+    setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
+    setMintInput("");
+  };
+
   const handleAddSafeToken = useCallback(async () => {
     const mintAddress = mintInput.trim();
 
     if (!/^[A-Za-z0-9]{32,44}$/.test(mintAddress)) {
       setErrorMsg("Oops! Invalid mint address");
-      setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
+      resetInput();
       return;
     }
 
@@ -31,11 +36,13 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
     try {
       if (alreadyExists) {
         console.log("⏩ Mint already saved", mintAddress.slice(0, 8));
+        setErrorMsg("Mint already saved");
+        resetInput();
         return;
       }
 
       const details = await getMintDetails(mintAddress);
-     
+
       setSafeMints(prev => {
         if (prev.some(t => t.mint === details.mint)) return prev;
         const updated = [...prev, details];
@@ -45,9 +52,9 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
       });
     } catch (err) {
       setErrorMsg("Failed to fetch token details");
-      setTimeout(() => setErrorMsg("Paste Your mint Address"), 2800);
+      resetInput();
     } finally {
-      setMintInput("");
+      resetInput();
     }
   }, [mintInput, setSafeMints, safeMints]);
 
@@ -69,20 +76,18 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
           description="Great! No low-value or scam tokens found in your portfolio. All your tokens appear to have good value."
         />
       )}
-      {tokensCount != 0 && (
-        <div>
-          {/* description="We found <strong>14 tokens</strong> in your wallet. To remove any valuable tokens from the cleanup process, paste their mint addresses below. Only add tokens you want to keep safe." */}
 
-          {/* Manual Token Input */}
+      {tokensCount != 0 && (
+        <>
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-300 mb-3">Add Token Addresses to Exclude from Cleanup</label>
+            <label className="block text-sm font-semibold text-gray-300 mb-3">Keep Tokens Safe (Enter Mint Addresses)</label>
             <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={mintInput}
                 onChange={e => setMintInput(e.target.value)}
                 onKeyUp={handleKeyPress}
-                placeholder="Paste token mint address here..."
+                placeholder={errorMsg}
                 className="flex-1 px-4 py-3 bg-gray-900/80 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none text-sm"
               />
               <button
@@ -94,7 +99,7 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
                 <span>Add Token</span>
               </button>
             </div>
-            <p className="text-gray-500 text-xs mt-2">Enter Solana token mint addresses that you want to protect from cleanup</p>
+            <p className="text-gray-500 text-xs mt-2">Enter Mint addresses that you want to keep safe during cleanup</p>
           </div>
 
           {/* Manual Tokens List */}
@@ -111,12 +116,21 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
               </div>
               <h4 className="text-xl font-bold text-gray-300 mb-2">No Protected Tokens</h4>
               <p className="text-gray-500">
-                Add token addresses above to protect them from cleanup. All {tokensCount} tokens will be processed unless you add
-                exceptions.
+                No tokens are protected right now. If there are tokens you want to keep, add their mint addresses above —
+                otherwise, all tokens will be cleaned up.{" "}
+                <a
+                  href="https://youtu.be/vE_w_H-og3M"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 underline hover:text-blue-300"
+                >
+                  Still confused? Click here
+                </a>{" "}
+                to learn more.
               </p>
             </div>
           )}
-        </div>
+        </>
       )}
     </>
   );

@@ -41,7 +41,7 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<Loading placeholder="Fetching your portfolio..." />}>
-                    <ReclaimPage />
+                    <ReclaimPage solPrice={solPrice} />
                   </Suspense>
                 </ProtectedRoute>
               }

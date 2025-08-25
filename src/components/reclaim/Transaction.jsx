@@ -1,7 +1,7 @@
 import bs58 from "bs58";
 import { Zap } from "lucide-react";
 import React, { useState } from "react";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
@@ -9,13 +9,10 @@ import ToggleInputSection from "./ToggleInputSection";
 const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
   const [feePayerKey, setFeePayerKey] = useState("");
   const [rentAddress, setRentAddress] = useState("");
-  const [donationPercent, setDonationPercent] = useState(0);
+  const [donationPercent, setDonationPercent] = useState(5);
 
-  const [config, setConfig] = useState({
-    gasPayment: false,
-    rentCollection: false,
-  });
-  const [errorMsg, setErrorMsg] = useState("Paste Your Wallet Address");
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [config, setConfig] = useState({ gasPayment: false, rentCollection: false });
 
   const toggleConfig = key => {
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
@@ -24,29 +21,42 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
   const handleProceedTx = () => {
     let keypair;
 
-    // if (!/^[A-Za-z0-9]{32,44}$/.test(rentAddress)) {
-    //   setErrorMsg("Oops! Invalid Solana address");
-    //   setTimeout(() => setErrorMsg("Enter Wallet Address"), 2800);
-    //   return;
-    // }
+    if (config.rentCollection) {
+      try {
+        new PublicKey(rentAddress);
+      } catch {
+        setErrorMsg("Oops! Invalid Solana address");
+        setRentAddress("");
+        return;
+      }
+    }
 
-    if (feePayerKey) {
-      const secretKey = bs58.decode(feePayerKey);
-      keypair = Keypair.fromSecretKey(secretKey);
+    if (config.gasPayment && feePayerKey) {
+      try {
+        const secretKey = bs58.decode(feePayerKey);
+        keypair = Keypair.fromSecretKey(secretKey);
+      } catch {
+        setErrorMsg("Oops! Invalid fee payer secret");
+        setFeePayerKey("");
+        return;
+      }
     }
 
     onProceed({
-      feePayerKey: keypair || undefined,
-      rentReceiver: rentAddress || undefined,
+      feePayerKey: config.gasPayment ? keypair || undefined : null,
+      rentReceiver: config.rentCollection ? rentAddress || undefined : null,
       commissionPercent: donationPercent,
     });
+
+    setFeePayerKey("");
+    setRentAddress("");
+    setErrorMsg("");
   };
 
   return (
     <div className="mt-8">
       <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-6">
         <h3 className="text-lg sm:text-xl font-bold text-white mb-6">Transaction Configuration</h3>
-
         <ToggleInputSection
           label="Unified Gas Payment"
           isEnabled={config.gasPayment}
@@ -66,6 +76,16 @@ const Transaction = ({ totalAmount = 12, onProceed, isLoading }) => {
           placeholder="Enter collection address"
           tooltipAction={"rentCollection"}
         />
+
+        {errorMsg && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 text-sm px-3 py-2"
+          >
+            {errorMsg}
+          </div>
+        )}
 
         <DonationSection totalAmount={totalAmount} donationPercent={donationPercent} setDonationPercent={setDonationPercent} />
       </div>

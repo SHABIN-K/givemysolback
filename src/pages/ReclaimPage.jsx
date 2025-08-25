@@ -1,4 +1,4 @@
-import { Zap, LogOut } from "lucide-react";
+import { Zap, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
@@ -18,10 +18,10 @@ import { getSignableTx } from "../services/getWalletDetails";
 import { useAccountLookup } from "../services/useAccountLookup";
 import { calculateTotalRentInSOL, formatNumber } from "../utils";
 
-const ReclaimPage = () => {
+const ReclaimPage = ({ solPrice }) => {
   const wallet = useWallet();
   const navigate = useNavigate();
-  const { walletAddress, publicKey: walletPubkey, disconnect, source } = useWalletManager();
+  const { walletAddress, publicKey: walletPubkey, source } = useWalletManager();
   const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup(walletAddress);
 
   const [selected, setSelected] = useState([]);
@@ -67,10 +67,11 @@ const ReclaimPage = () => {
       burnCount,
       zeroCount,
       totalSelected: zeroCount + burnCount,
+      totalUSD: totalRent * solPrice,
       totalRent,
       zeroBalanceRent,
     };
-  }, [accOverview, selected]);
+  }, [accOverview, selected, solPrice]);
 
   const tabComponents = {
     tokens: <TokenSection tokensCount={accOverview?.burnTokenAccCount || 0} safeMints={selected} setSafeMints={setSelected} />,
@@ -79,7 +80,7 @@ const ReclaimPage = () => {
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
     setIsModalOpen(true);
-
+    if (selected) return null;
     setProgress(prev => ({
       ...prev,
       isProcessing: true,
@@ -227,6 +228,15 @@ const ReclaimPage = () => {
   ) : (
     <>
       <div className="min-h-screen py-8">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="hidden sm:inline">Back to Search</span>
+          <span className="sm:hidden">Back</span>
+        </button>
+
         <div className="text-center mb-8">
           <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-4">
             <Zap className="w-4 h-4 text-green-400 mr-2" />
@@ -235,42 +245,13 @@ const ReclaimPage = () => {
           <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
         </div>
 
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="hidden sm:inline">Back to Search</span>
-            <span className="sm:hidden">Back</span>
-          </button>
-
-          <button
-            onClick={disconnect}
-            className="flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 rounded-xl text-red-300 hover:text-red-200 transition-all duration-300"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span className="hidden sm:inline">Disconnect Wallet</span>
-            <span className="sm:hidden">Disconnect</span>
-          </button>
-        </div>
-
         <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} accOverview={accOverview} />
 
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
           {accOverview?.hasMoreData && (
             <InfoBanner
               title="Large Portfolio Detected"
-              description="Due to your extensive token holdings, we're displaying a curated selection of the most relevant accounts. This includes high-value tokens, zero-balance accounts, and tokens that may benefit from cleanup to optimize your portfolio."
+              description="Your wallet holds a large number of token accounts. To keep things manageable, we display a portion at a time. Once you clean up some accounts, more will become available."
             />
           )}
 
@@ -278,15 +259,7 @@ const ReclaimPage = () => {
         </div>
 
         {/* Transaction Summary */}
-        {summary?.totalSelected > 0 && (
-          <TransactionSummary
-            summary={{
-              burnCount: summary?.burnCount,
-              zeroCount: summary?.zeroCount,
-              totalRent: summary?.totalRent,
-            }}
-          />
-        )}
+        {summary?.totalSelected > 0 && <TransactionSummary summary={summary} />}
 
         {/* Action Buttons */}
         {!showTransactionSettings && (

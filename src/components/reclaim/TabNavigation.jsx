@@ -1,8 +1,10 @@
 import React from "react";
-import { Flame, Zap } from "lucide-react";
+import { Flame, LogOut, Zap } from "lucide-react";
+import useWalletManager from "../../hooks/useWalletManager";
 
 const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
-
+  const { disconnect } = useWalletManager();
+  
   const tabs = [
     { id: "tokens", label: "Burn", count: accOverview.burnTokenAccCount, icon: Flame, color: "red" },
     { id: "zero-balance", label: "Zero Balance", count: accOverview.zeroBalanceAccCount, icon: Zap, color: "green" },
@@ -31,6 +33,15 @@ const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
           </button>
         );
       })}
+
+      <button
+        onClick={disconnect}
+        className="ml-auto flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 rounded-xl text-red-300 hover:text-red-200 transition-all duration-300"
+      >
+        <LogOut className="w-4 h-4" />
+        <span className="hidden sm:inline">Disconnect Wallet</span>
+        <span className="sm:hidden">Disconnect</span>
+      </button>
     </div>
   );
 };

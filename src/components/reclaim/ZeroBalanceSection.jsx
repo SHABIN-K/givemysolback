@@ -1,7 +1,8 @@
 import React from "react";
 import { Zap } from "lucide-react";
-import { formatNumber } from "../../utils";
+
 import EmptyState from "./EmptyState";
+import { formatNumber } from "../../utils";
 
 const ZeroBalanceSection = ({ count, totalRent }) => {
   return (
