@@ -1,6 +1,5 @@
 import React from "react";
 import { Gift } from "lucide-react";
-import { formatNumber } from "../../utils";
 
 const DONATION_CONFIG = {
   0: {
@@ -9,42 +8,64 @@ const DONATION_CONFIG = {
     textColor: "text-gray-300",
     bgColor: "bg-gray-500/10",
     title: "You'll receive 100%",
-    subtitle: "Every SOL goes to you!",
-    description: "We appreciate you using our free service! 🙏",
+    subtitle: "Free Forever 🎉",
+    description: "Enjoy our service at no cost — we’re just glad you’re here 🙏",
     requiresShare: true,
   },
-  5: {
+  7: {
     gradient: "from-blue-500/10 to-cyan-500/10",
     borderColor: "border-blue-500/20",
     textColor: "text-blue-300",
     bgColor: "bg-blue-500/10",
-    title: "You'll receive 95%",
-    subtitle: "You're awesome!",
-    description: "Small tip, big impact! Helps us keep the lights on ⚡",
+    title: "You'll receive 93%",
+    subtitle: "Power Boost 🔋",
+    description: "You’re joining others who help keep this project alive 💡",
   },
-  50: {
+  15: {
+    gradient: "from-green-500/10 to-emerald-500/10",
+    borderColor: "border-green-500/20",
+    textColor: "text-green-300",
+    bgColor: "bg-green-500/10",
+    title: "You'll receive 85%",
+    subtitle: "Community Favorite 💚",
+    description: "The perfect balance of support & savings 🌿",
+  },
+  30: {
     gradient: "from-purple-500/10 to-pink-500/10",
     borderColor: "border-purple-500/20",
     textColor: "text-purple-300",
     bgColor: "bg-purple-500/10",
-    title: "You'll receive 50%",
-    subtitle: "You're incredible!",
-    description: "Generous soul! You're helping us build amazing features 🔥",
-  },
-  100: {
-    gradient: "from-yellow-500/10 to-orange-500/10",
-    borderColor: "border-yellow-500/20",
-    textColor: "text-yellow-300",
-    bgColor: "bg-yellow-500/10",
-    title: "You're donating everything!",
-    subtitle: "LEGEND STATUS!",
-    description: "Ultimate chad move! You're a true community hero! 👑",
+    title: "You'll receive 70%",
+    subtitle: "Generous Hero ❤️",
+    description: "Your generosity fuels growth & new features 🔥",
   },
 };
 
-const DonationSection = ({ donationPercent, setDonationPercent }) => {
-  const donationOptions = [0, 5, 50, 100];
+const SHARE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+
+function hasValidShare() {
+  const stored = localStorage.getItem("hasSharedOnTwitter");
+  if (!stored) return false;
+
+  const lastShare = parseInt(stored, 10);
+  if (isNaN(lastShare)) return false;
+
+  return Date.now() - lastShare < SHARE_EXPIRY_MS;
+}
+
+const DonationSection = ({ donationPercent, setDonationPercent, setShowTwitterModal }) => {
+  const donationOptions = [0, 7, 15, 30];
   const currentConfig = DONATION_CONFIG[donationPercent];
+
+  const canUseZero = () => hasValidShare();
+
+  const handleDonationChange = percent => {
+    if (percent === 0 && !canUseZero()) {
+      setShowTwitterModal(true);
+      return;
+    }
+    setDonationPercent(percent);
+  };
 
   return (
     <>
@@ -60,7 +81,7 @@ const DonationSection = ({ donationPercent, setDonationPercent }) => {
         {donationOptions.map(percent => (
           <button
             key={percent}
-            onClick={() => setDonationPercent(percent)}
+            onClick={() => handleDonationChange(percent)}
             className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium transition-colors text-sm sm:text-base ${
               donationPercent === percent
                 ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white"
