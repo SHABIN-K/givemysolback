@@ -128,4 +128,3 @@ const WalletConnectionPage = () => {
 };
 
 export default WalletConnectionPage;
-// 4cmZxDEXJ1AVbHZognaZipNMYbz3L8M9ESpsaSeV9iRYg5M3SQYRB6MDkaGBL3CBiiR9hg5GMGy13EbaoCdrvGbM

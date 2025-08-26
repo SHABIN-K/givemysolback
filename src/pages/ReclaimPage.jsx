@@ -80,7 +80,7 @@ const ReclaimPage = ({ solPrice }) => {
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
     setIsModalOpen(true);
-    if (selected) return null;
+
     setProgress(prev => ({
       ...prev,
       isProcessing: true,
@@ -288,16 +288,7 @@ const ReclaimPage = ({ solPrice }) => {
         )}
       </div>
 
-      <TransactionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        summary={{
-          burnCount: summary?.burnCount,
-          zeroCount: summary?.zeroCount,
-          totalRent: summary?.totalRent,
-        }}
-        progress={progress}
-      />
+      <TransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} summary={summary} progress={progress} />
     </>
   );
 };

@@ -1,5 +1,6 @@
 import solanaClient from "../client/solana";
 import stripBadInstructions from "./stripBadInstructions";
+
 import { VersionedTransaction } from "@solana/web3.js";
 
 async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPubkey, feePayerKey, failedInstructions, onTxProgress) {

@@ -2,11 +2,7 @@ import cloudflareApiUrl from "../client/cloudflare";
 
 export const getAccOverview = async walletAddress => {
   try {
-    const response = await fetch(`${cloudflareApiUrl}/account-overview?wallet=${walletAddress}`, {
-      headers: {
-        "x-api-key": import.meta.env.VITE_WORKER_KEY,
-      },
-    });
+    const response = await fetch(`${cloudflareApiUrl}/account-overview?wallet=${walletAddress}`);
 
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
