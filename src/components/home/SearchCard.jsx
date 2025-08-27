@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, Coins } from "lucide-react";
+import { Coins } from "lucide-react";
 
 const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder, usage }) => {
   const handleKeyPress = e => {
@@ -36,18 +36,15 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholde
         <button
           onClick={handleSearch}
           disabled={!address.trim() || isSearching}
-          className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-xl text-lg flex items-center justify-center gap-3 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-semibold py-4 px-8 rounded-xl text-lg flex items-center justify-center shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSearching ? (
             <>
-              <div className="loading-spinner"></div>
+              <div className="loading-spinner" />
               <span>Scanning Blockchain...</span>
             </>
           ) : (
-            <>
-              <Search className="w-6 h-6" />
-              <span>Find My Lost Tokens 🔍</span>
-            </>
+            <span>Scan My Wallet</span>
           )}
         </button>
       )}

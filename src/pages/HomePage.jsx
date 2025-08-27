@@ -19,28 +19,30 @@ const HomePage = ({ solPrice }) => {
   const [searchResults, setSearchResults] = useState(null);
 
   const [isSearching, setIsSearching] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("Paste Your Solana Wallet Address");
+  const [errorMsg, setErrorMsg] = useState("Paste Solana Wallet Address");
 
   useEffect(() => {
     const savedStats = localStorage.getItem("stats");
     if (savedStats) {
       setStats(JSON.parse(savedStats));
     }
+    
+    if (solPrice) {
+      getAppStats().then(({ totalReclaimedAccounts: totalAcc }) => {
+        const totalSol = calculateTotalRentInSOL(totalAcc);
+        const totalValueRaw = totalSol * solPrice;
+        const totalValue = `$${Math.round(totalValueRaw).toLocaleString()}`;
 
-    getAppStats().then(({ totalReclaimedAccounts: totalAcc }) => {
-      const totalSol = calculateTotalRentInSOL(totalAcc);
-      const totalValueRaw = totalSol * solPrice;
-      const totalValue = `$${Math.round(totalValueRaw).toLocaleString()}`;
+        const newStats = {
+          accountsClosed: totalAcc.toLocaleString(),
+          solRecovered: totalSol.toFixed(4),
+          totalValue,
+        };
 
-      const newStats = {
-        accountsClosed: totalAcc.toLocaleString(),
-        solRecovered: totalSol.toFixed(4),
-        totalValue,
-      };
-
-      setStats(newStats);
-      localStorage.setItem("stats", JSON.stringify(newStats));
-    });
+        setStats(newStats);
+        localStorage.setItem("stats", JSON.stringify(newStats));
+      });
+    }
   }, [solPrice]);
 
   const handleSearch = async () => {
