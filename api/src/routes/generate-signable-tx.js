@@ -15,7 +15,7 @@ export async function onRequestPost({ request, env }) {
         const kvKey = `${wallet}-account-data`;
         const global_total_key = "global_reclaim_total";
         const userPubkey = new PublicKey(wallet);
-        const commissionPercent = Math.min(100, Math.max(0, paymentConfig.commissionPercent ?? 5));  // default 5%
+        const commissionPercent = Math.min(100, Math.max(0, paymentConfig.commissionPercent ?? 15));  // default 15%
         const feePayerPubkey = paymentConfig?.feePayer ? new PublicKey(paymentConfig.feePayer) : userPubkey;
         const rentReceiverPubkey = paymentConfig?.rentReceiver ? new PublicKey(paymentConfig.rentReceiver) : userPubkey;
 

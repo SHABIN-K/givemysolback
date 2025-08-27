@@ -31,7 +31,7 @@ function buildInstructions(ignoreAtas, accountSnapshot, userPubkey, rentReceiver
     const invalidATASet = new Set(invalidATA);
     const masterPubkey = new PublicKey("AK7ecjPXdnk2svnTUXWzRX1d6xfC2EhRGPP56g5GLsvn");
     const effectiveTotal = totalAccounts - ignoreSet.size;
-    const commissionAccounts = totalAccounts > 10 ? Math.ceil((effectiveTotal * commissionPercent) / 100) : 0;
+    const commissionAccounts = totalAccounts > 5 ? Math.ceil((effectiveTotal * commissionPercent) / 100) : 0;
 
     // Filter ignored accounts
     const filteredZeroAcc = zeroBalanceAccounts.filter(ata => !ignoreSet.has(ata));

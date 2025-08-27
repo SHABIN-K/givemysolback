@@ -1,5 +1,5 @@
-import { Zap, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Zap, ChevronLeft } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import React, { useEffect, useMemo, useState, lazy, Suspense } from "react";
 
@@ -215,7 +215,8 @@ const ReclaimPage = ({ solPrice }) => {
         isComplete: true,
         hasError: failedTxs > 0,
       }));
-
+      
+      setShowTransactionSettings(false);
       refetch();
     } catch (err) {
       console.error("TX Error:", err);

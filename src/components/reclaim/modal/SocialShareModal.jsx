@@ -14,7 +14,7 @@ const SocialShareModal = ({ isOpen, onClose, onShared }) => {
     ];
 
     const tweetText = tweetOptions[Math.floor(Math.random() * tweetOptions.length)];
-    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    const tweetUrl = `https://x.com/intent/post?text=${encodeURIComponent(tweetText)}`;
 
     window.open(tweetUrl, "_blank");
     setTimeout(() => {
