@@ -1,12 +1,18 @@
 import React from "react";
 import { Search, Coins } from "lucide-react";
 
-const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder }) => {
+const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder, usage }) => {
   const handleKeyPress = e => {
     if (e.key === "Enter") {
       handleSearch();
     }
   };
+
+  const stats = [
+    { key: "accountsClosed", label: "Accounts Closed", colors: ["pink-500", "purple-500"], textColor: "pink-400" },
+    { key: "solRecovered", label: "SOL Recovered", colors: ["orange-500", "yellow-500"], textColor: "orange-400" },
+    { key: "totalValue", label: "Total Value", colors: ["blue-500", "cyan-500"], textColor: "blue-400" },
+  ];
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-8 shadow-2xl max-w-2xl mx-auto mb-16">
@@ -47,18 +53,15 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholde
       )}
 
       <div className="mt-8 pt-6 border-t border-gray-700 grid grid-cols-3 gap-4 text-center">
-        <div className="p-4 bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-xl">
-          <div className="text-2xl font-bold text-pink-400">47,291</div>
-          <div className="text-xs text-gray-400 mt-1">Wallets Scanned</div>
-        </div>
-        <div className="p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl">
-          <div className="text-2xl font-bold text-orange-400">2,847</div>
-          <div className="text-xs text-gray-400 mt-1">SOL Recovered</div>
-        </div>
-        <div className="p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl">
-          <div className="text-2xl font-bold text-blue-400">$1.2M</div>
-          <div className="text-xs text-gray-400 mt-1">Total Value</div>
-        </div>
+        {stats.map(stat => (
+          <div
+            key={stat.key}
+            className={`p-4 bg-gradient-to-r from-${stat.colors[0]}/10 to-${stat.colors[1]}/10 border border-${stat.colors[0]}/20 rounded-xl`}
+          >
+            <div className={`text-2xl font-bold text-${stat.textColor}`}>{usage[stat.key] || "0"}</div>
+            <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
+          </div>
+        ))}
       </div>
     </div>
   );

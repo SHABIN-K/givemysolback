@@ -1,17 +1,47 @@
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState, lazy, Suspense, useEffect } from "react";
 
 import Loading from "../components/Loading";
 import { Hero, Footer, Features, SearchCard } from "../components/home";
 const SearchResults = lazy(() => import("../components/home/SearchResults"));
 
+import getAppStats from "../services/getAppStats";
+import { calculateTotalRentInSOL } from "../utils";
 import { getAccOverview } from "../services/getWalletDetails";
 
 const HomePage = ({ solPrice }) => {
+  const [stats, setStats] = useState({
+    accountsClosed: 0,
+    solRecovered: 0,
+    totalValue: 0,
+  });
+
   const [address, setAddress] = useState("");
   const [searchResults, setSearchResults] = useState(null);
 
   const [isSearching, setIsSearching] = useState(false);
   const [errorMsg, setErrorMsg] = useState("Paste Your Solana Wallet Address");
+
+  useEffect(() => {
+    const savedStats = localStorage.getItem("stats");
+    if (savedStats) {
+      setStats(JSON.parse(savedStats));
+    }
+
+    getAppStats().then(({ totalReclaimedAccounts: totalAcc }) => {
+      const totalSol = calculateTotalRentInSOL(totalAcc);
+      const totalValueRaw = totalSol * solPrice;
+      const totalValue = `$${Math.round(totalValueRaw).toLocaleString()}`;
+
+      const newStats = {
+        accountsClosed: totalAcc.toLocaleString(),
+        solRecovered: totalSol.toFixed(4),
+        totalValue,
+      };
+
+      setStats(newStats);
+      localStorage.setItem("stats", JSON.stringify(newStats));
+    });
+  }, [solPrice]);
 
   const handleSearch = async () => {
     const walletAddress = address.trim();
@@ -50,6 +80,7 @@ const HomePage = ({ solPrice }) => {
         isSearching={isSearching}
         handleSearch={handleSearch}
         placeholder={errorMsg}
+        usage={stats}
       />
 
       {searchResults && (
