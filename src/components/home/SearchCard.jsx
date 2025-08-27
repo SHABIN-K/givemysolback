@@ -1,14 +1,8 @@
 import React from "react";
 import { Search, Coins } from "lucide-react";
 
-const SearchCard = ({
-  address,
-  setAddress,
-  isSearching,
-  handleSearch,
-  placeholder,
-}) => {
-  const handleKeyPress = (e) => {
+const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholder }) => {
+  const handleKeyPress = e => {
     if (e.key === "Enter") {
       handleSearch();
     }
@@ -21,7 +15,7 @@ const SearchCard = ({
           <input
             type="text"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={e => setAddress(e.target.value)}
             onKeyUp={handleKeyPress}
             placeholder={placeholder}
             className="w-full pl-14 pr-6 py-4 text-lg bg-gray-900/80 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-500/20 transition-all"

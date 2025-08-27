@@ -10,9 +10,7 @@ const Hero = () => {
       </div>
 
       <h1 className="text-5xl sm:text-7xl font-bold mb-6 leading-tight text-white">
-        givemy
-        <span className="gradient-text">SOL</span>
-        back
+        givemy<span className="gradient-text">SOL</span>back
       </h1>
 
       <p className="text-xl sm:text-2xl font-medium mb-4 max-w-3xl mx-auto leading-relaxed text-gray-300">
@@ -20,8 +18,7 @@ const Hero = () => {
       </p>
 
       <p className="text-lg max-w-2xl mx-auto text-gray-400">
-        Scan your old Solana wallets and discover forgotten tokens worth real
-        money. No signup required, completely free to use.
+        Scan your old Solana wallets and discover forgotten tokens worth real money. No signup required, completely free to use.
       </p>
     </section>
   );
