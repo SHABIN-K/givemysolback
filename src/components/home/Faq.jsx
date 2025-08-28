@@ -40,7 +40,6 @@ const Faq = () => {
       answer:
         "When an account is created on Solana, a small rent fee is required to store its data and process transactions. This rent is refundable when the account is closed.",
     },
-
   ];
 
   const toggleFAQ = index => {
@@ -48,32 +47,34 @@ const Faq = () => {
   };
 
   return (
-    <section className="pb-16">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">Frequently Asked Questions</h2>
-        <p className="text-base text-gray-400 max-w-2xl mx-auto">Everything you need to know about reclaiming your SOL</p>
+    <section className="pb-12 sm:pb-16">
+      <div className="text-center mb-8 sm:mb-12 px-4">
+        <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Frequently Asked Questions</h2>
+        <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto">
+          Everything you need to know about reclaiming your SOL
+        </p>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <div className="space-y-3">
+      <div className="max-w-3xl mx-auto px-4 sm:px-0">
+        <div className="space-y-2 sm:space-y-3">
           {faqs.map((faq, index) => (
             <div key={index} className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 overflow-hidden">
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-700/30 transition-all duration-300"
+                className="w-full px-4 py-3 sm:px-6 sm:py-4 text-left flex items-center justify-between hover:bg-gray-700/30 transition-all duration-300"
               >
-                <h3 className="text-lg font-semibold text-white pr-4">{faq.question}</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white pr-3 sm:pr-4">{faq.question}</h3>
                 {openIndex === index ? (
-                  <ChevronUp className="w-5 h-5 text-pink-400 flex-shrink-0" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400 flex-shrink-0" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                 )}
               </button>
 
               {openIndex === index && (
-                <div className="px-6 pb-5">
-                  <div className="border-t border-gray-700/50 pt-4">
-                    <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
+                <div className="px-4 sm:px-6 pb-4 sm:pb-5">
+                  <div className="border-t border-gray-700/50 pt-3 sm:pt-4">
+                    <p className="text-gray-300 leading-relaxed text-sm sm:text-base">{faq.answer}</p>
                   </div>
                 </div>
               )}

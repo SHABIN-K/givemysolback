@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { Footer } from "./components/home";
 import BackgroundElements from "./components/BackgroundElements";
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
 const WalletConnectionPage = lazy(() => import("./pages/WalletConnectionPage"));
@@ -23,7 +24,7 @@ function App() {
   return (
     <div className="app">
       <BackgroundElements />
-      <main className="main-content p-6">
+      <main className="main-content">
         <div className="container">
           <Routes>
             <Route path="/" element={<HomePage solPrice={solPrice} />} />
@@ -48,6 +49,7 @@ function App() {
           </Routes>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

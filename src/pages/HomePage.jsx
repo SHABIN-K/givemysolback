@@ -95,10 +95,6 @@ const HomePage = ({ solPrice }) => {
 
       <Community />
       <Faq />
-
-      <footer className="text-center mt-16 text-gray-400">
-        <p className="text-sm mb-4">Made with 💜 for the Solana community by degens, for degens</p>
-      </footer>
     </>
   );
 };
