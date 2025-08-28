@@ -1,8 +1,8 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
-import { Marquee } from "@devnomic/marquee";
-import "@devnomic/marquee/dist/index.css";
+import { Marquee } from "@shabin/marquee";
+import "@shabin/marquee/dist/index.css";
 
 function TestimonialCard({ name, avatar, content }) {
   return (
