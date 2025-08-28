@@ -23,7 +23,6 @@ function App() {
   return (
     <div className="app">
       <BackgroundElements />
-
       <main className="main-content p-6">
         <div className="container">
           <Routes>

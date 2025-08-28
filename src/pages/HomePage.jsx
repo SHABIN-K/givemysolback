@@ -1,7 +1,7 @@
 import React, { useState, lazy, Suspense, useEffect } from "react";
 
 import Loading from "../components/Loading";
-import { Hero, Footer, Features, SearchCard } from "../components/home";
+import { Community, Faq, Hero, SearchCard } from "../components/home";
 const SearchResults = lazy(() => import("../components/home/SearchResults"));
 
 import getAppStats from "../services/getAppStats";
@@ -26,7 +26,7 @@ const HomePage = ({ solPrice }) => {
     if (savedStats) {
       setStats(JSON.parse(savedStats));
     }
-    
+
     if (solPrice) {
       getAppStats().then(({ totalReclaimedAccounts: totalAcc }) => {
         const totalSol = calculateTotalRentInSOL(totalAcc);
@@ -91,9 +91,14 @@ const HomePage = ({ solPrice }) => {
         </Suspense>
       )}
 
-      <Features hasSearched={!!searchResults?.totalAccounts} />
+      {/* <Features */}
 
-      <Footer hasSearched={!!searchResults?.totalAccounts} />
+      <Community />
+      <Faq />
+
+      <footer className="text-center mt-16 text-gray-400">
+        <p className="text-sm mb-4">Made with 💜 for the Solana community by degens, for degens</p>
+      </footer>
     </>
   );
 };
