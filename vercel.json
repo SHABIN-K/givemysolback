@@ -7,8 +7,6 @@
       "config": { "distDir": "dist" }
     }
   ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
-  ]
+  "routes": [{ "handle": "filesystem" }, { "src": "/.*", "dest": "/index.html" }],
+  "buildCommand": "yarn install --ignore-engines && yarn build"
 }
