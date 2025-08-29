@@ -10,12 +10,12 @@ const TransactionSummary = ({ summary }) => {
   ];
 
   return (
-    <div className="bg-gradient-to-r from-purple-900/20 via-pink-900/20 to-orange-900/20 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-8">
-      <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Transaction Summary</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div className="mx-auto max-w-4xl bg-gradient-to-r from-purple-900/20 via-pink-900/20 to-orange-900/20 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-6 sm:mb-8">
+      <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Transaction Summary</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {summaryItems.map(({ key, color, label, format }) => (
           <div className="text-center" key={key}>
-            <div className={`text-xl sm:text-2xl font-bold ${color}`}>{format(summary[key])}</div>
+            <div className={`text-lg sm:text-2xl font-bold ${color}`}>{format(summary[key])}</div>
             <div className="text-xs sm:text-sm text-gray-400">{label}</div>
           </div>
         ))}

@@ -22,7 +22,7 @@ const ReclaimPage = ({ solPrice }) => {
   const wallet = useWallet();
   const navigate = useNavigate();
   const { walletAddress, publicKey: walletPubkey, source } = useWalletManager();
-  const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup(walletAddress);
+  const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup("suqh5sHtr8HyJ7q8scBimULPkPpA557prMG47xCHQfK");
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -228,7 +228,7 @@ const ReclaimPage = ({ solPrice }) => {
     <Loading placeholder="Loading your portfolio..." />
   ) : (
     <>
-      <div className="min-h-screen py-6 sm:py-8">
+      <div className="min-h-screen pt-6 sm:pt-8">
         <button
           onClick={() => navigate("/")}
           className="hidden sm:flex items-center space-x-2 px-4 py-2 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
