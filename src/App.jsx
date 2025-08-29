@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import React, { useState, useEffect, lazy, Suspense } from "react";
 
-import HomePage from "./pages/HomePage";
+import Footer from "./components/Footer";
 import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
-
-import { Footer } from "./components/home";
 import BackgroundElements from "./components/BackgroundElements";
+
+import HomePage from "./pages/HomePage";
 const ReclaimPage = lazy(() => import("./pages/ReclaimPage"));
 const WalletConnectionPage = lazy(() => import("./pages/WalletConnectionPage"));
 
