@@ -4,14 +4,14 @@ import useWalletManager from "../../hooks/useWalletManager";
 
 const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
   const { disconnect } = useWalletManager();
-  
+
   const tabs = [
     { id: "tokens", label: "Burn", count: accOverview.burnTokenAccCount, icon: Flame, color: "red" },
     { id: "zero-balance", label: "Zero Balance", count: accOverview.zeroBalanceAccCount, icon: Zap, color: "green" },
   ];
 
   return (
-    <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
+    <div className="flex flex-wrap-reverse gap-2 sm:gap-3 mb-6">
       {tabs.map(tab => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -40,7 +40,7 @@ const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
       >
         <LogOut className="w-4 h-4" />
         <span className="hidden sm:inline">Disconnect Wallet</span>
-        <span className="sm:hidden">Disconnect</span>
+        <span className="sm:hidden">Log out</span>
       </button>
     </div>
   );

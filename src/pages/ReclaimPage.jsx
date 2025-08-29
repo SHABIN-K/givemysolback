@@ -215,7 +215,7 @@ const ReclaimPage = ({ solPrice }) => {
         isComplete: true,
         hasError: failedTxs > 0,
       }));
-      
+
       setShowTransactionSettings(false);
       refetch();
     } catch (err) {
@@ -228,27 +228,26 @@ const ReclaimPage = ({ solPrice }) => {
     <Loading placeholder="Loading your portfolio..." />
   ) : (
     <>
-      <div className="min-h-screen py-8">
+      <div className="min-h-screen py-6 sm:py-8">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
+          className="hidden sm:flex items-center space-x-2 px-4 py-2 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Back to Search</span>
-          <span className="sm:hidden">Back</span>
+          <span>Back to Search</span>
         </button>
 
         <div className="text-center mb-8">
-          <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-4">
-            <Zap className="w-4 h-4 text-green-400 mr-2" />
-            <span className="text-sm text-green-300 font-medium">Close & Reclaim</span>
+          <div className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-3 sm:mb-4">
+            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400 mr-1.5 sm:mr-2" />
+            <span className="text-xs sm:text-sm text-green-300 font-medium">Close & Reclaim</span>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Manage Your Accounts</h1>
         </div>
 
         <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} accOverview={accOverview} />
 
-        <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-8">
+        <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-6 sm:mb-8">
           {accOverview?.hasMoreData && (
             <InfoBanner
               title="Large Portfolio Detected"
