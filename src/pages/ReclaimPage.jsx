@@ -22,7 +22,7 @@ const ReclaimPage = ({ solPrice }) => {
   const wallet = useWallet();
   const navigate = useNavigate();
   const { walletAddress, publicKey: walletPubkey, source } = useWalletManager();
-  const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup("suqh5sHtr8HyJ7q8scBimULPkPpA557prMG47xCHQfK");
+  const { accountData: accOverview, loading: isLoading, refetch } = useAccountLookup(walletAddress);
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
