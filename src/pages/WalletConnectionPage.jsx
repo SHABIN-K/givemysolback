@@ -92,11 +92,11 @@ const WalletConnectionPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col py-4">
+    <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl">
           {!isChecking && !isConnected && (
-            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6">
               {!selectedOption && !isConnecting ? (
                 <WalletConnectionOptions
                   onConnectWallet={() => setVisible(true)}
