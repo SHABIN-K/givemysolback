@@ -1,4 +1,6 @@
 import CryptoJS from "crypto-js";
+import { ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
@@ -10,6 +12,7 @@ import Loading from "../components/Loading";
 import { ConnectedState, ConnectingState, PrivateKeyImport, WalletConnectionOptions } from "../components/wallet";
 
 const WalletConnectionPage = () => {
+  const navigate = useNavigate();
   const { setVisible } = useWalletModal();
   const { connected, walletAddress: publicKey, disconnect, isChecking } = useWalletManager();
 
@@ -93,6 +96,13 @@ const WalletConnectionPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <button
+        onClick={() => navigate("/")}
+        className="max-w-44 mt-10 flex items-center space-x-2 px-4 py-2 hover:bg-gray-700/50 hover:border-gray-600/50 rounded-xl text-gray-300 hover:text-white transition-all duration-300"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span>Back to Search</span>
+      </button>
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-2xl">
           {!isChecking && !isConnected && (
