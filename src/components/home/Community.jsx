@@ -106,7 +106,7 @@ const Community = () => {
   ];
 
   return (
-    <section className="py-16">
+    <section className="py-12 sm:py-16">
       <div className="text-center mb-6 px-4">
         <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Join the community</h2>
         <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto">

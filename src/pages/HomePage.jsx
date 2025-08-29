@@ -1,7 +1,7 @@
 import React, { useState, lazy, Suspense, useEffect } from "react";
 
 import Loading from "../components/Loading";
-import { Community, Faq, Hero, SearchCard } from "../components/home";
+import { Community, Faq, Hero, SearchCard, Features } from "../components/home";
 const SearchResults = lazy(() => import("../components/home/SearchResults"));
 
 import getAppStats from "../services/getAppStats";
@@ -84,6 +84,18 @@ const HomePage = ({ solPrice }) => {
         placeholder={errorMsg}
         usage={stats}
       />
+{/* 
+      <div className="text-center">
+        <div className="flex flex-col gap-4 items-center justify-center">
+          <div className="text-gray-400 text-sm">or</div>
+          <button
+            // onClick={() => navigate("/portfolio")}
+            className="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>Connect Wallet</span>
+          </button>
+        </div>
+      </div> */}
 
       {searchResults && (
         <Suspense fallback={<Loading placeholder="Loading results..." />}>
@@ -91,10 +103,9 @@ const HomePage = ({ solPrice }) => {
         </Suspense>
       )}
 
-      {/* <Features */}
-
-      <Community />
+      <Features />
       <Faq />
+      <Community />
     </>
   );
 };
