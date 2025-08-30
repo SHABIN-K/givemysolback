@@ -47,6 +47,7 @@ const Footer = () => {
             href="https://github.com/SHABIN-K/givemysolback"
             target="_blank"
             rel="noopener noreferrer"
+            data-umami-event="social-github"
             className="group w-auto px-5 sm:px-6 py-3 rounded-xl bg-gray-800/80 border border-gray-700 text-white/90 hover:bg-gray-700/80 hover:border-gray-600 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

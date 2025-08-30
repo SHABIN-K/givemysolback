@@ -1,5 +1,6 @@
 import React from "react";
 import { Gift } from "lucide-react";
+import { trackEvent } from "../../utils";
 
 const DONATION_CONFIG = {
   0: {
@@ -61,6 +62,7 @@ const DonationSection = ({ donationPercent, setDonationPercent, setShowTwitterMo
 
   const handleDonationChange = percent => {
     if (percent === 0 && !canUseZero()) {
+      trackEvent("share-social-start");
       setShowTwitterModal(true);
       return;
     }

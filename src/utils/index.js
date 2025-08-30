@@ -24,3 +24,10 @@ export const calculateTotalRentInSOL = count => {
   const totalLamports = count * 2039280;
   return totalLamports / LAMPORTS_PER_SOL;
 };
+
+
+export const trackEvent = (eventName, data) => {
+  if (window.umami) {
+    window.umami.track(eventName, data);
+  }
+};

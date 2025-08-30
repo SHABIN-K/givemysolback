@@ -16,7 +16,7 @@ import useWalletManager from "../hooks/useWalletManager";
 import { decryptPrivateKey } from "../utils/EncryptStorage";
 import { getSignableTx } from "../services/getWalletDetails";
 import { useAccountLookup } from "../services/useAccountLookup";
-import { calculateTotalRentInSOL, formatNumber } from "../utils";
+import { calculateTotalRentInSOL, formatNumber, trackEvent } from "../utils";
 
 const ReclaimPage = ({ solPrice }) => {
   const wallet = useWallet();
@@ -79,6 +79,8 @@ const ReclaimPage = ({ solPrice }) => {
   };
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
+    trackEvent("process-step-second");
+
     setIsModalOpen(true);
 
     setProgress(prev => ({
@@ -217,6 +219,12 @@ const ReclaimPage = ({ solPrice }) => {
       }));
 
       setShowTransactionSettings(false);
+      trackEvent("transaction-completed", {
+        feePayerSelected: !!feePayerKey,
+        rentReceiverSelected: !!rentReceiver,
+        commissionPercent,
+      });
+
       refetch();
     } catch (err) {
       console.error("TX Error:", err);
@@ -265,6 +273,7 @@ const ReclaimPage = ({ solPrice }) => {
         {!showTransactionSettings && (
           <div className="flex flex-col gap-3 sm:gap-4">
             <button
+              data-umami-event="process-first-step"
               onClick={() => setShowTransactionSettings(true)}
               disabled={summary?.totalSelected === 0}
               aria-label={`Process ${summary?.totalSelected} accounts`}

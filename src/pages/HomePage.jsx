@@ -6,8 +6,8 @@ const SearchResults = lazy(() => import("../components/home/SearchResults"));
 const DeferredContent = lazy(() => import("../components/home/DeferredContent"));
 
 import getAppStats from "../services/getAppStats";
-import { calculateTotalRentInSOL } from "../utils";
 import { getAccOverview } from "../services/getWalletDetails";
+import { calculateTotalRentInSOL, trackEvent } from "../utils";
 
 const HomePage = ({ solPrice }) => {
   const [address, setAddress] = useState("");
@@ -53,6 +53,8 @@ const HomePage = ({ solPrice }) => {
       return;
     }
 
+    trackEvent("home-wallet-search", { wallet: walletAddress });
+
     try {
       setIsSearching(true);
       const data = await getAccOverview(walletAddress);
@@ -88,6 +90,7 @@ const HomePage = ({ solPrice }) => {
         <div className="flex flex-col gap-4 items-center justify-center">
           <div className="text-gray-400 text-sm">or</div>
           <button
+              // data-umami-event={btn.key}
             // onClick={() => navigate("/portfolio")}
             className="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
@@ -98,7 +101,7 @@ const HomePage = ({ solPrice }) => {
 
       {searchResults && (
         <Suspense fallback={<Loading placeholder="Loading results..." />}>
-          <SearchResults searchResults={searchResults} resetSearch={resetSearch} />
+          <SearchResults searchResults={searchResults} resetSearch={resetSearch} wallet={address} />
         </Suspense>
       )}
 

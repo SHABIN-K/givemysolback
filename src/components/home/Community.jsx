@@ -30,11 +30,13 @@ const Community = () => {
       name: "Join our Telegram",
       link: "https://t.me/codexbotzsupport",
       classes: "bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700",
+      key: "social-telegram",
     },
     {
       name: "Follow on Twiiter",
       link: "https://x.com/givemysolback",
       classes: "bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600",
+      key: "social-x",
     },
   ];
 
@@ -122,6 +124,7 @@ const Community = () => {
               href={btn.link}
               target="_blank"
               rel="noopener noreferrer"
+              data-umami-event={btn.key}
               className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-lg font-semibold text-white shadow-xl text-sm sm:text-base ${btn.classes}`}
             >
               <p className="flex items-center space-x-2">

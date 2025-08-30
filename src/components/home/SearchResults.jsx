@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Coins, ExternalLink } from "lucide-react";
 
-const SearchResults = ({ searchResults, resetSearch }) => {
+const SearchResults = ({ searchResults, resetSearch, wallet }) => {
   const navigate = useNavigate();
 
   if (!searchResults || (searchResults.totalAccounts === 0 && searchResults.solBalance === 0)) {
@@ -121,6 +121,8 @@ const SearchResults = ({ searchResults, resetSearch }) => {
 
           <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-40 bg-gradient-to-t from-gray-800/95 via-gray-800/70 to-transparent rounded-b-xl flex flex-col items-center justify-center pb-3 sm:pb-4 space-y-3 sm:space-y-4">
             <button
+              data-umami-event="home-reclaim-sol-btn"
+              data-umami-event-wallet={wallet}
               onClick={() => navigate("/manage-wallet")}
               className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl text-sm sm:text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden group z-10"
             >

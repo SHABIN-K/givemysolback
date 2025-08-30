@@ -14,10 +14,10 @@ const WalletConnectionOptions = ({ onConnectWallet, onImportWallet }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <button
+          data-umami-event="connect-wallet-start"
           onClick={onConnectWallet}
           className="relative w-full p-4 sm:p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 hover:border-blue-400 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group text-center"
         >
-    
           <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg">
             ⭐ Recommended
           </div>
@@ -33,6 +33,7 @@ const WalletConnectionOptions = ({ onConnectWallet, onImportWallet }) => {
         </button>
 
         <button
+          data-umami-event="import-wallet-start"
           onClick={onImportWallet}
           className="w-full p-4 sm:p-6 bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/30 hover:border-orange-400 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group text-center"
         >

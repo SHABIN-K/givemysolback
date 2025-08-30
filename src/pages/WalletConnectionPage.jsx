@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
-import { isValidPrivateKey } from "../utils";
 import { STORAGE_KEY } from "../utils/EncryptStorage";
+import { isValidPrivateKey, trackEvent } from "../utils";
 import useWalletManager from "../hooks/useWalletManager";
 
 import Loading from "../components/Loading";
@@ -14,7 +14,7 @@ import { ConnectedState, ConnectingState, PrivateKeyImport, WalletConnectionOpti
 const WalletConnectionPage = () => {
   const navigate = useNavigate();
   const { setVisible } = useWalletModal();
-  const { connected, walletAddress: publicKey, disconnect, isChecking } = useWalletManager();
+  const { connected, walletAddress: publicKey, disconnect, isChecking, source } = useWalletManager();
 
   const [pubKey, setPubKey] = useState("");
   const [privateKey, setPrivateKey] = useState("");
@@ -28,12 +28,19 @@ const WalletConnectionPage = () => {
   useEffect(() => {
     if (connected && publicKey) {
       setPubKey(publicKey);
-      setSelectedOption("connect");
+      setSelectedOption(source);
       setIsConnected(true);
+
+      if (publicKey && window.umami) {
+        window.umami.identify(publicKey.slice(4, 15), { walletAddress: publicKey });
+      }
+
+      localStorage.setItem("walletAddress", publicKey);
     } else {
       resetTostate();
+      localStorage.removeItem("walletAddress");
     }
-  }, [connected, publicKey]);
+  }, [connected, publicKey, source]);
 
   const handlePrivateKeySubmit = async () => {
     if (!privateKey || !passphrase) {
@@ -68,11 +75,13 @@ const WalletConnectionPage = () => {
 
     // Simulate import process
     setTimeout(() => {
+      trackEvent("import-wallet-success");
+
       setIsConnecting(false);
       setIsConnected(true);
       setPassphrase("");
       setPrivateKey("");
-    }, 1500);
+    }, 1000);
   };
 
   const handleDisconnect = () => {

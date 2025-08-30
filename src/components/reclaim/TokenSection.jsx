@@ -3,6 +3,7 @@ import { Flame, Plus, TrendingUp } from "lucide-react";
 
 import TokenCard from "./TokenCard";
 import EmptyState from "./EmptyState";
+import { trackEvent } from "../../utils";
 import getMintDetails from "../../services/getMintDetails";
 
 const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
@@ -32,7 +33,7 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
     }
 
     const alreadyExists = safeMints.some(token => token.mint === mintAddress);
-
+    trackEvent("protect-mint-btn", { mint: mintAddress });
     try {
       if (alreadyExists) {
         console.log("⏩ Mint already saved", mintAddress.slice(0, 8));
@@ -80,7 +81,9 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
       {tokensCount != 0 && (
         <>
           <div className="mb-5 sm:mb-6">
-            <label className="block text-sm sm:text-base font-semibold text-gray-300 mb-2.5 sm:mb-3">Keep Tokens Safe (Enter Mint Addresses)</label>
+            <label className="block text-sm sm:text-base font-semibold text-gray-300 mb-2.5 sm:mb-3">
+              Keep Tokens Safe (Enter Mint Addresses)
+            </label>
             <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               <input
                 type="text"
@@ -122,6 +125,7 @@ const TokenSection = ({ tokensCount, safeMints, setSafeMints }) => {
                   href="https://youtu.be/vE_w_H-og3M"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-umami-event="social-youtube"
                   className="text-blue-400 underline hover:text-blue-300"
                 >
                   Still confused? Click here

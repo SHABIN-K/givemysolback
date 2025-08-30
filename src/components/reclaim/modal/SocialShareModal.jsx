@@ -57,6 +57,7 @@ const SocialShareModal = ({ isOpen, onClose, onShared }) => {
 
           <div className="space-y-3">
             <button
+              data-umami-event="share-social-success"
               onClick={handleTwitterShare}
               disabled={isSharing}
               className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
@@ -73,6 +74,7 @@ const SocialShareModal = ({ isOpen, onClose, onShared }) => {
 
             {!isSharing && (
               <button
+                data-umami-event="share-social-cancel"
                 onClick={onClose}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-6 rounded-xl transition-all duration-300"
               >
