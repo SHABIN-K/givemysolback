@@ -127,7 +127,7 @@ const SearchResults = ({ searchResults, resetSearch }) => {
               <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               <span className="relative flex items-center justify-center gap-2">
                 <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
-                Take Back My SOL
+                Reclaim SOL
               </span>
             </button>
             {searchResults.totalAccounts > 15 && (
