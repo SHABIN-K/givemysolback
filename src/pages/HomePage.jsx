@@ -1,3 +1,5 @@
+import { Link } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import React, { useState, lazy, Suspense, useEffect } from "react";
 
 import Loading from "../components/Loading";
@@ -10,6 +12,7 @@ import { getAccOverview } from "../services/getWalletDetails";
 import { calculateTotalRentInSOL, trackEvent } from "../utils";
 
 const HomePage = ({ solPrice }) => {
+  const navigate = useNavigate();
   const [address, setAddress] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   const [stats, setStats] = useState({ accountsClosed: 0, solRecovered: 0, totalValue: 0 });
@@ -85,19 +88,20 @@ const HomePage = ({ solPrice }) => {
         placeholder={errorMsg}
         usage={stats}
       />
-      {/* 
+
       <div className="text-center">
         <div className="flex flex-col gap-4 items-center justify-center">
           <div className="text-gray-400 text-sm">or</div>
           <button
-              // data-umami-event={btn.key}
-            // onClick={() => navigate("/portfolio")}
-            className="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+            data-umami-event="direct-login-btn"
+            onClick={() => navigate("/manage-wallet")}
+            className="bg-gradient-to-br from-[#4B1FA5] via-[#CC3DAA] to-[#CC6A2E] text-white py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(255,76,205,0.5)] border border-white/10 backdrop-blur-md flex items-center space-x-2"
           >
-            <span>Connect Wallet</span>
+            <Link className="w-5 h-5" />
+            <span className="text-base sm:text-lg font-semibold tracking-wide">Connect Wallet</span>
           </button>
         </div>
-      </div> */}
+      </div>
 
       {searchResults && (
         <Suspense fallback={<Loading placeholder="Loading results..." />}>

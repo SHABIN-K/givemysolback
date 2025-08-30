@@ -124,14 +124,18 @@ const SearchResults = ({ searchResults, resetSearch, wallet }) => {
               data-umami-event="home-reclaim-sol-btn"
               data-umami-event-wallet={wallet}
               onClick={() => navigate("/manage-wallet")}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-2.5 sm:py-3 px-6 sm:px-8 rounded-xl text-sm sm:text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden group z-10"
+              className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-              <span className="relative flex items-center justify-center gap-2">
-                <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
-                Reclaim SOL
-              </span>
+              <Coins />
+              <span className="text-base sm:text-lg tracking-wide">Reclaim SOL</span>
             </button>
+            {/* <button
+              data-umami-event="home-share-social-x"
+              className="bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+            >
+              <Twitter />
+              <span className="text-base sm:text-lg tracking-wide">Share on Twitter</span>
+            </button> */}
             {searchResults.totalAccounts > 15 && (
               <span className="text-gray-300 text-xs sm:text-sm font-medium">
                 +{searchResults.totalAccounts - 15} more tokens...

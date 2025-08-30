@@ -16,7 +16,7 @@ const SearchCard = ({ address, setAddress, isSearching, handleSearch, placeholde
   ];
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-8 shadow-2xl max-w-2xl mx-auto mb-8 sm:mb-16">
+    <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-8 shadow-2xl max-w-2xl mx-auto mb-8">
       <div className="mb-6">
         <div className="relative">
           <input
