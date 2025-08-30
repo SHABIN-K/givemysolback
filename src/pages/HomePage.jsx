@@ -1,24 +1,21 @@
 import React, { useState, lazy, Suspense, useEffect } from "react";
 
 import Loading from "../components/Loading";
-import { Community, Faq, Hero, SearchCard, Features } from "../components/home";
+import { Hero, SearchCard } from "../components/home";
 const SearchResults = lazy(() => import("../components/home/SearchResults"));
+const DeferredContent = lazy(() => import("../components/home/DeferredContent"));
 
 import getAppStats from "../services/getAppStats";
 import { calculateTotalRentInSOL } from "../utils";
 import { getAccOverview } from "../services/getWalletDetails";
 
 const HomePage = ({ solPrice }) => {
-  const [stats, setStats] = useState({
-    accountsClosed: 0,
-    solRecovered: 0,
-    totalValue: 0,
-  });
-
   const [address, setAddress] = useState("");
   const [searchResults, setSearchResults] = useState(null);
+  const [stats, setStats] = useState({ accountsClosed: 0, solRecovered: 0, totalValue: 0 });
 
   const [isSearching, setIsSearching] = useState(false);
+  const [loadSections, setLoadSections] = useState(false);
   const [errorMsg, setErrorMsg] = useState("Paste Solana Wallet Address");
 
   useEffect(() => {
@@ -43,6 +40,8 @@ const HomePage = ({ solPrice }) => {
         localStorage.setItem("stats", JSON.stringify(newStats));
       });
     }
+
+    setLoadSections(true);
   }, [solPrice]);
 
   const handleSearch = async () => {
@@ -84,7 +83,7 @@ const HomePage = ({ solPrice }) => {
         placeholder={errorMsg}
         usage={stats}
       />
-{/* 
+      {/* 
       <div className="text-center">
         <div className="flex flex-col gap-4 items-center justify-center">
           <div className="text-gray-400 text-sm">or</div>
@@ -103,9 +102,11 @@ const HomePage = ({ solPrice }) => {
         </Suspense>
       )}
 
-      <Features />
-      <Faq />
-      <Community />
+      {loadSections && (
+        <Suspense fallback={<div>check your internet connection</div>}>
+          <DeferredContent />
+        </Suspense>
+      )}
     </>
   );
 };
