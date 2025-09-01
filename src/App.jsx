@@ -16,10 +16,17 @@ import { checkAndCleanupStoredKey } from "./utils/EncryptStorage";
 function App() {
   const location = useLocation();
   const [solPrice, setSolPrice] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     checkAndCleanupStoredKey();
     getSolPrice().then(setSolPrice);
+
+    const timer = setTimeout(() => {
+      setShowPopup(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // For analytics: track page views and identify user by wallet
@@ -36,7 +43,7 @@ function App() {
 
   return (
     <div className="app">
-      <BackgroundElements />
+      <BackgroundElements showPopup={showPopup} onClose={() => setShowPopup(false)} />
       <main className="main-content">
         <div className="container">
           <Routes>
