@@ -9,7 +9,7 @@ import ToggleInputSection from "./ToggleInputSection";
 const SocialShareModal = lazy(() => import("./modal/SocialShareModal"));
 
 const Transaction = ({ onProceed, isLoading, balanceLamports }) => {
-  const BASIC_FEE_LAMPORTS = 10000;
+  const BASIC_FEE_LAMPORTS = 9000000;
 
   const [feePayerKey, setFeePayerKey] = useState("");
   const [rentAddress, setRentAddress] = useState("");
@@ -21,7 +21,7 @@ const Transaction = ({ onProceed, isLoading, balanceLamports }) => {
 
   const toggleConfig = key => {
     if (key === "gasPayment" && balanceLamports < BASIC_FEE_LAMPORTS) {
-      alert("Gas Payment is Required because your wallet has insufficient SOL to cover the minimum transaction fee.");
+      alert("Gas Payment is Required because your wallet has insufficient SOL to cover the minimum transaction fee");
       return;
     }
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
