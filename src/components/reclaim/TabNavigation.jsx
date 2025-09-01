@@ -6,8 +6,8 @@ const TabNavigation = ({ activeTab, setActiveTab, accOverview }) => {
   const { disconnect } = useWalletManager();
 
   const tabs = [
-    { id: "tokens", label: "Burn", count: accOverview.burnTokenAccCount, icon: Flame, tone: "red" },
-    { id: "zero-balance", label: "Zero Balance", count: accOverview.zeroBalanceAccCount, icon: Zap, tone: "green" },
+    { id: "tokens", label: "Burn", count: accOverview?.burnTokenAccCount || 0, icon: Flame, tone: "red" },
+    { id: "zero-balance", label: "Zero Balance", count: accOverview?.zeroBalanceAccCount || 0, icon: Zap, tone: "green" },
   ];
 
   const toneToActive = {

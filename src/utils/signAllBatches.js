@@ -47,7 +47,7 @@ async function signAllBatches(label, txs, browserWallet, walletKeypair, walletPu
             return tx;
         });
     } else {
-        throw new Error("No signer available. Connect a wallet or import one.");
+        throw new Error("No signer found. Please connect your wallet or import one to proceed.");
     }
 
     // Add feePayer signature if feepayer is availbe

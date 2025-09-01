@@ -49,6 +49,9 @@ async function stripBadInstructions(signedTx, failedIx) {
             }).compileToV0Message();
 
             workingTx = new VersionedTransaction(newMessage);
+        } else {
+            console.warn("non-instruction error:", err);
+            throw new Error("Please try again with another fee payer,contact our support team for assistance.");
         }
     }
     return workingTx

@@ -30,7 +30,7 @@ export async function onRequestGet({ request, env }) {
 
     const { zeroBalanceAccounts, burnCandidateAccounts, verifiedMintCount } = classifyTokenAccounts(tokenAccounts);
 
-    const totalAcnt = totalAccounts - verifiedMintCount
+    const totalAcnt = totalAccounts - verifiedMintCount || 0
 
     await env.TOKEN_ACCOUNT_CACHE.put(kvKey, JSON.stringify({
       zeroBalanceAccounts, burnCandidateAccounts, totalAccounts: totalAcnt
@@ -39,8 +39,8 @@ export async function onRequestGet({ request, env }) {
     const result = {
       rentPerAccountLamports,
       totalAccounts: totalAcnt,
-      zeroBalanceAccCount: zeroBalanceAccounts.length,
-      burnTokenAccCount: burnCandidateAccounts.length,
+      zeroBalanceAccCount: zeroBalanceAccounts.length || 0,
+      burnTokenAccCount: burnCandidateAccounts.length || 0,
       hasMoreData: hasMoreData || false,
     };
 

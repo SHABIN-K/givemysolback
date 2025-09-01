@@ -41,6 +41,7 @@ const ReclaimPage = ({ solPrice }) => {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [balanceLamports, setBalanceLamports] = useState(0);
   const [showTransactionSettings, setShowTransactionSettings] = useState(false);
 
   useEffect(() => {
@@ -55,8 +56,8 @@ const ReclaimPage = ({ solPrice }) => {
 
   const summary = useMemo(() => {
     if (!accOverview) return null;
-    const burnCount = accOverview.burnTokenAccCount - selected?.length || 0;
-    const zeroCount = accOverview.zeroBalanceAccCount || 0;
+    const burnCount = Math.max(accOverview.burnTokenAccCount - (selected?.length || 0), 0);
+    const zeroCount = Math.max(accOverview.zeroBalanceAccCount || 0, 0);
 
     const burnRent = calculateTotalRentInSOL(burnCount);
     const zeroBalanceRent = calculateTotalRentInSOL(zeroCount);
@@ -76,6 +77,12 @@ const ReclaimPage = ({ solPrice }) => {
   const tabComponents = {
     tokens: <TokenSection tokensCount={accOverview?.burnTokenAccCount || 0} safeMints={selected} setSafeMints={setSelected} />,
     "zero-balance": <ZeroBalanceSection count={summary?.zeroCount} totalRent={summary?.zeroBalanceRent} />,
+  };
+
+  const handleConfigTx = async () => {
+    setShowTransactionSettings(true);
+    const balanceLamports = await solanaClient.getBalance(walletPubkey);
+    setBalanceLamports(balanceLamports);
   };
 
   const handleProceedTx = async ({ feePayerKey, rentReceiver, commissionPercent }) => {
@@ -227,8 +234,9 @@ const ReclaimPage = ({ solPrice }) => {
 
       refetch();
     } catch (err) {
-      console.error("TX Error:", err);
+      alert(err?.message || "something went wrong");
       setIsModalOpen(false);
+      refetch();
     }
   };
 
@@ -274,7 +282,7 @@ const ReclaimPage = ({ solPrice }) => {
           <div className="flex flex-col gap-3 sm:gap-4">
             <button
               data-umami-event="process-first-step"
-              onClick={() => setShowTransactionSettings(true)}
+              onClick={handleConfigTx}
               disabled={summary?.totalSelected === 0}
               aria-label={`Process ${summary?.totalSelected} accounts`}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
@@ -292,7 +300,7 @@ const ReclaimPage = ({ solPrice }) => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTx} isLoading={isModalOpen} />
+            <TxConfig onProceed={handleProceedTx} isLoading={isModalOpen} balanceLamports={balanceLamports} />
           </Suspense>
         )}
       </div>

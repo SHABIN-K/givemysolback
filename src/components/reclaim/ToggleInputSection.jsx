@@ -26,7 +26,7 @@ const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputCha
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           <div
             className={`w-12 h-6 rounded-full transition-colors ${
               isEnabled ? "bg-blue-500" : "bg-gray-600"

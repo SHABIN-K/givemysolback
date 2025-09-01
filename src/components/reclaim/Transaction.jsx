@@ -3,20 +3,27 @@ import { Zap } from "lucide-react";
 import React, { lazy, useState } from "react";
 import { Keypair, PublicKey } from "@solana/web3.js";
 
+import solanaClient from "../../client/solana";
 import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
 const SocialShareModal = lazy(() => import("./modal/SocialShareModal"));
 
-const Transaction = ({ onProceed, isLoading }) => {
+const Transaction = ({ onProceed, isLoading, balanceLamports }) => {
+  const BASIC_FEE_LAMPORTS = 10000;
+
   const [feePayerKey, setFeePayerKey] = useState("");
   const [rentAddress, setRentAddress] = useState("");
   const [donationPercent, setDonationPercent] = useState(15);
 
   const [errorMsg, setErrorMsg] = useState(null);
   const [showTwitterModal, setShowTwitterModal] = useState(false);
-  const [config, setConfig] = useState({ gasPayment: false, rentCollection: false });
+  const [config, setConfig] = useState({ gasPayment: balanceLamports < BASIC_FEE_LAMPORTS, rentCollection: false });
 
   const toggleConfig = key => {
+    if (key === "gasPayment" && balanceLamports < BASIC_FEE_LAMPORTS) {
+      alert("Gas Payment is Required because your wallet has insufficient SOL to cover the minimum transaction fee.");
+      return;
+    }
     setConfig(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -26,10 +33,20 @@ const Transaction = ({ onProceed, isLoading }) => {
     setShowTwitterModal(false);
   };
 
-  const handleProceedTx = () => {
+  const handleProceedTx = async () => {
     let keypair;
 
-    if (config.rentCollection) {
+    if (config.rentCollection && !rentAddress) {
+      setErrorMsg("Please enter a rent collection address.");
+      return;
+    }
+
+    if (config.gasPayment && !feePayerKey) {
+      setErrorMsg("Please enter the fee payer private key.");
+      return;
+    }
+
+    if (config?.rentCollection) {
       try {
         new PublicKey(rentAddress);
       } catch {
@@ -39,10 +56,19 @@ const Transaction = ({ onProceed, isLoading }) => {
       }
     }
 
-    if (config.gasPayment && feePayerKey) {
+    if (config.gasPayment) {
       try {
         const secretKey = bs58.decode(feePayerKey);
         keypair = Keypair.fromSecretKey(secretKey);
+        const balanceLamports = await solanaClient.getBalance(keypair.publicKey);
+
+        if (balanceLamports < BASIC_FEE_LAMPORTS) {
+          setFeePayerKey("");
+          setErrorMsg(
+            "The provided gas wallet has insufficient SOL to cover the minimum transaction fee. Please use a wallet with enough balance"
+          );
+          return;
+        }
       } catch {
         setErrorMsg("Oops! Invalid fee payer secret");
         setFeePayerKey("");
@@ -65,7 +91,11 @@ const Transaction = ({ onProceed, isLoading }) => {
     <>
       <div className="mt-8">
         <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-4 sm:p-6 mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-white mb-6">Transaction Configuration</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-white">Transaction Configuration</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Your connected wallet will be used by default for all Gas and payouts. You can change it if you like.
+          </p>
+
           <ToggleInputSection
             label="Unified Gas Payment"
             isEnabled={config.gasPayment}
@@ -77,7 +107,7 @@ const Transaction = ({ onProceed, isLoading }) => {
           />
 
           <ToggleInputSection
-            label="Unified Rent Collection Address"
+            label="Payout Wallet"
             isEnabled={config.rentCollection}
             onToggle={() => toggleConfig("rentCollection")}
             inputValue={rentAddress}
