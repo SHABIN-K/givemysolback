@@ -43,6 +43,7 @@ const ToggleInputSection = ({ label, isEnabled, onToggle, inputValue, onInputCha
           <Tooltip content={tooltips[tooltipAction]}>
             <HelpCircle className="w-4 h-4 text-gray-400 cursor-help" />
           </Tooltip>
+          <span className="text-white font-normal text-xs">(optional)</span>
         </div>
       </div>
       {isEnabled && (
