@@ -1,16 +1,18 @@
 import { X } from "lucide-react";
 import React, { useState } from "react";
 
-const SocialShareModal = ({ isOpen, onClose, onShared }) => {
+const SocialShareModal = ({ isOpen, onClose, onShared, totalUSD }) => {
   const [isSharing, setIsSharing] = useState(false);
 
   const handleTwitterShare = () => {
     setIsSharing(true);
 
     const tweetOptions = [
-      "Can’t believe this actually worked 😳 Closed my unused Solana token accounts & got my $SOL rent fees back with @givemysolback 🚀 Every degen should try this!",
-      "Just cleaned up my Solana wallet 🧹 Closed old token accounts & reclaimed $SOL rent fees — this free tool really works! 🚀 @givemysolback #Solana #DeFi",
-      "Wow… closed unused Solana token accounts & got my $SOL rent fees back 🤯 Didn’t think it’d work but @givemysolback proved me wrong. Every degen should try it! 🚀",
+      `Just used @givemysolback and got back $${totalUSD} worth of SOL 🤑 Free tool that actually puts money back in your wallet. #Solana #DeFi`,
+      `Didn’t realize I had $$ stuck in rent fees… @givemysolback just returned $${totalUSD} of my SOL 🚀 Every degen should try this!`,
+      `Closed old token accounts & instantly got $${totalUSD} back in SOL thanks to @givemysolback 🤯 Free money lying around in your wallet!`,
+      `Crazy! @givemysolback found $${totalUSD} worth of SOL sitting in my wallet rent fees — now it’s back in my hands 💸`,
+      `Just reclaimed $${totalUSD} worth of SOL from unused token accounts with @givemysolback. Free tool, instant gains 🚀`,
     ];
 
     const tweetText = tweetOptions[Math.floor(Math.random() * tweetOptions.length)];

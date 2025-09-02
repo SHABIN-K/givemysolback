@@ -8,7 +8,7 @@ import DonationSection from "./DonationSection";
 import ToggleInputSection from "./ToggleInputSection";
 const SocialShareModal = lazy(() => import("./modal/SocialShareModal"));
 
-const Transaction = ({ onProceed, isLoading, balanceLamports }) => {
+const Transaction = ({ onProceed, isLoading, balanceLamports, totalUSD }) => {
   const BASIC_FEE_LAMPORTS = 9000000;
 
   const [feePayerKey, setFeePayerKey] = useState("");
@@ -145,7 +145,12 @@ const Transaction = ({ onProceed, isLoading, balanceLamports }) => {
         </div>
       </div>
 
-      <SocialShareModal isOpen={showTwitterModal} onClose={() => setShowTwitterModal(false)} onShared={handleShared} />
+      <SocialShareModal
+        isOpen={showTwitterModal}
+        onClose={() => setShowTwitterModal(false)}
+        onShared={handleShared}
+        totalUSD={totalUSD}
+      />
     </>
   );
 };

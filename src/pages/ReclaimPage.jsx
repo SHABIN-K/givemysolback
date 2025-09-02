@@ -300,7 +300,12 @@ const ReclaimPage = ({ solPrice }) => {
 
         {showTransactionSettings && (
           <Suspense fallback={<Loading placeholder="please wait..." />}>
-            <TxConfig onProceed={handleProceedTx} isLoading={isModalOpen} balanceLamports={balanceLamports} />
+            <TxConfig
+              onProceed={handleProceedTx}
+              isLoading={isModalOpen}
+              balanceLamports={balanceLamports}
+              totalUSD={summary?.totalUSD}
+            />
           </Suspense>
         )}
       </div>
