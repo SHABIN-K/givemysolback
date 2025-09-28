@@ -70,7 +70,6 @@ const Transaction = ({ onProceed, isLoading, balanceLamports, totalUSD }) => {
           return;
         }
       } catch {
-        setErrorMsg("Oops! Invalid fee payer secret");
         setFeePayerKey("");
         return;
       }
