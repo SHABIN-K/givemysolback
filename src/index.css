@@ -13,6 +13,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #0f172a;
   color: white;
+  zoom: 125%;
 }
 
 .app {
